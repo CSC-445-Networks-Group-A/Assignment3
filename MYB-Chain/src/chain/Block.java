@@ -14,7 +14,7 @@ public class Block implements Serializable{
     private static final int TRANSACTIONS_PER_BLOCK = 20;
     private final byte[] previousHash;
     private Transaction[] transactions;
-    private BigInteger counter;
+    private BigInteger hashManipulator;
     private byte[] transactionBytes;
     private byte[] proofOfWork;
     private int transactionCount;
@@ -23,7 +23,7 @@ public class Block implements Serializable{
     public Block(byte[] previousBlockHash) {
         this.previousHash = previousBlockHash;
         this.transactions = new Transaction[TRANSACTIONS_PER_BLOCK];
-        this.counter = BigInteger.ZERO;
+        this.hashManipulator = BigInteger.ZERO.subtract(BigInteger.ONE);
         this.transactionBytes = null;
         this.proofOfWork = null;
         this.transactionCount = 0;
@@ -76,7 +76,7 @@ public class Block implements Serializable{
 
 
     private void incrementCounter() {
-        counter.add(BigInteger.ONE);
+        hashManipulator.add(BigInteger.ONE);
     }
 
 
@@ -85,7 +85,7 @@ public class Block implements Serializable{
             convertTransactionsToByteArray();
         }
 
-        byte[] counterBytes = counter.toByteArray();
+        byte[] counterBytes = hashManipulator.toByteArray();
         byte[] blockBytes = new byte[previousHash.length + transactionBytes.length + counterBytes.length];
         int offset = 0;
 
@@ -104,14 +104,18 @@ public class Block implements Serializable{
 
 
     public boolean computeNewHash() throws NoSuchAlgorithmException, IOException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        incrementCounter();
-        byte[] hash = digest.digest(getBlockBytes());
-        if (hash[0] == 0 && hash[1] == 0) {
-            proofOfWork = hash;
+        if (proofOfWork != null) {
             return true;
+        }else {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            incrementCounter();
+            byte[] hash = digest.digest(getBlockBytes());
+            if (hash[0] == 0 && hash[1] == 0) {
+                proofOfWork = hash;
+                return true;
+            }
+            return false;
         }
-        return false;
     }
 
 

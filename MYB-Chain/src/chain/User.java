@@ -30,6 +30,12 @@ public class User {
         this.privateKey = (RSAPrivateKey) keyPair.getPrivate();
         this.firstName = firstName;
         this.lastName = lastName;
+        /*
+        * TODO ----- Replace "this.ID = firstName + "_" + lastName;" with "this.id = generateID();" post creation
+        * TODO ----- of an algorithm to create a Unique Identifier.
+        *
+        * TODO ----- NOTE: ID must remain a String to avoid restructuring of code elsewhere.
+        * */
         this.ID = firstName + "_" + lastName;
         this.netWorth = initialNetWorth;
 
@@ -42,6 +48,13 @@ public class User {
         this.lastName = lastName;
         this.ID = id;
         this.netWorth = netWorth;
+    }
+
+    /*
+    * TODO ----- determine Unique Identifier generating algorithm
+    * */
+    private String generateID() {
+        return null;
     }
 
     public Transaction makeTransaction(User seller, Double transactionAmount) throws IllegalBlockSizeException,
