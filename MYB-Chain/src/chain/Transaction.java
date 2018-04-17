@@ -26,7 +26,7 @@ public class Transaction implements Serializable{
 
 
     public Transaction(User buyerForTransaction, User sellerForTransaction, Double transactionAmount, RSAPrivateKey privateKey)
-            throws NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
+            throws NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, InvalidParameterException {
 
         //chain.User buyerForTransaction = buyerForTransaction.clone();
         //chain.User sellerForTransaction = sellerForTransaction.clone();

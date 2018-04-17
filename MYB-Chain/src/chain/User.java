@@ -3,10 +3,7 @@ package chain;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
@@ -58,7 +55,7 @@ public class User {
     }
 
     public Transaction makeTransaction(User seller, Double transactionAmount) throws IllegalBlockSizeException,
-            InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
+            InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidParameterException {
         return new Transaction(this, seller, transactionAmount, privateKey);
     }
 
