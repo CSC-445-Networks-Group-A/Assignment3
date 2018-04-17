@@ -7,7 +7,8 @@ public class Packet {
     public static final int ADD_USER = 1;
     public static final int GET_USER = 2;
     public static final int ADD_BLOCK = 3;
-    public static final int ERROR = 4;
+    public static final int UPDATE = 4;
+    public static final int ERROR = 5;
 
 
     /**
@@ -26,6 +27,10 @@ public class Packet {
      *                         Byte Allocation
      *            -----------------------------------------------
      * ADD_BLOCK  |            Byte Structuring                 |
+     *            -----------------------------------------------
+     *                         Byte Allocation
+     *            -----------------------------------------------
+     * UPDATE     |            Byte Structuring                 |
      *            -----------------------------------------------
      *                         Byte Allocation
      *            -----------------------------------------------
