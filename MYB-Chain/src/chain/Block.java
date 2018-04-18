@@ -1,5 +1,7 @@
 package chain;
 
+import org.omg.PortableInterceptor.InvalidSlot;
+
 import java.io.*;
 import java.math.BigInteger;
 import java.security.InvalidParameterException;
@@ -18,6 +20,7 @@ public class Block implements Serializable{
     private byte[] transactionBytes;
     private byte[] proofOfWork;
     private int transactionCount;
+    private boolean full;
 
 
     public Block(byte[] previousBlockHash) {
@@ -27,15 +30,24 @@ public class Block implements Serializable{
         this.transactionBytes = null;
         this.proofOfWork = null;
         this.transactionCount = 0;
+        this.full = false;
     }
 
 
     public void addVerifiedTransaction(Transaction transaction) {
         if (transaction.isVerified()) {
-            transactions[transactionCount] = transaction;
-            transactionCount++;
+            if (transactionCount < TRANSACTIONS_PER_BLOCK) {
+                transactions[transactionCount] = transaction;
+                transactionCount++;
+                if (transactionCount == TRANSACTIONS_PER_BLOCK) {
+                    full = true;
+                }
+            }else {
+                throw new InvalidParameterException("Error: Block already contains " + TRANSACTIONS_PER_BLOCK +
+                        " verified Transactions. No additional Transactions may be added.");
+            }
         }else {
-            throw new InvalidParameterException("Error: Attempt to add an unverified chain.Transaction to the chain.Block.");
+            throw new InvalidParameterException("Error: Attempt to add an unverified Transaction to the Block.");
         }
     }
 
@@ -123,6 +135,9 @@ public class Block implements Serializable{
         return proofOfWork;
     }
 
+    public boolean isFull() {
+        return full;
+    }
 
 }
 

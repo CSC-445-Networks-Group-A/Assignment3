@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
 
 public class Main {
+    private static final String CLIENT_TO_PROPOSER_ADDRESS = "230.0.0.0";
 
     public static void main(String[] args) throws NoSuchAlgorithmException, IllegalBlockSizeException,
             InvalidKeyException, BadPaddingException, NoSuchPaddingException {
@@ -35,6 +36,16 @@ public class Main {
 
     }
 
+
+    private static void requestTransaction(User buyer, User seller, Double amount) throws InvalidKeyException,
+            BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException {
+        Transaction transaction = buyer.makeTransaction(seller, amount);
+
+
+
+
+    }
+
     private static void printPersonInfo(User person) {
         System.out.println("Person Info:\n" +
                 "First Name:\t" + person.getFirstName() + "\n" +
@@ -47,7 +58,7 @@ public class Main {
 
     private static void printTransactionInfo(Transaction transaction, RSAPublicKey buyerPublicKey)
             throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
-        System.out.println("chain.Transaction Info:\n" +
+        System.out.println("Transaction Info:\n" +
                 "Buyer ID:\t" + transaction.getBuyerID() + "\n" +
                 "Seller ID:\t" + transaction.getSellerID() + "\n" +
                 "Trans Amt:\t" + transaction.getTransactionAmount() + "\n" +
