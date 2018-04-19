@@ -17,6 +17,7 @@ public class User {
     private final String firstName;
     private final String lastName;
     private final String ID;
+    private BlockChain blockChain;
     private Double netWorth;
 
     public User(String firstName, String lastName, Double initialNetWorth) throws NoSuchAlgorithmException {
@@ -36,6 +37,19 @@ public class User {
         this.ID = firstName + "_" + lastName;
         this.netWorth = initialNetWorth;
 
+
+        /*
+        * TODO ----- Replace "this.blockChain = null" with an attempt to load data from file.
+        * TODO ----- Note: - if no file is found, ask user if they changed the file location. If not/they can't find it,
+        * TODO -----         request to download the BlockChain.
+        * TODO -----       - if the file IS found, update the existing chain before leaving Constructor.
+        *
+        * TODO ----- NOTE: ID must remain a String to avoid restructuring of code elsewhere.
+        * */
+        this.blockChain = null;
+
+        updateBlockChain();
+
     }
 
     private User(RSAPrivateKey privateKey, RSAPublicKey publicKey, String firstName, String lastName, String id, Double netWorth) {
@@ -54,13 +68,18 @@ public class User {
         return null;
     }
 
+    protected User clone() {
+        return new User(privateKey, publicKey, firstName, lastName, ID, netWorth);
+    }
+
+
+    public void updateBlockChain() {
+
+    }
+
     public Transaction makeTransaction(User seller, Double transactionAmount) throws IllegalBlockSizeException,
             InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidParameterException {
         return new Transaction(this, seller, transactionAmount, privateKey);
-    }
-
-    protected User clone() {
-        return new User(privateKey, publicKey, firstName, lastName, ID, netWorth);
     }
 
     public RSAPublicKey getPublicKey() {
@@ -85,6 +104,10 @@ public class User {
 
     public double getNetWorth() {
         return netWorth;
+    }
+
+    public BlockChain getBlockChain() {
+        return blockChain;
     }
 
 }

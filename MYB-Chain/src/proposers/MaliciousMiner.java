@@ -1,4 +1,4 @@
-package chain;
+package proposers;
 
 /**
  * Created by Michael on 4/16/2018.

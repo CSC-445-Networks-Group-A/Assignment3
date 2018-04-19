@@ -90,4 +90,9 @@ public class BlockChain {
 
     }
 
+
+    public byte[] getMostRecentHash() {
+        return chain.get(0).getProofOfWork();
+    }
+
 }

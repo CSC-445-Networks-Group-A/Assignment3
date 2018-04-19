@@ -7,7 +7,6 @@ import chain.User;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -15,16 +14,16 @@ import java.security.NoSuchAlgorithmException;
  *
  * @author admin
  */
-public class ClientUI extends javax.swing.JFrame {
+public class ClientView extends javax.swing.JFrame {
 
     private static User buyer = null;
     private static User seller = null;
 
 
     /**
-     * Creates new form ClientUI
+     * Creates new form ClientView
      */
-    public ClientUI() {
+    public ClientView() {
         initComponents();
     }
 
@@ -205,13 +204,13 @@ public class ClientUI extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException | InstantiationException | javax.swing.UnsupportedLookAndFeelException | IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ClientUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ClientView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ClientUI().setVisible(true);
+                new ClientView().setVisible(true);
             }
         });
     }
