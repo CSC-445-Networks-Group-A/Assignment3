@@ -4,12 +4,12 @@ import packets.Packet;
 import packets.PacketTypes;
 
 /**
- * Created by Michael on 4/21/2018.
+ * Created by Michael on 4/22/2018.
  */
-public class TransactionApproved extends Packet {
+public class TransactionAccepted extends Packet{
     private final String acceptanceMessage;
 
-    public TransactionApproved(String message) {
+    public TransactionAccepted(String message) {
         super(PacketTypes.TRANSACTION_ACCEPTED);
         this.acceptanceMessage = message;
     }
