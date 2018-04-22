@@ -14,7 +14,6 @@ public class BlockChain {
     private HashMap<User, Double> users;
     private ArrayList<Block> chain;
     private BigDecimal totalWorth;
-    private BigInteger currentBlockNumber;
 
     /**
      * Constructor for first usage, ever.
@@ -93,6 +92,14 @@ public class BlockChain {
 
     public byte[] getMostRecentHash() {
         return chain.get(0).getProofOfWork();
+    }
+
+    public BigInteger getChainLength() {
+        return new BigInteger(new Integer(chain.size()).toString());
+    }
+
+    public Block getMostRecentBlock() {
+        return chain.get(0);
     }
 
 }
