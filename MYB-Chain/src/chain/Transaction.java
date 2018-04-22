@@ -81,6 +81,14 @@ public class Transaction implements Serializable{
 
     }
 
+    private Transaction(Transaction otherTransaction) {
+        this.buyer = otherTransaction.buyer.clone();
+        this.seller = otherTransaction.seller.clone();
+        this.amount = otherTransaction.amount;
+        this.signature = otherTransaction.signature.clone();
+        this.verified = otherTransaction.verified;
+    }
+
 
     /**
      * Creates the "message" of the transaction. Concretely, this refers to a byte[] containing each the buyer's and
@@ -192,6 +200,9 @@ public class Transaction implements Serializable{
 
     }*/
 
+    public Transaction clone() {
+        return new Transaction(this);
+    }
 
     public String getBuyerID() {
         return buyer.getID();
@@ -221,4 +232,19 @@ public class Transaction implements Serializable{
         return verified;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Transaction) {
+            Transaction otherTransaction = (Transaction) obj;
+            return otherTransaction.getBuyerID().equals(getBuyerID()) &&
+                    otherTransaction.getSellerID().equals(getSellerID()) &&
+                    otherTransaction.getBuyerName().equals(getBuyerName()) &&
+                    otherTransaction.getSellerName().equals(getSellerName()) &&
+                    otherTransaction.getTransactionAmount() == getTransactionAmount() &&
+                    otherTransaction.getSignature() == getSignature() &&
+                    otherTransaction.isVerified() == isVerified();
+        }else {
+            return false;
+        }
+    }
 }

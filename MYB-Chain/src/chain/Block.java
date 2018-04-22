@@ -52,7 +52,7 @@ public class Block implements Serializable{
     }
 
 
-    public void convertTransactionsToByteArray() throws IOException {
+    private void convertTransactionsToByteArray() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutput output;
 
@@ -133,6 +133,18 @@ public class Block implements Serializable{
 
     public byte[] getProofOfWork() {
         return proofOfWork;
+    }
+
+    public Transaction[] getTransactions() {
+        Transaction[] returnValue = new Transaction[TRANSACTIONS_PER_BLOCK];
+        for (int i = 0; i < transactions.length; i++) {
+            if (transactions[i] == null) {
+                returnValue[i] = null;
+            }else {
+                returnValue[i] = transactions[i].clone();
+            }
+        }
+        return returnValue;
     }
 
     public boolean isFull() {
