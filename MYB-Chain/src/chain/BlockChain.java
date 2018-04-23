@@ -11,6 +11,7 @@ import java.util.HashMap;
  * Created by Michael on 4/14/2018.
  */
 public class BlockChain {
+    private static long INITIAL_WORTH = 2000000000;
     private HashMap<User, Double> users;
     private ArrayList<Block> chain;
     private BigDecimal totalWorth;
