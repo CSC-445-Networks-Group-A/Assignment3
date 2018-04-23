@@ -2,6 +2,7 @@ package acceptors;
 
 import chain.Block;
 import chain.User;
+import javafx.util.Pair;
 import packets.acceptances.AcceptedPacket;
 import packets.proposals.ProposalPacket;
 
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.math.BigInteger;
 import java.net.*;
+import java.util.HashMap;
 
 /**
  * Created by Michael on 4/18/2018.
@@ -24,16 +26,25 @@ public class ChainChecker extends Thread{
     private final int proposalPort;
     private final int acceptancePort;
     private final int learnPort;
+    private HashMap<Pair<InetAddress, Integer>, ChainChecker> chainCheckers;
 
+    /**
+     * Note that for N ChainCheckers, Byzantine Paxos can handle f faulty or malicious Acceptors where
+     *
+     * f = (N-1)/3
+     *
+     * The protocol requires consensus of 2f + 1 Acceptors.
+     *
+     * */
     public ChainChecker(User mybChainChecker, int proposalPortNumber, String addressToProposeOn, int learningPortNumber,
-                        String addressToLearnOn) throws UnknownHostException {
+                        String addressToLearnOn, int intialNumberOfCheckers) throws UnknownHostException {
         super("ChainChecker: " + mybChainChecker.getID());
         this.checker = mybChainChecker;
         this.proposalPort = proposalPortNumber;
         this.proposalAddress = InetAddress.getByName(addressToProposeOn);
         this.learnPort = learningPortNumber;
         this.learnAddress = InetAddress.getByName(addressToLearnOn);
-
+        this.chainCheckers = learnCurrentChainCheckers();
     }
 
     @Override
@@ -88,7 +99,7 @@ public class ChainChecker extends Thread{
 
     }
 
-    private void learnCurrentChainCheckers() {
+    private HashMap<Pair<InetAddress, Integer>, ChainChecker> learnCurrentChainCheckers() {
 
     }
 

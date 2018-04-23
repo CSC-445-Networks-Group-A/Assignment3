@@ -236,6 +236,7 @@ public class Transaction implements Serializable{
     public boolean equals(Object obj) {
         if (obj instanceof Transaction) {
             Transaction otherTransaction = (Transaction) obj;
+            //FIXME may need to change method of equivalence on signature
             return otherTransaction.getBuyerID().equals(getBuyerID()) &&
                     otherTransaction.getSellerID().equals(getSellerID()) &&
                     otherTransaction.getBuyerName().equals(getBuyerName()) &&
