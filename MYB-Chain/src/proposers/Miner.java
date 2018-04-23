@@ -3,10 +3,13 @@ package proposers;
 import chain.Block;
 import chain.Transaction;
 import chain.User;
+import javafx.util.Pair;
+import packets.Packet;
 import packets.acceptances.AcceptedPacket;
 import packets.proposals.ProposalPacket;
 import packets.requests.TransactionRequest;
-import packets.responses.TransactionApproved;
+import packets.responses.TransactionAccepted;
+import packets.responses.TransactionPending;
 import packets.responses.TransactionDenied;
 
 import java.io.*;
@@ -28,6 +31,7 @@ public class Miner extends Thread{
     private final int proposalPort;
     private final int learnPort;
     private ConcurrentLinkedQueue<Transaction> pendingTransactions;
+    private ConcurrentLinkedQueue<Pair<InetAddress, Integer>> pendingAddresses;
 
     public Miner(User mybChainMiner, int requestPortNumber, String addressToMakeRequestsOn, int proposalPortNumber,
                  String addressToProposeOn, int learningPortNumber, String addressToLearnOn) throws UnknownHostException {
@@ -40,11 +44,37 @@ public class Miner extends Thread{
         this.proposalPort = proposalPortNumber;
         this.learnPort = learningPortNumber;
         this.pendingTransactions = new ConcurrentLinkedQueue<>();
+        this.pendingAddresses = new ConcurrentLinkedQueue<>();
     }
 
     @Override
     public void run() {
+        try {
+            Thread listenThread = new Thread(() -> listenToClients());
+            Thread miningThread = new Thread(() -> {
+                try {
+                    mine();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                }
+            });
 
+            listenThread.start();
+            miningThread.start();
+
+            while (!listenThread.getState().equals(State.TERMINATED) && !miningThread.getState().equals(State.TERMINATED)) {
+                /*
+                * SPIN
+                * */
+            }
+
+            listenThread.join();
+            miningThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -59,48 +89,36 @@ public class Miner extends Thread{
 
             MulticastSocket multicastSocket = new MulticastSocket(requestPort);
             multicastSocket.joinGroup(requestAddress);
-            byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
 
-            /*ServerSocket serverSocket = new ServerSocket(requestPort);
-            serverSocket.bind(new InetSocketAddress(requestPort));*/
             boolean running = true;
 
             while (running) {
+                byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
                 DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
                 multicastSocket.receive(datagramPacket);
                 ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ObjectInputStream inputStream = new ObjectInputStream(bais);
-                ObjectOutputStream outputStream = new ObjectOutputStream(baos);
 
-                /*Socket socket = serverSocket.accept();
-                ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
-                ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());*/
-                //Transaction transaction = (Transaction) inputStream.readObject();
                 Object object = inputStream.readObject();
                 if ((object != null) && (object instanceof TransactionRequest)) {
-                    Transaction transaction = ((TransactionRequest) object).getTransaction();
+                    TransactionRequest transactionRequest = (TransactionRequest) object;
+                    Transaction transaction = transactionRequest.getTransaction();
+                    InetAddress userAddress = transactionRequest.getReturnAddress();
+                    int userPort = transactionRequest.getReturnPort();
                     if (transaction.isVerified()) {
                         pendingTransactions.add(transaction);
-                        outputStream.writeObject(new TransactionApproved("Transaction Approved! Thank you for choosing MYB-Coin."));
+                        pendingAddresses.add(new Pair<>(userAddress, userPort));
+                        respondToUserRequest(userAddress, userPort, new TransactionPending("Transaction Pending..."));
                     }else {
-                        outputStream.writeObject(new TransactionDenied("Transaction Denied: Insufficient Funds or Invalid Signature"));
+                        respondToUserRequest(userAddress, userPort, new TransactionDenied("Transaction Denied: Insufficient Funds or Invalid Signature"));
                     }
-                }else {
-                    outputStream.writeObject(new TransactionDenied("Transaction Denied: Improperly Formatted Transaction"));
                 }
-                byte[] output = baos.toByteArray();
-                datagramPacket = new DatagramPacket(output, output.length);
-                multicastSocket.send(datagramPacket);
-                outputStream.close();
-                baos.close();
+
                 inputStream.close();
                 bais.close();
-                //socket.close();
             }
 
             multicastSocket.leaveGroup(requestAddress);
-            //serverSocket.close();
             System.out.println("FINISHING:\t" + Thread.currentThread().getName());
 
         } catch (IOException e) {
@@ -115,12 +133,8 @@ public class Miner extends Thread{
      *
      * */
     private void mine() throws IOException, NoSuchAlgorithmException {
-        Block block = new Block(miner.getBlockChain().getMostRecentHash());
+        Block block = miner.getBlockChain().getMostRecentBlock();
         while (true) {
-            Transaction transaction = pendingTransactions.peek();
-            if (transaction != null) {
-                block.addVerifiedTransaction(transaction);
-            }
             if (block.isFull()) {
                 boolean hashFound = false;
                 while (!hashFound) {
@@ -132,8 +146,13 @@ public class Miner extends Thread{
                     miner.updateBlockChain();
                     acceptedBlock = miner.getBlockChain().getMostRecentBlock();
                 }
-                pruneQueue(acceptedBlock);
+                notifyUsers(block, acceptedBlock);
                 block = new Block(acceptedBlock.getProofOfWork());
+            }else {
+                Transaction transaction = pendingTransactions.poll();
+                if (transaction != null) {
+                    block.addVerifiedTransaction(transaction);
+                }
             }
         }
     }
@@ -218,11 +237,39 @@ public class Miner extends Thread{
 
 
     /**
-     *
+     * FIXME
      * */
-    private void pruneQueue(Block blockAccepted) {
-        for (Transaction transaction : blockAccepted.getTransactions()) {
-            pendingTransactions.remove(transaction);
+    private void notifyUsers(Block blockCreated, Block blockAccepted) {
+        Transaction[] transactions = blockCreated.getTransactions();
+        Transaction[] transactionsAccepted = blockAccepted.getTransactions();
+        for (int i = 0; i < transactions.length; i++) {
+            Pair<InetAddress, Integer> pair = pendingAddresses.poll();
+            boolean matchFound = false;
+            for (int j = 0; j < transactions.length; j++) {
+                if (transactions[i].equals(transactionsAccepted[j])) {
+                    matchFound = true;
+                    break;
+                }
+            }
+            if (matchFound) {
+                respondToUserRequest(pair.getKey(), pair.getValue(), new TransactionAccepted("Transaction Accepted!\n" +
+                        "Thank you for choosing MYB-Coin."));
+            } else {
+                respondToUserRequest(pair.getKey(), pair.getValue(), new TransactionDenied("Transaction Denied.\n" +
+                        "Please check your connection and try again."));
+            }
+        }
+    }
+
+    private void respondToUserRequest(InetAddress address, int port, Packet response) {
+        try {
+            Socket socket = new Socket(address, port);
+            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+            outputStream.writeObject(response);
+            outputStream.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
