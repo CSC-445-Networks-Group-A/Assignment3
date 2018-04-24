@@ -13,6 +13,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by Michael on 4/14/2018.
  */
 public class User {
+    private final static int DESIRED_CHARS_FROM_NAMES = 3;
     private final RSAPublicKey publicKey;
     private final RSAPrivateKey privateKey;
     private final String firstName;
@@ -20,6 +21,7 @@ public class User {
     private final String ID;
     private BlockChain blockChain;
     private Double netWorth;
+
 
     public User(String firstName, String lastName, Double initialNetWorth) throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
@@ -29,16 +31,8 @@ public class User {
         this.privateKey = (RSAPrivateKey) keyPair.getPrivate();
         this.firstName = firstName;
         this.lastName = lastName;
-        /*
-        * TODO ----- Replace "this.ID = firstName + "_" + lastName;" with "this.id = generateID();" post creation
-        * TODO ----- of an algorithm to create a Unique Identifier.
-        *
-        * TODO ----- NOTE: ID must remain a String to avoid restructuring of code elsewhere.
-        * */
-        this.ID = firstName + "_" + lastName;
+        this.ID = generateID();
         this.netWorth = initialNetWorth;
-
-
         /*
         * TODO ----- Replace "this.blockChain = null" with an attempt to load data from file.
         * TODO ----- Note: - if no file is found, ask user if they changed the file location. If not/they can't find it,
@@ -53,6 +47,7 @@ public class User {
 
     }
 
+
     private User(RSAPrivateKey privateKey, RSAPublicKey publicKey, String firstName, String lastName, String id, Double netWorth) {
         this.privateKey = privateKey;
         this.publicKey = publicKey;
@@ -62,12 +57,17 @@ public class User {
         this.netWorth = netWorth;
     }
 
+
+    /**
+     * Generates a unique ID for the User, using their Names and PrivateKey
+     * */
     private String generateID() {
-        //Generate a unique ID for the User using its name and private key
-        final int idLength = 50; //Length of ID
+        //Length of ID
+        final int idLength = 50;
         //How many chars to take from the firstname, lastname, and private key.
-        int charsFromFirst = ThreadLocalRandom.current().nextInt(3, (firstName.length() + 1));
-        int charsFromLast = ThreadLocalRandom.current().nextInt(3, (lastName.length() + 1));
+        int origin = firstName.length() < DESIRED_CHARS_FROM_NAMES ? firstName.length() : DESIRED_CHARS_FROM_NAMES;
+        int charsFromFirst = ThreadLocalRandom.current().nextInt(origin, (firstName.length() + 1));
+        int charsFromLast = ThreadLocalRandom.current().nextInt(origin, (lastName.length() + 1));
         int charsFromPrivateKey = idLength - (charsFromLast + charsFromFirst);
 
         StringBuilder sb = new StringBuilder();
@@ -99,6 +99,7 @@ public class User {
         return sb.toString();
     }
 
+
     protected User clone() {
         return new User(privateKey, publicKey, firstName, lastName, ID, netWorth);
     }
@@ -108,10 +109,12 @@ public class User {
 
     }
 
+
     public Transaction makeTransaction(User seller, Double transactionAmount) throws IllegalBlockSizeException,
             InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidParameterException {
         return new Transaction(this, seller, transactionAmount, privateKey);
     }
+
 
     public RSAPublicKey getPublicKey() {
         return publicKey;

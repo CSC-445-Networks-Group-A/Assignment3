@@ -1,6 +1,7 @@
 package acceptors;
 
 import chain.Block;
+import chain.Transaction;
 import chain.User;
 import javafx.util.Pair;
 import packets.acceptances.AcceptedPacket;
@@ -12,6 +13,7 @@ import java.io.ObjectInputStream;
 import java.math.BigInteger;
 import java.net.*;
 import java.util.HashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by Michael on 4/18/2018.
@@ -19,6 +21,8 @@ import java.util.HashMap;
 public class ChainChecker extends Thread{
     private final static int TIMEOUT_MILLISECONDS = 20000;
     private final static int TTL = 12;
+    private final static int N = 10;
+    private final static int f = (N-1)/3;
     private final User checker;
     private final InetAddress proposalAddress;
     private final InetAddress acceptanceAddress;
@@ -73,10 +77,11 @@ public class ChainChecker extends Thread{
                         BigInteger chainLength = proposalPacket.getChainLength();
                         String proposerID = proposalPacket.getProposerID();
                         Block proposedBlock = proposalPacket.getBlock();
-                        boolean validated = validate(proposedBlock);
+                        long roundID = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
+                        boolean validated = validate(proposedBlock, chainLength);
                         if (validated) {
-                            verify(proposalPacket);
-                            learn(proposalPacket);
+                            verify(proposalPacket, roundID);
+                            learn(proposalPacket, roundID);
                         }else {
 
                         }
@@ -98,6 +103,28 @@ public class ChainChecker extends Thread{
         }
 
     }
+
+    private boolean validate(Block proposedBlock, BigInteger cahinLength) {
+        Transaction[] proposedTransactions = proposedBlock.getTransactions();
+        boolean valid = proposedTransactions[0].getTransactionAmount() == checker.getBlockChain().computeMinerAward(cahinLength);
+
+        if (!valid) {
+            return false;
+        }else {
+            for (int i = 1; i < proposedTransactions.length; i++) {
+                if (!proposedTransactions[i].isVerified()) {
+                    return false;
+                }
+            }
+            //TODO: Additionally, could compute the proof of work, verify total ledger and all transactions, etc.
+            return true;
+        }
+    }
+
+    private void verify() {
+
+    }
+
 
     private HashMap<Pair<InetAddress, Integer>, ChainChecker> learnCurrentChainCheckers() {
 
