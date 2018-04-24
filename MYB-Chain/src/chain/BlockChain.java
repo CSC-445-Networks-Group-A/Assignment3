@@ -11,7 +11,7 @@ import java.util.HashMap;
  * Created by Michael on 4/14/2018.
  */
 public class BlockChain {
-    private static long INITIAL_WORTH = 2000000000;
+    private final static long INITIAL_WORTH = 2000000000;
     private HashMap<User, Double> users;
     private ArrayList<Block> chain;
     private BigDecimal totalWorth;
@@ -90,13 +90,25 @@ public class BlockChain {
 
     }
 
+    public double computeMinerAward(BigInteger chainLength) {
+        double minerAward = 200.00;
+        BigInteger blockNumberToReduceAwardsAt = new BigInteger("50000");
+        BigInteger multiplier = new BigInteger("2");
+
+        while (blockNumberToReduceAwardsAt.compareTo(chainLength) == -1) {
+            minerAward /= 2.0;
+            blockNumberToReduceAwardsAt = blockNumberToReduceAwardsAt.multiply(multiplier);
+        }
+
+        return minerAward;
+    }
 
     public byte[] getMostRecentHash() {
         return chain.get(0).getProofOfWork();
     }
 
     public BigInteger getChainLength() {
-        return new BigInteger(new Integer(chain.size()).toString());
+        return new BigInteger(Integer.toString(chain.size()));
     }
 
     public Block getMostRecentBlock() {
