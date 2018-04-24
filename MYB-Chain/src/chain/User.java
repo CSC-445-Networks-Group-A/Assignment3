@@ -6,6 +6,7 @@ import javax.crypto.NoSuchPaddingException;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
@@ -61,11 +62,41 @@ public class User {
         this.netWorth = netWorth;
     }
 
-    /*
-    * TODO ----- determine Unique Identifier generating algorithm
-    * */
     private String generateID() {
-        return null;
+        //Generate a unique ID for the User using its name and private key
+        final int idLength = 50; //Length of ID
+        //How many chars to take from the firstname, lastname, and private key.
+        int charsFromFirst = ThreadLocalRandom.current().nextInt(3, (firstName.length() + 1));
+        int charsFromLast = ThreadLocalRandom.current().nextInt(3, (lastName.length() + 1));
+        int charsFromPrivateKey = idLength - (charsFromLast + charsFromFirst);
+
+        StringBuilder sb = new StringBuilder();
+        int idIndex = 0;
+        while(idIndex < idLength){
+
+            int pick = 1;
+            //avoid wasting time cycling though randoms
+            if(charsFromFirst != 0 || charsFromLast != 0){
+                pick  = ThreadLocalRandom.current().nextInt(1, 4);
+            }
+
+            if(pick == 1 && charsFromPrivateKey > 0){
+                //scramble the use of the private key to avoid revealing any parts of it in order.
+                sb.append(privateKey.getModulus().toString().charAt(ThreadLocalRandom.current().nextInt(0, (privateKey.getModulus().toString().length() ))));
+                idIndex++;
+                charsFromPrivateKey--;
+            } else if(pick == 2 && charsFromFirst > 0){
+                sb.append(firstName.charAt(charsFromFirst - 1));
+                idIndex++;
+                charsFromFirst--;
+            }else if(pick == 3 && charsFromLast > 0){
+                sb.append(lastName.charAt(charsFromLast - 1));
+                idIndex++;
+                charsFromLast--;
+            }
+        }
+
+        return sb.toString();
     }
 
     protected User clone() {
