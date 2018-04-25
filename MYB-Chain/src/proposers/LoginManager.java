@@ -29,7 +29,6 @@ public class LoginManager extends Thread{
         this.requestAddress = InetAddress.getByName(requestAddress);
     }
 
-
     @Override
     public void run() {
         try {
@@ -49,7 +48,6 @@ public class LoginManager extends Thread{
         }
 
     }
-
 
     private void listenToClients() {
         try {
@@ -95,7 +93,6 @@ public class LoginManager extends Thread{
             e.printStackTrace();
         }
     }
-
 
     //TODO: Somehow check the pending logins to see if the user id already exists. May be pointless with random ID's
     //TODO: Submit a transaction FROM login user, TO login user, AMOUNT 0.0. This is how we will commit a user to the chain
