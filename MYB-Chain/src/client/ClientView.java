@@ -1,6 +1,7 @@
 
 package client;
 
+import chain.BlockChain;
 import chain.Transaction;
 import chain.User;
 
@@ -175,6 +176,13 @@ public class ClientView extends javax.swing.JFrame {
             lblMessage.setText(e.getMessage());
             e.printStackTrace();
         }
+
+        BlockChain bc = buyer.getBlockChain();
+        Transaction[] trans = bc.getMostRecentBlock().getTransactions();
+        System.out.println(trans.length);
+        for(int t = 0; t < trans.length; t++){
+            System.out.println(trans[t].getBuyerID());
+        }
     }
 
     public static void main(String args[]) {
@@ -193,6 +201,7 @@ public class ClientView extends javax.swing.JFrame {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+
         //END DEMO CODE
 
 
