@@ -19,7 +19,6 @@ public class ClientView extends javax.swing.JFrame {
     private static User buyer = null;
     private static User seller = null;
 
-
     /**
      * Creates new form ClientView
      */
