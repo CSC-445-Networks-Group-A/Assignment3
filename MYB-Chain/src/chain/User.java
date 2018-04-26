@@ -1,8 +1,16 @@
 package chain;
 
+import packets.acceptances.AcceptedPacket;
+import packets.requests.UpdateRequest;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.io.*;
+import java.math.BigInteger;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -21,9 +29,18 @@ public class User {
     private final String ID;
     private BlockChain blockChain;
     private Double netWorth;
+    private BigInteger lastUpdatedBlockNumber;
+    private final static int TIMEOUT_MILLISECONDS = 20000;
+    private final static int TTL = 12;
+    private int requestPort;
+    private int receiveUpdatePort;
+    private InetAddress requestAddress;
+    private InetAddress receiveUpdateAddress;
 
 
-    public User(String firstName, String lastName, Double initialNetWorth) throws NoSuchAlgorithmException {
+    public User(String firstName, String lastName, Double initialNetWorth, int requestPort, int receiveUpdatePort) throws NoSuchAlgorithmException {
+        this.receiveUpdatePort = receiveUpdatePort;
+        this.requestPort = requestPort;
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(2048);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
@@ -33,6 +50,7 @@ public class User {
         this.lastName = lastName;
         this.ID = generateID();
         this.netWorth = initialNetWorth;
+        this.lastUpdatedBlockNumber = BigInteger.valueOf(0);
         /*
         * TODO ----- Replace "this.blockChain = null" with an attempt to load data from file.
         * TODO ----- Note: - if no file is found, ask user if they changed the file location. If not/they can't find it,
@@ -48,7 +66,7 @@ public class User {
     }
 
 
-    private User(RSAPrivateKey privateKey, RSAPublicKey publicKey, String firstName, String lastName, String id, Double netWorth) {
+    private User(RSAPrivateKey privateKey, RSAPublicKey publicKey, String firstName, String lastName, String id, Double netWorth, InetAddress requestAddress) {
         this.privateKey = privateKey;
         this.publicKey = publicKey;
         this.firstName = firstName;
@@ -101,13 +119,168 @@ public class User {
 
 
     protected User clone() {
-        return new User(privateKey, publicKey, firstName, lastName, ID, netWorth);
+        return new User(privateKey, publicKey, firstName, lastName, ID, netWorth, requestAddress);
     }
 
+    /** send out an updateRequest to get the most recent copy of block chain
+     *  through multicast
+     * */
+    private void sendUpdateRequest(){
+        MulticastSocket multicastSocket = null;
+        try {
+            multicastSocket = new MulticastSocket(requestPort);
+            multicastSocket.joinGroup(requestAddress);
+            multicastSocket.setTimeToLive(TTL);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream outputStream = new ObjectOutputStream(baos);
+
+            UpdateRequest updateRequestPacket = new UpdateRequest(this.lastUpdatedBlockNumber);
+            outputStream.writeObject(updateRequestPacket);
+            byte[] output = baos.toByteArray();
+            DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
+
+            //send updateRequest packet
+            multicastSocket.send(datagramPacket);
+
+            outputStream.close();
+            baos.close();
+
+            //leaving the group ...
+            multicastSocket.leaveGroup(requestAddress);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * receiving newly updated blockchain object? Blocks?
+     */
+    private BlockChain receiveUpdate(){
+
+        try {
+
+            MulticastSocket multicastSocket = null;
+            multicastSocket = new MulticastSocket(receiveUpdatePort);
+            multicastSocket.joinGroup(receiveUpdateAddress);
+            multicastSocket.setTimeToLive(TTL);
+            multicastSocket.setSoTimeout(TIMEOUT_MILLISECONDS);
+
+            byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
+            DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
+            multicastSocket.receive(datagramPacket);
+
+            ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
+            ObjectInputStream inputStream = new ObjectInputStream(bais);
+
+            Object object = inputStream.readObject();
+            BlockChain newBlockChain = null;
+            if ((object != null) && (object instanceof BlockChain)) {
+                newBlockChain = (BlockChain) object;
+            }
+            inputStream.close();
+            bais.close();
+            return newBlockChain;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
     public void updateBlockChain() {
+        //TODO: generalized path?
+        String path = "blk.dat";
+        File file = new File(path);
+        if(file.exists()){
+            // if file/a copy of the block chain (possibly an old version) already exists on user's machine
+            //TODO:
+            readAndUpdateBlockChainFrom(path);
+
+        }else{
+            // no copy of the blockchain exist
+            downloadBlockChainTo(path);
+
+        }
 
     }
+
+    private void downloadBlockChainTo(String path){
+        //send out a UPDATEREQUEST TO ALL
+        sendUpdateRequest();
+        //whatever returned
+        this.blockChain = receiveUpdate();
+        //save own copy in local
+        File f = new File(path);
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(f);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+
+            //writing older blocks first
+            for(int i = blockChain.getChainLength().intValueExact()-1; i >=0; i --){
+                oos.writeObject(blockChain.getBlocks().get(i));
+                oos.flush();
+            }
+
+            //write an null object to indicate EOF
+            //had to do this because readObject doesn't return null or it will throw an EOP exception
+            Object eof = null;
+            oos.writeObject(eof);
+            oos.flush();
+
+            fos.close();
+            oos.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void readAndUpdateBlockChainFrom(String path){
+        BlockChain bc = new BlockChain(path,true); //for loggined user who already has a copy of the block chain
+        File f = new File(path);
+        FileInputStream fis = null;
+
+        try {
+
+            fis = new FileInputStream(f);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            boolean eof = false;
+            while(!eof) {
+                Object readObj = ois.readObject();
+                Block readBlock = null;
+                if (readObj != null && readObj instanceof Block) {
+                    readBlock = (Block) readObj;
+
+                    //TODO: add block without verification？ since it is older version of the blockchain?
+                    bc.addBlock(readBlock);
+
+                }else{
+                    //either null or is not an Block object
+                    //terminate while loop
+                    eof = true;
+                }
+            } //end while loop
+
+
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
 
 
     public Transaction makeTransaction(User seller, Double transactionAmount) throws IllegalBlockSizeException,
