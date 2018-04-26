@@ -4,8 +4,6 @@
     <list default="true" id="9cab0336-60ab-49cc-9c8c-4bce677818b9" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/acceptors/ChainChecker.java" afterPath="$PROJECT_DIR$/src/acceptors/ChainChecker.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/chain/BlockChain.java" afterPath="$PROJECT_DIR$/src/chain/BlockChain.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/chain/User.java" afterPath="$PROJECT_DIR$/src/chain/User.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,6 +15,28 @@
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="DockManager">
+    <window id="1">
+      <content type="file-editors">
+        <state>
+          <leaf>
+            <file leaf-file-name="ChainChecker.java" pinned="false" current-in-tab="true">
+              <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
+                <provider selected="true" editor-type-id="text-editor">
+                  <state relative-caret-position="394">
+                    <caret line="60" column="13" lean-forward="true" selection-start-line="60" selection-start-column="13" selection-end-line="60" selection-end-column="13" />
+                    <folding>
+                      <element signature="imports" expanded="true" />
+                    </folding>
+                  </state>
+                </provider>
+              </entry>
+            </file>
+          </leaf>
+        </state>
+      </content>
+    </window>
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
@@ -31,24 +51,38 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ChainChecker.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
+      <file leaf-file-name="VerifyPacket.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/packets/verifications/VerifyPacket.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="856">
-              <caret line="124" column="0" lean-forward="true" selection-start-line="124" selection-start-column="0" selection-end-line="124" selection-end-column="0" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state relative-caret-position="396">
+              <caret line="24" column="0" lean-forward="true" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="User.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="User.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/chain/User.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="2398">
-              <caret line="117" column="0" lean-forward="true" selection-start-line="117" selection-start-column="0" selection-end-line="117" selection-end-column="0" />
-              <folding />
+              <caret line="289" column="0" lean-forward="false" selection-start-line="289" selection-start-column="0" selection-end-line="289" selection-end-column="0" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <marker date="1524716886602" expanded="false" signature="10507:10518" ph=" { " />
+                <marker date="1524716886602" expanded="false" signature="10535:10541" ph=" }" />
+                <marker date="1524716886602" expanded="false" signature="10575:10586" ph=" { " />
+                <marker date="1524716886602" expanded="false" signature="10603:10609" ph=" }" />
+                <marker date="1524716886602" expanded="false" signature="10642:10653" ph=" { " />
+                <marker date="1524716886602" expanded="false" signature="10669:10675" ph=" }" />
+                <marker date="1524716886602" expanded="false" signature="10708:10719" ph=" { " />
+                <marker date="1524716886602" expanded="false" signature="10753:10759" ph=" }" />
+                <marker date="1524716886602" expanded="false" signature="10786:10797" ph=" { " />
+                <marker date="1524716886602" expanded="false" signature="10807:10813" ph=" }" />
+                <marker date="1524716886602" expanded="false" signature="10846:10857" ph=" { " />
+                <marker date="1524716886602" expanded="false" signature="10873:10879" ph=" }" />
+                <marker date="1524716886602" expanded="false" signature="10918:10929" ph=" { " />
+                <marker date="1524716886602" expanded="false" signature="10947:10953" ph=" }" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -56,8 +90,8 @@
       <file leaf-file-name="Miner.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/proposers/Miner.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="680">
-              <caret line="245" column="62" lean-forward="false" selection-start-line="245" selection-start-column="46" selection-end-line="245" selection-end-column="62" />
+            <state relative-caret-position="3100">
+              <caret line="223" column="32" lean-forward="true" selection-start-line="223" selection-start-column="32" selection-end-line="223" selection-end-column="32" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -68,8 +102,18 @@
       <file leaf-file-name="Block.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/chain/Block.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="704">
-              <caret line="39" column="38" lean-forward="false" selection-start-line="39" selection-start-column="38" selection-end-line="39" selection-end-column="38" />
+            <state relative-caret-position="448">
+              <caret line="63" column="59" lean-forward="true" selection-start-line="63" selection-start-column="59" selection-end-line="63" selection-end-column="59" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AcceptedPacket.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/packets/acceptances/AcceptedPacket.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="330">
+              <caret line="19" column="5" lean-forward="true" selection-start-line="19" selection-start-column="5" selection-end-line="19" selection-end-column="5" />
               <folding />
             </state>
           </provider>
@@ -137,9 +181,11 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>chain.Transaction</find>
+      <find>flush</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
+    <option name="UPDATE_TYPE" value="MERGE" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
@@ -160,7 +206,6 @@
         <option value="$PROJECT_DIR$/src/common/Paxos.java" />
         <option value="$PROJECT_DIR$/src/common/PaxosStates.java" />
         <option value="$PROJECT_DIR$/src/common/ByzantinePaxosStates.java" />
-        <option value="$PROJECT_DIR$/../../../Software and Safety Requirements Engineering/Project/Part 3/gopigo/acc/acc.py" />
         <option value="$PROJECT_DIR$/src/common/Packet.java" />
         <option value="$PROJECT_DIR$/src/acceptors/RoundID.java" />
         <option value="$PROJECT_DIR$/src/common/RoundID.java" />
@@ -183,7 +228,6 @@
         <option value="$PROJECT_DIR$/src/packets/verifications/VerifiedPacket.java" />
         <option value="$PROJECT_DIR$/src/packets/verifications/VerifyPacket.java" />
         <option value="$PROJECT_DIR$/src/packets/acceptances/AcceptedPacket.java" />
-        <option value="$PROJECT_DIR$/src/chain/Block.java" />
         <option value="$PROJECT_DIR$/src/packets/requests/TransactionRequest.java" />
         <option value="$PROJECT_DIR$/src/packets/responses/TransactionAccepted.java" />
         <option value="$PROJECT_DIR$/src/packets/PacketTypes.java" />
@@ -194,15 +238,17 @@
         <option value="$PROJECT_DIR$/src/chain/User.java" />
         <option value="$PROJECT_DIR$/src/chain/BlockChain.java" />
         <option value="$PROJECT_DIR$/src/packets/proposals/ProposalPacket.java" />
+        <option value="$PROJECT_DIR$/../../../Software and Safety Requirements Engineering/Project/Part 3/gopigo/acc/acc.py" />
+        <option value="$PROJECT_DIR$/src/chain/Block.java" />
         <option value="$PROJECT_DIR$/src/acceptors/ChainChecker.java" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-9" />
-    <option name="y" value="-9" />
-    <option name="width" value="1938" />
-    <option name="height" value="1048" />
+    <option name="x" value="-2409" />
+    <option name="y" value="-253" />
+    <option name="width" value="2418" />
+    <option name="height" value="1318" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -465,6 +511,116 @@
       <recent name="C:\Users\spose\Desktop\Programming\Networking\MYB-Chain\src\server" />
       <recent name="C:\Users\spose\Desktop\Programming\Networking\MYB-Chain\src" />
     </key>
+  </component>
+  <component name="RestoreUpdateTree" date="Moments ago" ActionInfo="_Update">
+    <UpdatedFiles>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Updated from server" />
+        <option name="myStatusName" value="Changed on server" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="CHANGED_ON_SERVER" />
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Updated" />
+          <option name="myStatusName" value="Changed" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="UPDATED" />
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/chain/User.java</PATH>
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Created" />
+          <option name="myStatusName" value="Created" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="CREATED" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Deleted" />
+          <option name="myStatusName" value="Deleted" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="true" />
+          <option name="myId" value="REMOVED_FROM_REPOSITORY" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Restored" />
+          <option name="myStatusName" value="Will be restored" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="RESTORED" />
+        </FILE-GROUP>
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Modified" />
+        <option name="myStatusName" value="Modified" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MODIFIED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Skipped" />
+        <option name="myStatusName" value="Skipped" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="SKIPPED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with conflicts" />
+        <option name="myStatusName" value="Will be merged with conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_CONFLICTS" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with tree conflicts" />
+        <option name="myStatusName" value="Merged with tree conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_TREE_CONFLICT" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with property conflicts" />
+        <option name="myStatusName" value="Will be merged with property conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_PROPERTY_CONFLICT" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged" />
+        <option name="myStatusName" value="Will be merged" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Not in repository" />
+        <option name="myStatusName" value="Not in repository" />
+        <option name="mySupportsDeletion" value="true" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="UNKNOWN" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Locally added" />
+        <option name="myStatusName" value="Locally added" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="LOCALLY_ADDED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Locally removed" />
+        <option name="myStatusName" value="Locally removed" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="LOCALLY_REMOVED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Switched" />
+        <option name="myStatusName" value="Switched" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="SWITCHED" />
+      </FILE-GROUP>
+    </UpdatedFiles>
   </component>
   <component name="RunManager" selected="Application.ClientView">
     <configuration default="false" name="Main" type="Application" factoryName="Application" temporary="true">
@@ -936,12 +1092,19 @@
       <option name="project" value="LOCAL" />
       <updated>1524391636057</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Added to the implementation of ChainCheker&#10;Handled border cases when generating IDs for users to account for names with length less than 3">
+      <created>1524599525417</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1524599525417</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
-    <editor active="true" />
+    <frame x="-2409" y="-253" width="2418" height="1318" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -951,13 +1114,13 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32979977" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3297587" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297587" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.124060154" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.09863365" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3297587" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -980,7 +1143,8 @@
     <MESSAGE value="Restructuring of packages" />
     <MESSAGE value="Initial implementation of &quot;Miner&quot;" />
     <MESSAGE value="Updated implementation of &quot;Miner&quot;.&#10;Initial Implementation of &quot;ChainChecker&quot;." />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated implementation of &quot;Miner&quot;.&#10;Initial Implementation of &quot;ChainChecker&quot;." />
+    <MESSAGE value="Added to the implementation of ChainCheker&#10;Handled border cases when generating IDs for users to account for names with length less than 3" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added to the implementation of ChainCheker&#10;Handled border cases when generating IDs for users to account for names with length less than 3" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -1010,7 +1174,23 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="990">
           <caret line="53" column="65" lean-forward="false" selection-start-line="53" selection-start-column="65" selection-end-line="53" selection-end-column="65" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <marker date="1524716886602" expanded="false" signature="10507:10518" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10535:10541" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10575:10586" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10603:10609" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10642:10653" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10669:10675" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10708:10719" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10753:10759" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10786:10797" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10807:10813" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10846:10857" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10873:10879" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10918:10929" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10947:10953" ph=" }" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1085,7 +1265,23 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
           <caret line="16" column="13" lean-forward="false" selection-start-line="16" selection-start-column="13" selection-end-line="16" selection-end-column="13" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <marker date="1524716886602" expanded="false" signature="10507:10518" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10535:10541" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10575:10586" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10603:10609" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10642:10653" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10669:10675" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10708:10719" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10753:10759" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10786:10797" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10807:10813" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10846:10857" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10873:10879" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10918:10929" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10947:10953" ph=" }" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1128,13 +1324,6 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/learners/Learner.java" />
     <entry file="file://$PROJECT_DIR$/src/server/Acceptor.java" />
-    <entry file="file://$PROJECT_DIR$/../../../Software and Safety Requirements Engineering/Project/Part 3/gopigo/acc/acc.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="486">
-          <caret line="52" column="0" lean-forward="false" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/client/ClientUI.form">
       <provider selected="true" editor-type-id="ui-designer">
         <state />
@@ -1203,24 +1392,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/packets/responses/BlockAdded.java" />
-    <entry file="file://$PROJECT_DIR$/src/packets/acceptances/AcceptedPacket.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="19" column="5" lean-forward="true" selection-start-line="19" selection-start-column="5" selection-end-line="19" selection-end-column="5" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/packets/verifications/VerifyPacket.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="12" column="4" lean-forward="false" selection-start-line="12" selection-start-column="4" selection-end-line="27" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/client/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="330">
@@ -1328,36 +1499,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/chain/User.java">
+    <entry file="file://$PROJECT_DIR$/../../../Software and Safety Requirements Engineering/Project/Part 3/gopigo/acc/acc.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2398">
-          <caret line="117" column="0" lean-forward="true" selection-start-line="117" selection-start-column="0" selection-end-line="117" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/chain/BlockChain.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="922">
-          <caret line="110" column="32" lean-forward="false" selection-start-line="110" selection-start-column="32" selection-end-line="110" selection-end-column="32" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/proposers/Miner.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="680">
-          <caret line="245" column="62" lean-forward="false" selection-start-line="245" selection-start-column="46" selection-end-line="245" selection-end-column="62" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/chain/Block.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="704">
-          <caret line="39" column="38" lean-forward="false" selection-start-line="39" selection-start-column="38" selection-end-line="39" selection-end-column="38" />
+        <state relative-caret-position="420">
+          <caret line="48" column="57" lean-forward="true" selection-start-line="48" selection-start-column="57" selection-end-line="48" selection-end-column="57" />
           <folding />
         </state>
       </provider>
@@ -1373,12 +1518,78 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
+    <entry file="file://$PROJECT_DIR$/src/packets/verifications/VerifyPacket.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="856">
-          <caret line="124" column="0" lean-forward="true" selection-start-line="124" selection-start-column="0" selection-end-line="124" selection-end-column="0" />
+        <state relative-caret-position="396">
+          <caret line="24" column="0" lean-forward="true" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/chain/BlockChain.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="922">
+          <caret line="110" column="32" lean-forward="false" selection-start-line="110" selection-start-column="32" selection-end-line="110" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/proposers/Miner.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3100">
+          <caret line="223" column="32" lean-forward="true" selection-start-line="223" selection-start-column="32" selection-end-line="223" selection-end-column="32" />
           <folding>
             <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/packets/acceptances/AcceptedPacket.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="19" column="5" lean-forward="true" selection-start-line="19" selection-start-column="5" selection-end-line="19" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="394">
+          <caret line="60" column="13" lean-forward="true" selection-start-line="60" selection-start-column="13" selection-end-line="60" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/chain/Block.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="448">
+          <caret line="63" column="59" lean-forward="true" selection-start-line="63" selection-start-column="59" selection-end-line="63" selection-end-column="59" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/chain/User.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2398">
+          <caret line="289" column="0" lean-forward="false" selection-start-line="289" selection-start-column="0" selection-end-line="289" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <marker date="1524716886602" expanded="false" signature="10507:10518" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10535:10541" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10575:10586" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10603:10609" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10642:10653" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10669:10675" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10708:10719" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10753:10759" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10786:10797" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10807:10813" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10846:10857" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10873:10879" ph=" }" />
+            <marker date="1524716886602" expanded="false" signature="10918:10929" ph=" { " />
+            <marker date="1524716886602" expanded="false" signature="10947:10953" ph=" }" />
           </folding>
         </state>
       </provider>

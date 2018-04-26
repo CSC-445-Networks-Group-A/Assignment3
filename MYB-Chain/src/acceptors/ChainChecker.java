@@ -3,13 +3,9 @@ package acceptors;
 import chain.Block;
 import chain.Transaction;
 import chain.User;
-import javafx.util.Pair;
-import packets.acceptances.AcceptedPacket;
 import packets.proposals.ProposalPacket;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.*;
 import java.util.HashMap;
@@ -20,6 +16,8 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class ChainChecker extends Thread{
     private final static int TIMEOUT_MILLISECONDS = 20000;
+    private final static int COLLISION_PREVENTING_TIMEOUT_TIME = 5000;
+    private final static int MIN_COLLISION_PREVENTING_TIMEOUT_TIME = 500;
     private final static int TTL = 12;
     private final static int N = 10;
     private final static int f = (N-1)/3;
@@ -30,7 +28,7 @@ public class ChainChecker extends Thread{
     private final int proposalPort;
     private final int acceptancePort;
     private final int learnPort;
-    private HashMap<Pair<InetAddress, Integer>, ChainChecker> chainCheckers;
+    private HashMap<String, Integer> chainCheckers;
 
     /**
      * Note that for N ChainCheckers, Byzantine Paxos can handle f faulty or malicious Acceptors where
@@ -40,15 +38,18 @@ public class ChainChecker extends Thread{
      * The protocol requires consensus of 2f + 1 Acceptors.
      *
      * */
-    public ChainChecker(User mybChainChecker, int proposalPortNumber, String addressToProposeOn, int learningPortNumber,
-                        String addressToLearnOn, int intialNumberOfCheckers) throws UnknownHostException {
+    public ChainChecker(User mybChainChecker, int proposalPortNumber, String addressToProposeOn, int acceptancePortNumber,
+                        String addressToAcceptOn, int learningPortNumber, String addressToLearnOn,
+                        int intialNumberOfCheckers) throws UnknownHostException {
         super("ChainChecker: " + mybChainChecker.getID());
         this.checker = mybChainChecker;
         this.proposalPort = proposalPortNumber;
         this.proposalAddress = InetAddress.getByName(addressToProposeOn);
+        this.acceptancePort = acceptancePortNumber;
+        this.acceptanceAddress = InetAddress.getByName(addressToAcceptOn);
         this.learnPort = learningPortNumber;
         this.learnAddress = InetAddress.getByName(addressToLearnOn);
-        this.chainCheckers = learnCurrentChainCheckers();
+        this.chainCheckers = null;
     }
 
     @Override
@@ -122,12 +123,100 @@ public class ChainChecker extends Thread{
     }
 
     private void verify() {
-
+        /*
+        * Open multicast sockets to collect info
+        *
+        * Learn current ChainCheckers
+        *
+        * While a packet has not been received from all other nodes:
+        *   Keep collecting info from the other nodes
+        *   Store a value if no information has been received from that other node yet
+        * Close the socket
+        *
+        * Compare packets and pick the 'best'
+        *   First compare BlockChain length (pick the longest)
+        *   Then compare bytes in the proof of work (pick the one with most zeros)
+        *   Then compare the IDs of proposers (pick the... 'Biggest'? (compare string values))
+        *   Then compare the IDs of Acceptors (pick the biggest)
+        *
+        * Send out this Acceptor's idea of what the 'best' is
+        * While a packet has not been received from all other nodes:
+        *   Keep collecting info from the other nodes
+        *   Store a value if no information has been received from that other node yet
+        *
+        * if consensus reached:
+        *   done?
+        * else:
+        *  retry(?)
+        *
+        * */
     }
 
 
-    private HashMap<Pair<InetAddress, Integer>, ChainChecker> learnCurrentChainCheckers() {
+    private void learnCurrentChainCheckers() {
+        try {
+            int numberOfCheckersFinished = 0;
+            int attempts = 0;
+            chainCheckers = null;
+            MulticastSocket multicastSocket = new MulticastSocket(acceptancePort);
+            multicastSocket.joinGroup(acceptanceAddress);
+            multicastSocket.setTimeToLive(TTL);
+            multicastSocket.setSoTimeout(Math.max(MIN_COLLISION_PREVENTING_TIMEOUT_TIME,
+                    Math.toIntExact(ThreadLocalRandom.current().nextLong(COLLISION_PREVENTING_TIMEOUT_TIME))));
+            ByteArrayInputStream bais = null;
+            ObjectInputStream inputStream = null;
+            ByteArrayOutputStream baos = null;
+            ObjectOutputStream outputStream = null;
+            Thread.sleep(ThreadLocalRandom.current().nextLong(COLLISION_PREVENTING_TIMEOUT_TIME));
 
+            while (numberOfCheckersFinished < N) {
+                byte[] buf = checker.getID().getBytes();
+                DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
+                multicastSocket.send(datagramPacket);
+
+                buf = new byte[multicastSocket.getReceiveBufferSize()];
+                datagramPacket = new DatagramPacket(buf, buf.length);
+                multicastSocket.receive(datagramPacket);
+                bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
+                inputStream = new ObjectInputStream(bais);
+
+                String chekerInfo = inputStream.readUTF();
+                if (chekerInfo.equalsIgnoreCase(DONE_STRING)) {
+                    numberOfCheckersFinished++;
+                    /*
+                    * FIXME
+                    * Maye make eic -> contains...
+                    * TODO
+                    * Print out info, or done, or both
+                    * */
+                }else {
+                    /*
+                    * FIXME
+                    * Maye make eic -> contains...
+                    * TODO
+                    * Print out info, or done, or both
+                    * */
+                }
+                chainCheckers.putIfAbsent(inputStream.readUTF(), chainCheckers.size());
+                attempts++;
+
+                if (attempts >= N) {
+                    multicastSocket.setSoTimeout(Math.toIntExact(ThreadLocalRandom.current().nextLong(COLLISION_PREVENTING_TIMEOUT_TIME)));
+                    attempts = 0;
+                }
+
+            }
+
+            inputStream.close();
+            bais.close();
+
+        } catch (SocketTimeoutException ste) {
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void learnCurrentLearners() {
