@@ -4,6 +4,7 @@ import chain.Block;
 import chain.Transaction;
 import chain.User;
 import packets.proposals.ProposalPacket;
+import packets.verifications.VerifyPacket;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -122,7 +123,7 @@ public class ChainChecker extends Thread{
         }
     }
 
-    private void verify() {
+    private void verify(ProposalPacket proposalPacket) {
         /*
         * Open multicast sockets to collect info
         *
@@ -150,6 +151,22 @@ public class ChainChecker extends Thread{
         *  retry(?)
         *
         * */
+        BigInteger chainLength = proposalPacket.getChainLength();
+        String proposerID = proposalPacket.getProposerID();
+        Block verifiedBlock = proposalPacket.getBlock();
+        chainCheckers = new HashMap<>(N);
+        int packetsVerified = 1;
+
+        while (packetsVerified < (2*f + 1)) {
+            VerifyPacket verifyPacket = new VerifyPacket(chainLength, checker.getID(), verifiedBlock);
+            VerifyPacket[] packetsToValidate = sendAndRecievePackets(verifyPacket);
+            VerifyPacket[] packetsToVerify = validatePackets(packetsToValidate);
+            packetsToVerify = determineBestPacket(packetsToVerify);
+            packetsVerified = attemptToAchieveConsensus(packetsToVerify);
+        }
+
+        return; /*TODO either the verified packet or the verified packets */
+
     }
 
 

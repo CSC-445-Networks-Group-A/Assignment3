@@ -11,16 +11,22 @@ import java.math.BigInteger;
  */
 public class VerifyPacket extends Packet {
     private final BigInteger chainLength;
+    private final String ID;
     private final Block block;
 
-    public VerifyPacket(BigInteger blockChainLength, Block blockValue) {
+    public VerifyPacket(BigInteger blockChainLength, String acceptorID, Block blockValue) {
         super(PacketTypes.VERIFICATION);
         this.chainLength = blockChainLength;
+        this.ID = acceptorID;
         this.block = blockValue;
     }
 
     public BigInteger getChainLength() {
         return chainLength;
+    }
+
+    public String getID() {
+        return ID;
     }
 
     public Block getBlock() {
