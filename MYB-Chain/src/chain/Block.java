@@ -92,7 +92,7 @@ public class Block implements Serializable{
     }
 
 
-    private byte[] getBlockBytes() throws IOException {
+    public byte[] getBlockBytes() throws IOException {
         if (transactionBytes == null) {
             convertTransactionsToByteArray();
         }
