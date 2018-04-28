@@ -148,6 +148,8 @@ public class Miner extends Thread{
                 }
                 notifyUsers(block, acceptedBlock);
                 block = new Block(acceptedBlock.getProofOfWork());
+                Transaction payment = new Transaction(miner, miner.getBlockChain().computeMinerAward(miner.getBlockChain().getChainLength()));
+                block.addVerifiedTransaction(payment);
             }else {
                 Transaction transaction = pendingTransactions.poll();
                 if (transaction != null) {

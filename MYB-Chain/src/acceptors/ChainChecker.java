@@ -3,12 +3,15 @@ package acceptors;
 import chain.Block;
 import chain.Transaction;
 import chain.User;
+import javafx.util.Pair;
 import packets.proposals.ProposalPacket;
 import packets.verifications.VerifyPacket;
 
 import java.io.*;
 import java.math.BigInteger;
 import java.net.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -24,12 +27,13 @@ public class ChainChecker extends Thread{
     private final static int f = (N-1)/3;
     private final User checker;
     private final InetAddress proposalAddress;
-    private final InetAddress acceptanceAddress;
+    private final InetAddress generalAcceptanceAddress;
+    private final InetAddress personalAcceptanceAddress;
     private final InetAddress learnAddress;
     private final int proposalPort;
-    private final int acceptancePort;
+    private final int generalAcceptancePort;
+    private final int personalAcceptancePort;
     private final int learnPort;
-    private HashMap<String, Integer> chainCheckers;
 
     /**
      * Note that for N ChainCheckers, Byzantine Paxos can handle f faulty or malicious Acceptors where
@@ -39,18 +43,19 @@ public class ChainChecker extends Thread{
      * The protocol requires consensus of 2f + 1 Acceptors.
      *
      * */
-    public ChainChecker(User mybChainChecker, int proposalPortNumber, String addressToProposeOn, int acceptancePortNumber,
-                        String addressToAcceptOn, int learningPortNumber, String addressToLearnOn,
-                        int intialNumberOfCheckers) throws UnknownHostException {
+    public ChainChecker(User mybChainChecker, int proposalPortNumber, String addressToProposeOn,
+                        int generalAcceptancePortNumber, String generalAddressToAcceptOn, int peronsalAcceptancePortNumber,
+                        int learningPortNumber, String addressToLearnOn, int intialNumberOfCheckers) throws UnknownHostException {
         super("ChainChecker: " + mybChainChecker.getID());
         this.checker = mybChainChecker;
         this.proposalPort = proposalPortNumber;
         this.proposalAddress = InetAddress.getByName(addressToProposeOn);
-        this.acceptancePort = acceptancePortNumber;
-        this.acceptanceAddress = InetAddress.getByName(addressToAcceptOn);
+        this.generalAcceptancePort = generalAcceptancePortNumber;
+        this.generalAcceptanceAddress = InetAddress.getByName(generalAddressToAcceptOn);
+        this.personalAcceptancePort = peronsalAcceptancePortNumber;
+        this.personalAcceptanceAddress = new InetSocketAddress(peronsalAcceptancePortNumber).getAddress();
         this.learnPort = learningPortNumber;
         this.learnAddress = InetAddress.getByName(addressToLearnOn);
-        this.chainCheckers = null;
     }
 
     @Override
@@ -106,7 +111,7 @@ public class ChainChecker extends Thread{
 
     }
 
-    private boolean validate(Block proposedBlock, BigInteger cahinLength) {
+    private boolean validate(Block proposedBlock, BigInteger cahinLength) throws IOException, NoSuchAlgorithmException {
         Transaction[] proposedTransactions = proposedBlock.getTransactions();
         boolean valid = proposedTransactions[0].getTransactionAmount() == checker.getBlockChain().computeMinerAward(cahinLength);
 
@@ -118,12 +123,30 @@ public class ChainChecker extends Thread{
                     return false;
                 }
             }
-            //TODO: Additionally, could compute the proof of work, verify total ledger and all transactions, etc.
-            return true;
+
+            byte[] proofOfWork = proposedBlock.getProofOfWork();
+            byte[] blockBytes = proposedBlock.getBlockBytes();
+            return verifyProofOfWork(proofOfWork, blockBytes);
         }
     }
 
-    private void verify(ProposalPacket proposalPacket) {
+    private boolean verifyProofOfWork(byte[] proofOfWork, byte[] blockBytes) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(blockBytes);
+
+        if (hash.length != proofOfWork.length) {
+            return false;
+        }
+
+        for (int i = 0; i < proofOfWork.length; i++) {
+            if (proofOfWork[i] != hash[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void verify(ProposalPacket proposalPacket) throws IOException, NoSuchAlgorithmException {
         /*
         * Open multicast sockets to collect info
         *
@@ -154,15 +177,15 @@ public class ChainChecker extends Thread{
         BigInteger chainLength = proposalPacket.getChainLength();
         String proposerID = proposalPacket.getProposerID();
         Block verifiedBlock = proposalPacket.getBlock();
-        chainCheckers = new HashMap<>(N);
         int packetsVerified = 1;
 
         while (packetsVerified < (2*f + 1)) {
-            VerifyPacket verifyPacket = new VerifyPacket(chainLength, checker.getID(), verifiedBlock);
-            VerifyPacket[] packetsToValidate = sendAndRecievePackets(verifyPacket);
-            VerifyPacket[] packetsToVerify = validatePackets(packetsToValidate);
-            packetsToVerify = determineBestPacket(packetsToVerify);
-            packetsVerified = attemptToAchieveConsensus(packetsToVerify);
+            VerifyPacket verifyPacket =
+                    new VerifyPacket(chainLength, personalAcceptanceAddress, personalAcceptancePort, checker.getID(), verifiedBlock);
+            HashMap<Pair<InetAddress, Integer>, VerifyPacket> packetsToValidate = sendAndReceivePackets(verifyPacket);
+            HashMap<Pair<InetAddress, Integer>, VerifyPacket> validatedPackets = validatePackets(packetsToValidate);
+            VerifyPacket bestPacket = determineBestPacket(validatedPackets);
+            packetsVerified = attemptToAchieveConsensus(validatedPackets, bestPacket);
         }
 
         return; /*TODO either the verified packet or the verified packets */
@@ -170,75 +193,121 @@ public class ChainChecker extends Thread{
     }
 
 
-    private void learnCurrentChainCheckers() {
+    private HashMap<Pair<InetAddress,Integer>, VerifyPacket> sendAndReceivePackets(VerifyPacket packetToSend) {
         try {
-            int numberOfCheckersFinished = 0;
-            int attempts = 0;
-            chainCheckers = null;
-            MulticastSocket multicastSocket = new MulticastSocket(acceptancePort);
-            multicastSocket.joinGroup(acceptanceAddress);
+            int sendAttempts = 0;
+            int timesReset = 0;
+            HashMap<Pair<InetAddress, Integer>, VerifyPacket> receivedProposals = new HashMap<>(N);
+            receivedProposals.putIfAbsent(new Pair<>(personalAcceptanceAddress, personalAcceptancePort), packetToSend);
+            MulticastSocket multicastSocket = new MulticastSocket(generalAcceptancePort);
+            multicastSocket.joinGroup(generalAcceptanceAddress);
             multicastSocket.setTimeToLive(TTL);
-            multicastSocket.setSoTimeout(Math.max(MIN_COLLISION_PREVENTING_TIMEOUT_TIME,
-                    Math.toIntExact(ThreadLocalRandom.current().nextLong(COLLISION_PREVENTING_TIMEOUT_TIME))));
+            multicastSocket.setSoTimeout(Math.toIntExact(
+                    ThreadLocalRandom.current().nextLong(MIN_COLLISION_PREVENTING_TIMEOUT_TIME, COLLISION_PREVENTING_TIMEOUT_TIME)));
             ByteArrayInputStream bais = null;
             ObjectInputStream inputStream = null;
             ByteArrayOutputStream baos = null;
             ObjectOutputStream outputStream = null;
             Thread.sleep(ThreadLocalRandom.current().nextLong(COLLISION_PREVENTING_TIMEOUT_TIME));
 
-            while (numberOfCheckersFinished < N) {
-                byte[] buf = checker.getID().getBytes();
+            /*
+            * FIXME It may be that N here should actually be 2f+1
+            * */
+            while (receivedProposals.size() < N) {
+                outputStream.writeObject(packetToSend);
+                byte[] buf = baos.toByteArray();
                 DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
                 multicastSocket.send(datagramPacket);
 
                 buf = new byte[multicastSocket.getReceiveBufferSize()];
                 datagramPacket = new DatagramPacket(buf, buf.length);
-                multicastSocket.receive(datagramPacket);
+                try {
+                    multicastSocket.receive(datagramPacket);
+                }catch (SocketTimeoutException ste) {
+                    ste.printStackTrace();
+                    sendAttempts++;
+                    if (sendAttempts >= (TIMEOUT_MILLISECONDS/COLLISION_PREVENTING_TIMEOUT_TIME)) {
+                        multicastSocket.setSoTimeout(Math.toIntExact(
+                                ThreadLocalRandom.current().nextLong(MIN_COLLISION_PREVENTING_TIMEOUT_TIME, COLLISION_PREVENTING_TIMEOUT_TIME)));
+                        timesReset++;
+                        sendAttempts = 0;
+                    }
+                    if (timesReset >= (TIMEOUT_MILLISECONDS/COLLISION_PREVENTING_TIMEOUT_TIME)) {
+                        break;
+                    }
+                }
                 bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
                 inputStream = new ObjectInputStream(bais);
 
-                String chekerInfo = inputStream.readUTF();
-                if (chekerInfo.equalsIgnoreCase(DONE_STRING)) {
-                    numberOfCheckersFinished++;
-                    /*
-                    * FIXME
-                    * Maye make eic -> contains...
-                    * TODO
-                    * Print out info, or done, or both
-                    * */
-                }else {
-                    /*
-                    * FIXME
-                    * Maye make eic -> contains...
-                    * TODO
-                    * Print out info, or done, or both
-                    * */
+                Object object = inputStream.readObject();
+                if ((object != null) && (object instanceof VerifyPacket)) {
+                    VerifyPacket verifyPacket = (VerifyPacket) object;
+                    if (verifyPacket.getAddress() != null && verifyPacket.getPort() != null) {
+                        receivedProposals.putIfAbsent(new Pair<>(verifyPacket.getAddress(), verifyPacket.getPort()), verifyPacket);
+                        System.out.println("Block sent by:\n\n" +
+                                "Sender:\t" + verifyPacket.getID() + "\n\n");
+                    }else {
+                        System.out.println("WARNING -- Null block sent by:\n\n" +
+                                "Sender:\t" + verifyPacket.getID() + "\n\n" +
+                                "Further monitoring may be necessary");
+                    }
                 }
-                chainCheckers.putIfAbsent(inputStream.readUTF(), chainCheckers.size());
-                attempts++;
-
-                if (attempts >= N) {
-                    multicastSocket.setSoTimeout(Math.toIntExact(ThreadLocalRandom.current().nextLong(COLLISION_PREVENTING_TIMEOUT_TIME)));
-                    attempts = 0;
-                }
-
             }
 
             inputStream.close();
             bais.close();
-
-        } catch (SocketTimeoutException ste) {
+            multicastSocket.leaveGroup(generalAcceptanceAddress);
+            return receivedProposals;
 
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
+
+        return null;
     }
 
-    private void learnCurrentLearners() {
 
+    private HashMap<Pair<InetAddress, Integer>, VerifyPacket> validatePackets(
+            HashMap<Pair<InetAddress, Integer>, VerifyPacket> packetsToValidate) throws IOException, NoSuchAlgorithmException {
+
+        HashMap<Pair<InetAddress, Integer>, VerifyPacket> validatedPackets = new HashMap<>(N);
+        for (Pair<InetAddress, Integer> portInfo : packetsToValidate.keySet()) {
+            VerifyPacket packet = packetsToValidate.get(portInfo);
+            if (validate(packet.getBlock(), packet.getChainLength())) {
+                validatedPackets.putIfAbsent(portInfo, packet);
+            }
+        }
+        return validatedPackets;
     }
+
+
+    private VerifyPacket determineBestPacket(HashMap<Pair<InetAddress, Integer>, VerifyPacket> validatedPackets) {
+
+        VerifyPacket bestPacket = null;
+
+        for (VerifyPacket packet : validatedPackets.values()) {
+            if (bestPacket == null) {
+                bestPacket = packet;
+            }else if (bestPacket.compareTo(packet) == -1){
+                bestPacket = packet;
+            }
+        }
+
+        return bestPacket;
+    }
+
+
+    private int attemptToAchieveConsensus(HashMap<Pair<InetAddress, Integer>, VerifyPacket> validatedPackets, VerifyPacket packetToVerify) {
+
+
+
+        return -1;
+    }
+
 
     private void updateUsers() {
 
