@@ -1,5 +1,9 @@
 package chain;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import packets.acceptances.AcceptedPacket;
 import packets.requests.UpdateRequest;
 
@@ -21,6 +25,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by Michael on 4/14/2018.
  */
 public class User {
+    private final static String USER_INFO_PATH = "UserResources/USER_INFO.dat";
     private final static int DESIRED_CHARS_FROM_NAMES = 3;
     private final RSAPublicKey publicKey;
     private final RSAPrivateKey privateKey;
@@ -61,7 +66,7 @@ public class User {
         * */
         this.blockChain = null;
 
-        updateBlockChain();
+//        updateBlockChain();
 
     }
 
@@ -222,7 +227,7 @@ public class User {
 
             //writing older blocks first
             for(int i = blockChain.getChainLength().intValueExact()-1; i >=0; i --){
-                oos.writeObject(blockChain.getBlocks().get(i));
+//                oos.writeObject(blockChain.getBlocks().get(i));
                 oos.flush();
             }
 
@@ -280,6 +285,62 @@ public class User {
 
     }
 
+    public void login(){
+
+//        if(){
+//
+//        }
+//
+//        update();
+    }
+
+    public User loadUser() throws IOException, ParseException {
+        JSONParser parser = new JSONParser();
+        JSONObject a = (JSONObject) parser.parse(new FileReader("UserResources/USER_INFO.dat"));
+
+        String loadedPublicKey = (String) a.get("publicKey");
+        System.out.println(loadedPublicKey);
+
+        String loadedID = (String) a.get("ID");
+        System.out.println(loadedID);
+
+        Double loadedNetWorth = (Double) a.get("netWorth");
+        System.out.println(loadedNetWorth);
+
+        long loadedLastUpdatedBlockNumber = (long) a.get("lastUpdatedBlockNumber");
+        System.out.println(loadedLastUpdatedBlockNumber);
+
+        long loadedRequestPort = (long) a.get("requestPort");
+        System.out.println(loadedRequestPort);
+
+        String loadedRequestAddress = (String) a.get("requestAddress");
+        System.out.println(loadedRequestAddress);
+
+        String loadedReceiveUpdateAddress = (String) a.get("receiveUpdateAddress");
+        System.out.println(loadedReceiveUpdateAddress);
+
+        long loadedReceiveUpdatePort = (long) a.get("receiveUpdatePort");
+        System.out.println(loadedReceiveUpdatePort);
+
+        return null;
+    }
+
+
+    public void writeUser() throws IOException {
+        JSONObject obj = new JSONObject();
+//        obj.put("publicKey", this.publicKey.getEncoded());
+        obj.put("ID", this.ID);
+        obj.put("netWorth", this.netWorth);
+        obj.put("lastUpdatedBlockNumber", this.lastUpdatedBlockNumber);
+        obj.put("requestPort", this.requestPort);
+        obj.put("requestAddress", this.requestAddress);
+        obj.put("receiveUpdateAddress", this.receiveUpdateAddress);
+        obj.put("receiveUpdatePort", this.receiveUpdatePort);
+
+        FileWriter file = new FileWriter("UserResources/USER_INFO.dat");
+        file.write(obj.toJSONString());
+        file.close();
+    }
 
 
 
