@@ -11,12 +11,13 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
 
 public class Main {
     private static final String CLIENT_TO_PROPOSER_ADDRESS = "230.0.0.0";
 
     public static void main(String[] args) throws NoSuchAlgorithmException, IllegalBlockSizeException,
-            InvalidKeyException, BadPaddingException, NoSuchPaddingException, IOException {
+            InvalidKeyException, BadPaddingException, NoSuchPaddingException, IOException, InvalidKeySpecException {
         String firstName_Person1 = "Person";
         String lastName_Person1 = "One";
 
