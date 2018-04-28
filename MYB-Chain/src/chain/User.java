@@ -1,10 +1,8 @@
 package chain;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import packets.acceptances.AcceptedPacket;
 import packets.requests.UpdateRequest;
 
 import javax.crypto.BadPaddingException;
@@ -18,6 +16,7 @@ import java.net.MulticastSocket;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -26,12 +25,14 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class User {
     private final static String USER_INFO_PATH = "UserResources/USER_INFO.dat";
+    private final static String PRIVATE_KEY_PATH = "UserResources/PRIVATE.dat";
+    private final static String PUBLIC_KEY_PATH = "UserResources/PUBLIC.dat";
     private final static int DESIRED_CHARS_FROM_NAMES = 3;
     private final RSAPublicKey publicKey;
     private final RSAPrivateKey privateKey;
     private final String firstName;
     private final String lastName;
-    private final String ID;
+    private String ID;
     private BlockChain blockChain;
     private Double netWorth;
     private BigInteger lastUpdatedBlockNumber;
@@ -53,7 +54,6 @@ public class User {
         this.privateKey = (RSAPrivateKey) keyPair.getPrivate();
         this.firstName = firstName;
         this.lastName = lastName;
-        this.ID = generateID();
         this.netWorth = initialNetWorth;
         this.lastUpdatedBlockNumber = BigInteger.valueOf(0);
         /*
@@ -78,6 +78,23 @@ public class User {
         this.lastName = lastName;
         this.ID = id;
         this.netWorth = netWorth;
+    }
+
+    private User(String id, Double netWorth, BigInteger lastUpdatedBlockNumber, InetAddress requestAddress, int requestPort, InetAddress receiveUpdateAddress, int receiveUpdatePort){
+        this.ID = id;
+        this.netWorth = netWorth;
+        this.lastUpdatedBlockNumber = lastUpdatedBlockNumber;
+        this.requestAddress = requestAddress;
+        this.requestPort = requestPort;
+        this.receiveUpdateAddress = receiveUpdateAddress;
+        this.receiveUpdatePort = receiveUpdatePort;
+
+        //TO-DO: take RSAPublicKey and RSAPrivateKey here for loading file
+
+        this.firstName = null;
+        this.lastName = null;
+        this.publicKey = null;
+        privateKey = null;
     }
 
 
@@ -285,61 +302,91 @@ public class User {
 
     }
 
-    public void login(){
+    public void login() throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException, IOException {
 
-//        if(){
-//
-//        }
-//
+        if(this.ID == null){
+            //create a new one
+            this.ID = generateID();
+            makeTransaction(this, 0.0);
+            writeUser();
+        }
 //        update();
     }
 
-    public User loadUser() throws IOException, ParseException {
+    public static boolean userFileExists(){
+        File tmpDir = new File(USER_INFO_PATH);
+        return tmpDir.exists();
+    }
+
+    public static User loadUser() throws NoSuchAlgorithmException, InvalidKeySpecException {
         JSONParser parser = new JSONParser();
-        JSONObject a = (JSONObject) parser.parse(new FileReader("UserResources/USER_INFO.dat"));
 
-        String loadedPublicKey = (String) a.get("publicKey");
-        System.out.println(loadedPublicKey);
+        try {
+            File pubKeyFile = new File(PUBLIC_KEY_PATH);
+            DataInputStream pubKeyDis = new DataInputStream(new FileInputStream(pubKeyFile));
+            byte[] pubKeyBytes = new byte[(int)pubKeyFile.length()];
+            pubKeyDis.readFully(pubKeyBytes);
+            pubKeyDis.close();
 
-        String loadedID = (String) a.get("ID");
-        System.out.println(loadedID);
+//            PublicKey loadedPublicKey =  KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(pubKeyBytes));
 
-        Double loadedNetWorth = (Double) a.get("netWorth");
-        System.out.println(loadedNetWorth);
+            File privKeyFile = new File(PRIVATE_KEY_PATH);
+            DataInputStream privKeyDis = new DataInputStream(new FileInputStream(privKeyFile));
+            byte[] privKeyBytes = new byte[(int)privKeyFile.length()];
+            privKeyDis.readFully(privKeyBytes);
+            privKeyDis.close();
 
-        long loadedLastUpdatedBlockNumber = (long) a.get("lastUpdatedBlockNumber");
-        System.out.println(loadedLastUpdatedBlockNumber);
+            //TO-DO: figure out how to load public/private key from file
 
-        long loadedRequestPort = (long) a.get("requestPort");
-        System.out.println(loadedRequestPort);
 
-        String loadedRequestAddress = (String) a.get("requestAddress");
-        System.out.println(loadedRequestAddress);
+            JSONObject userJson = (JSONObject) parser.parse(new FileReader(USER_INFO_PATH));
 
-        String loadedReceiveUpdateAddress = (String) a.get("receiveUpdateAddress");
-        System.out.println(loadedReceiveUpdateAddress);
+            String loadedID = (String) userJson.get("ID");
+            Double loadedNetWorth = (Double) userJson.get("netWorth");
+            BigInteger loadedLastUpdatedBlockNumber = BigInteger.valueOf((long) userJson.get("lastUpdatedBlockNumber"));
 
-        long loadedReceiveUpdatePort = (long) a.get("receiveUpdatePort");
-        System.out.println(loadedReceiveUpdatePort);
+            InetAddress loadedRequestAddress = InetAddress.getByName((String) userJson.get("requestAddress"));
+            Long loadedRequestPortLong = (Long) userJson.get("requestPort");
+            int loadedRequestPort = loadedRequestPortLong.intValue();
 
-        return null;
+            InetAddress loadedReceiveUpdateAddress = InetAddress.getByName((String) userJson.get("receiveUpdateAddress"));
+            Long loadedReceiveUpdatePortLong = (Long) userJson.get("receiveUpdatePort");
+            int loadedReceiveUpdatePort = loadedReceiveUpdatePortLong.intValue();
+
+
+            return new User(loadedID, loadedNetWorth, loadedLastUpdatedBlockNumber, loadedRequestAddress, loadedRequestPort, loadedReceiveUpdateAddress, loadedReceiveUpdatePort);
+        }catch(IOException | ParseException ex){
+            return null;
+        }
     }
 
 
-    public void writeUser() throws IOException {
-        JSONObject obj = new JSONObject();
-//        obj.put("publicKey", this.publicKey.getEncoded());
-        obj.put("ID", this.ID);
-        obj.put("netWorth", this.netWorth);
-        obj.put("lastUpdatedBlockNumber", this.lastUpdatedBlockNumber);
-        obj.put("requestPort", this.requestPort);
-        obj.put("requestAddress", this.requestAddress);
-        obj.put("receiveUpdateAddress", this.receiveUpdateAddress);
-        obj.put("receiveUpdatePort", this.receiveUpdatePort);
+    private void writeUser() throws IOException {
+        byte[] pubKeyBytes = publicKey.getEncoded();
+        File pubKeyFile = new File(PUBLIC_KEY_PATH);
+        FileOutputStream pubKeyFos = new FileOutputStream(pubKeyFile);
+        pubKeyFos.write( pubKeyBytes );
+        pubKeyFos.close();
 
-        FileWriter file = new FileWriter("UserResources/USER_INFO.dat");
-        file.write(obj.toJSONString());
-        file.close();
+        byte[] privKeyBytes = privateKey.getEncoded();
+        File privKeyFile = new File(PRIVATE_KEY_PATH);
+        FileOutputStream privKeyFos = new FileOutputStream(privKeyFile);
+        privKeyFos.write( privKeyBytes );
+        privKeyFos.close();
+
+
+        JSONObject userJson = new JSONObject();
+        userJson.put("ID", this.ID);
+        userJson.put("netWorth", this.netWorth);
+        userJson.put("lastUpdatedBlockNumber", this.lastUpdatedBlockNumber);
+        userJson.put("requestAddress", this.requestAddress);
+        userJson.put("requestPort", this.requestPort);
+        userJson.put("receiveUpdateAddress", this.receiveUpdateAddress);
+        userJson.put("receiveUpdatePort", this.receiveUpdatePort);
+
+        FileWriter userFile = new FileWriter(USER_INFO_PATH);
+        userFile.write(userJson.toJSONString());
+        userFile.close();
     }
 
 
