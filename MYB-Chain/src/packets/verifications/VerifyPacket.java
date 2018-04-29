@@ -12,30 +12,18 @@ import java.net.InetAddress;
  */
 public class VerifyPacket extends Packet implements Comparable<VerifyPacket>{
     private final BigInteger chainLength;
-    private final InetAddress address;
-    private final int port;
     private final String ID;
     private final Block block;
 
-    public VerifyPacket(BigInteger blockChainLength, InetAddress acceptorAddress, int acceptorPort, String acceptorID, Block blockValue) {
-        super(PacketTypes.VERIFICATION);
+    public VerifyPacket(BigInteger blockChainLength, String acceptorID, Block blockValue) {
+        super(PacketTypes.SINGLE_VERIFICATION);
         this.chainLength = blockChainLength;
-        this.address = acceptorAddress;
-        this.port = acceptorPort;
         this.ID = acceptorID;
         this.block = blockValue;
     }
 
     public BigInteger getChainLength() {
         return chainLength;
-    }
-
-    public InetAddress getAddress() {
-        return address;
-    }
-
-    public Integer getPort() {
-        return port;
     }
 
     public String getID() {
@@ -66,17 +54,6 @@ public class VerifyPacket extends Packet implements Comparable<VerifyPacket>{
 
         if (ID.compareTo(otherPacket.getID()) != 0) {
             return ID.compareTo(otherPacket.getID());
-        }
-
-        if (getPort().compareTo(otherPacket.getPort()) != 0) {
-            return getPort().compareTo(otherPacket.getPort());
-        }
-
-        Integer addressHashCode = address.hashCode();
-        Integer otherAddressHashCode = otherPacket.getAddress().hashCode();
-
-        if (addressHashCode.compareTo(otherAddressHashCode) != 0) {
-            return addressHashCode.compareTo(otherAddressHashCode);
         }
 
         Integer hashCode = this.hashCode();
