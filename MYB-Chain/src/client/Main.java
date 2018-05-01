@@ -7,6 +7,8 @@ import org.json.simple.parser.ParseException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -18,28 +20,26 @@ public class Main {
 
     public static void main(String[] args) throws NoSuchAlgorithmException, IllegalBlockSizeException,
             InvalidKeyException, BadPaddingException, NoSuchPaddingException, IOException, InvalidKeySpecException {
-        String firstName_Person1 = "Person";
-        String lastName_Person1 = "One";
-
-        String firstName_Person2 = "Person";
-        String lastName_Person2 = "Two";
-
-        Double initialNetWorth = 20000.00;
-
-//        User buyer = new User(firstName_Person1, lastName_Person1, initialNetWorth);
-//        User seller = new User(firstName_Person2, lastName_Person2, initialNetWorth);
-
-//        User loaded = User.loadUser();
-
 
         User myUser;
         if(User.userFileExists()){
             myUser = User.loadUser();
         }else {
-            myUser = new User("brian", "dorsey", 5.28, 1234, 4321);
+            RegistrationView regView = new RegistrationView();
+            regView.setVisible(true);
+
+            while(regView.isFinished() == false){
+                //
+            }
+            regView.setVisible(false);
+            System.out.println("HERE");
         }
 
-        myUser.login();
+
+//        myUser.login();
+//
+//        ClientView clientView = new ClientView();
+//        clientView.setVisible(true);
 
 //        System.out.println(loaded.getID());
 //        System.out.println(loaded.getNetWorth());
