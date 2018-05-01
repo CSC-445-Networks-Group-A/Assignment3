@@ -80,7 +80,7 @@ public class User {
         this.netWorth = netWorth;
     }
 
-    private User(String id, Double netWorth, BigInteger lastUpdatedBlockNumber, InetAddress requestAddress, int requestPort, InetAddress receiveUpdateAddress, int receiveUpdatePort){
+    private User(String id, Double netWorth, BigInteger lastUpdatedBlockNumber, InetAddress requestAddress, int requestPort, InetAddress receiveUpdateAddress, int receiveUpdatePort, RSAPublicKey publicKey, RSAPrivateKey privateKey){
         this.ID = id;
         this.netWorth = netWorth;
         this.lastUpdatedBlockNumber = lastUpdatedBlockNumber;
@@ -88,13 +88,12 @@ public class User {
         this.requestPort = requestPort;
         this.receiveUpdateAddress = receiveUpdateAddress;
         this.receiveUpdatePort = receiveUpdatePort;
-
+        this.publicKey = publicKey;
+        this.privateKey = privateKey;
         //TO-DO: take RSAPublicKey and RSAPrivateKey here for loading file
 
         this.firstName = null;
         this.lastName = null;
-        this.publicKey = null;
-        privateKey = null;
     }
 
 
@@ -323,22 +322,17 @@ public class User {
         JSONParser parser = new JSONParser();
 
         try {
-            File pubKeyFile = new File(PUBLIC_KEY_PATH);
-            DataInputStream pubKeyDis = new DataInputStream(new FileInputStream(pubKeyFile));
-            byte[] pubKeyBytes = new byte[(int)pubKeyFile.length()];
-            pubKeyDis.readFully(pubKeyBytes);
-            pubKeyDis.close();
+            FileInputStream publicFileInput = new FileInputStream(PUBLIC_KEY_PATH);
+            ObjectInputStream publicObjectInput = new ObjectInputStream(publicFileInput);
+            RSAPublicKey loadedPublicKey = (RSAPublicKey) publicObjectInput.readObject();
+            publicObjectInput.close();
+            publicFileInput.close();
 
-//            PublicKey loadedPublicKey =  KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(pubKeyBytes));
-
-            File privKeyFile = new File(PRIVATE_KEY_PATH);
-            DataInputStream privKeyDis = new DataInputStream(new FileInputStream(privKeyFile));
-            byte[] privKeyBytes = new byte[(int)privKeyFile.length()];
-            privKeyDis.readFully(privKeyBytes);
-            privKeyDis.close();
-
-            //TO-DO: figure out how to load public/private key from file
-
+            FileInputStream privateFileInput = new FileInputStream(PRIVATE_KEY_PATH);
+            ObjectInputStream privateObjectInput = new ObjectInputStream(privateFileInput);
+            RSAPrivateKey loadedPrivateKey = (RSAPrivateKey) privateObjectInput.readObject();
+            privateObjectInput.close();
+            privateFileInput.close();
 
             JSONObject userJson = (JSONObject) parser.parse(new FileReader(USER_INFO_PATH));
 
@@ -355,26 +349,25 @@ public class User {
             int loadedReceiveUpdatePort = loadedReceiveUpdatePortLong.intValue();
 
 
-            return new User(loadedID, loadedNetWorth, loadedLastUpdatedBlockNumber, loadedRequestAddress, loadedRequestPort, loadedReceiveUpdateAddress, loadedReceiveUpdatePort);
-        }catch(IOException | ParseException ex){
+            return new User(loadedID, loadedNetWorth, loadedLastUpdatedBlockNumber, loadedRequestAddress, loadedRequestPort, loadedReceiveUpdateAddress, loadedReceiveUpdatePort, loadedPublicKey, loadedPrivateKey);
+        }catch(IOException | ParseException | ClassNotFoundException ex){
             return null;
         }
     }
 
 
     private void writeUser() throws IOException {
-        byte[] pubKeyBytes = publicKey.getEncoded();
-        File pubKeyFile = new File(PUBLIC_KEY_PATH);
-        FileOutputStream pubKeyFos = new FileOutputStream(pubKeyFile);
-        pubKeyFos.write( pubKeyBytes );
-        pubKeyFos.close();
+        FileOutputStream publicFileOutput = new FileOutputStream(PUBLIC_KEY_PATH);
+        ObjectOutputStream publicObjectOutput = new ObjectOutputStream(publicFileOutput);
+        publicObjectOutput.writeObject(publicKey);
+        publicObjectOutput.close();
+        publicFileOutput.close();
 
-        byte[] privKeyBytes = privateKey.getEncoded();
-        File privKeyFile = new File(PRIVATE_KEY_PATH);
-        FileOutputStream privKeyFos = new FileOutputStream(privKeyFile);
-        privKeyFos.write( privKeyBytes );
-        privKeyFos.close();
-
+        FileOutputStream privateFileOutput = new FileOutputStream(PRIVATE_KEY_PATH);
+        ObjectOutputStream privateObjectOutput = new ObjectOutputStream(privateFileOutput);
+        privateObjectOutput.writeObject(privateKey);
+        privateObjectOutput.close();
+        privateFileOutput.close();
 
         JSONObject userJson = new JSONObject();
         userJson.put("ID", this.ID);
