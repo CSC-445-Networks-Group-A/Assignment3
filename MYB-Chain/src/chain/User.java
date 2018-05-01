@@ -147,7 +147,7 @@ public class User {
     /** send out an updateRequest to get the most recent copy of block chain
      *  through multicast
      * */
-    private void sendUpdateRequest(){
+   /* private void sendUpdateRequest(){
         MulticastSocket multicastSocket = null;
         try {
             multicastSocket = new MulticastSocket(requestPort);
@@ -173,12 +173,12 @@ public class User {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     /**
      * receiving newly updated blockchain object? Blocks?
      */
-    private BlockChain receiveUpdate(){
+  /*  private BlockChain receiveUpdate(){
 
         try {
 
@@ -211,7 +211,7 @@ public class User {
         }
 
         return null;
-    }
+    }*/
 
     public void updateBlockChain() {
         //TODO: generalized path?
@@ -232,9 +232,10 @@ public class User {
 
     private void downloadBlockChainTo(String path){
         //send out a UPDATEREQUEST TO ALL
-        sendUpdateRequest();
+        //TODO:
+        //sendUpdateRequest();
         //whatever returned
-        this.blockChain = receiveUpdate();
+        //this.blockChain = receiveUpdate();
         //save own copy in local
         File f = new File(path);
         FileOutputStream fos = null;
