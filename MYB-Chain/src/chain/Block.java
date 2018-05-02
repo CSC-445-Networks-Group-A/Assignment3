@@ -1,5 +1,6 @@
 package chain;
 
+import javafx.util.Pair;
 import org.omg.PortableInterceptor.InvalidSlot;
 
 import java.io.*;
@@ -151,5 +152,24 @@ public class Block implements Serializable{
         return full;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Block) {
+            Block otherBlock = (Block) obj;
+            if (proofOfWork.length != otherBlock.proofOfWork.length) {
+                return false;
+            }
+
+            for (int i = 0; i < proofOfWork.length; i++) {
+                if (proofOfWork[i] != otherBlock.proofOfWork[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        }else {
+            return false;
+        }
+    }
 }
 
