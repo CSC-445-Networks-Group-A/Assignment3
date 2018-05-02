@@ -235,8 +235,6 @@ public class User {
             fos.close();
             oos.close();
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

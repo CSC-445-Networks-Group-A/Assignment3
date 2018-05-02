@@ -25,10 +25,10 @@ public class ChainChecker extends Thread{
     private final static int f = (N-1)/3;
     private final User checker;
     private final InetAddress proposalAddress;
-    private final InetAddress acceptanceAddress;
+//    private final InetAddress acceptanceAddress;
     private final InetAddress learnAddress;
     private final int proposalPort;
-    private final int acceptancePort;
+//    private final int acceptancePort;
     private final int learnPort;
     private HashMap<Pair<InetAddress, Integer>, ChainChecker> chainCheckers;
 
@@ -48,7 +48,7 @@ public class ChainChecker extends Thread{
         this.proposalAddress = InetAddress.getByName(addressToProposeOn);
         this.learnPort = learningPortNumber;
         this.learnAddress = InetAddress.getByName(addressToLearnOn);
-        this.chainCheckers = learnCurrentChainCheckers();
+//        this.chainCheckers = learnCurrentChainCheckers();
     }
 
     @Override
@@ -80,8 +80,8 @@ public class ChainChecker extends Thread{
                         long roundID = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
                         boolean validated = validate(proposedBlock, chainLength);
                         if (validated) {
-                            verify(proposalPacket, roundID);
-                            learn(proposalPacket, roundID);
+//                            verify(proposalPacket, roundID);
+//                            learn(proposalPacket, roundID);
                         }else {
 
                         }
@@ -126,9 +126,9 @@ public class ChainChecker extends Thread{
     }
 
 
-    private HashMap<Pair<InetAddress, Integer>, ChainChecker> learnCurrentChainCheckers() {
-
-    }
+//    private HashMap<Pair<InetAddress, Integer>, ChainChecker> learnCurrentChainCheckers() {
+//
+//    }
 
     private void learnCurrentLearners() {
 
