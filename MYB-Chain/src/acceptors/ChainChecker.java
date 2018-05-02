@@ -62,54 +62,54 @@ public class ChainChecker extends Thread{
     public void run() {
 
     }
-//
-//    private void acceptBlocks() {
-//        try {
-//            MulticastSocket multicastSocket = new MulticastSocket(proposalPort);
-//            multicastSocket.joinGroup(proposalAddress);
-//            multicastSocket.setTimeToLive(TTL);
-//            multicastSocket.setSoTimeout(TIMEOUT_MILLISECONDS);
-//            boolean running = true;
-//            while (running) {
-//                try {
-//                    byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
-//                    DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
-//                    multicastSocket.receive(datagramPacket);
-//                    ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
-//                    ObjectInputStream inputStream = new ObjectInputStream(bais);
-//
-//                    Object object = inputStream.readObject();
-//                    if ((object != null) && (object instanceof ProposalPacket)) {
-//                        ProposalPacket proposalPacket = (ProposalPacket) object;
-//                        BigInteger chainLength = proposalPacket.getChainLength();
-//                        String proposerID = proposalPacket.getProposerID();
-//                        Block proposedBlock = proposalPacket.getBlock();
-//                        long roundID = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
-//                        boolean validated = validate(proposedBlock, chainLength);
-//                        if (validated) {
-//                            verify(proposalPacket, roundID);
-//                            learn(proposalPacket, roundID);
-//                        }else {
-//
-//                        }
-//
-//                    }
-//                    inputStream.close();
-//                    bais.close();
-//                } catch (SocketTimeoutException ste) {
-//                    ste.printStackTrace();
-//                }
-//            }
-//
-//            multicastSocket.leaveGroup(proposalAddress);
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
+
+    private void acceptBlocks() {
+        try {
+            MulticastSocket multicastSocket = new MulticastSocket(proposalPort);
+            multicastSocket.joinGroup(proposalAddress);
+            multicastSocket.setTimeToLive(TTL);
+            multicastSocket.setSoTimeout(TIMEOUT_MILLISECONDS);
+            boolean running = true;
+            while (running) {
+                try {
+                    byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
+                    DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
+                    multicastSocket.receive(datagramPacket);
+                    ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
+                    ObjectInputStream inputStream = new ObjectInputStream(bais);
+
+                    Object object = inputStream.readObject();
+                    if ((object != null) && (object instanceof ProposalPacket)) {
+                        ProposalPacket proposalPacket = (ProposalPacket) object;
+                        BigInteger chainLength = proposalPacket.getChainLength();
+                        String proposerID = proposalPacket.getProposerID();
+                        Block proposedBlock = proposalPacket.getBlock();
+                        long roundID = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
+                        boolean validated = validate(proposedBlock, chainLength);
+                        if (validated) {
+                            verify(proposalPacket, roundID);
+                            learn(proposalPacket, roundID);
+                        }else {
+
+                        }
+
+                    }
+                    inputStream.close();
+                    bais.close();
+                } catch (SocketTimeoutException ste) {
+                    ste.printStackTrace();
+                }
+            }
+
+            multicastSocket.leaveGroup(proposalAddress);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     private boolean validate(Block proposedBlock, BigInteger cahinLength) throws IOException, NoSuchAlgorithmException {
         Transaction[] proposedTransactions = proposedBlock.getTransactions();

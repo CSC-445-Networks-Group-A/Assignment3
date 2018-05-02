@@ -23,7 +23,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Created by Michael on 4/14/2018.
  */
-public class User implements Serializable{
+public class User {
     private final static String USER_INFO_PATH = "UserResources/USER_INFO.dat";
     private final static String PRIVATE_KEY_PATH = "UserResources/PRIVATE.dat";
     private final static String PUBLIC_KEY_PATH = "UserResources/PUBLIC.dat";
@@ -314,16 +314,6 @@ public class User implements Serializable{
     public static boolean userFileExists(){
         File tmpDir = new File(USER_INFO_PATH);
         return tmpDir.exists();
-    }
-
-    public RSAPrivateKey ReadPublicKeyFromFile() throws IOException, ClassNotFoundException {
-        FileInputStream privateFileInput = new FileInputStream(PRIVATE_KEY_PATH);
-        ObjectInputStream privateObjectInput = new ObjectInputStream(privateFileInput);
-        RSAPrivateKey loadedPrivateKey = (RSAPrivateKey) privateObjectInput.readObject();
-        privateObjectInput.close();
-        privateFileInput.close();
-
-        return loadedPrivateKey;
     }
 
     public static User loadUser() throws NoSuchAlgorithmException, InvalidKeySpecException {
