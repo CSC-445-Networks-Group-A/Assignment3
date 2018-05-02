@@ -4,15 +4,15 @@ import chain.BlockChain;
 import chain.Transaction;
 import chain.User;
 import javafx.util.Pair;
+import packets.Packet;
 import packets.proposals.ProposalPacket;
+import packets.proposals.UpdateUsersPacket;
 import packets.requests.UpdateRequest;
+import packets.responses.GeneralResponse;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -42,7 +42,7 @@ public class UpdateManager extends Thread {
         try {
             Thread listenThread = new Thread(() -> listenForClientUpdateRequest());
             Thread updateRequestThread = new Thread(() -> {
-                sendUpdateRequests();
+                sendUpdateRequestsToAcceptors();
             });
 
             listenThread.start();
@@ -63,11 +63,11 @@ public class UpdateManager extends Thread {
     }
 
 
-    //TODO: return type?
     // adds to the pending requests, and hand to the sendUpdateRequest
-    public BlockChain listenForClientUpdateRequest() {
+    public void listenForClientUpdateRequest() {
         try {
-
+            System.out.println("UPDATE MANAGER: Starting " + Thread.currentThread().getName() +
+                    " to listen for clients update requests");
             MulticastSocket multicastSocket = null;
             multicastSocket = new MulticastSocket(listenPort);
             multicastSocket.joinGroup(listenAddress);
@@ -81,24 +81,36 @@ public class UpdateManager extends Thread {
             ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
             ObjectInputStream inputStream = new ObjectInputStream(bais);
 
-            //TODO: add to the queue
-
+            Object object = inputStream.readObject();
+            if ((object != null) && (object instanceof UpdateRequest)) {
+                UpdateRequest updateRequest = (UpdateRequest) object;
+                Pair <BigInteger, User> pair = new Pair<>(updateRequest.getLastRecordedBlock(), updateRequest.getUser());
+                pendingRequest.add(pair);
+                //TODO: maybe? sending back a simple message to user indicating that it is updating...?
+                InetAddress userAddress =updateRequest.getUser().getReceiveUpdateAddress();
+                int userPort = updateRequest.getUser().getReceiveUpdatePort();
+                GeneralResponse messageToUser = new GeneralResponse("Updating in progress......");
+                //TODO: add to pending address? not sure if it is needed this point
+            }
             inputStream.close();
             bais.close();
             //TODO
-            return null;
 
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
 
-        return null;
+
     }
 
 
-    public void sendUpdateRequests() {
-        try {
 
+    public void sendUpdateRequestsToAcceptors() {
+        //no agreement
+        //take whoever accepts first
+        try {
 
             MulticastSocket multicastSocket = new MulticastSocket(requestPort);
             multicastSocket.joinGroup(this.requestAddress);
@@ -119,6 +131,27 @@ public class UpdateManager extends Thread {
             baos.close();
             multicastSocket.leaveGroup(requestAddress);
             System.out.println("FINISHING PROPOSAL:\t" + Thread.currentThread().getName());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     *  tcp communication  -- send back a message back to user indicating his/her request is processing
+     * @param userAddress
+     * @param userPort
+     * @param response
+     */
+    private void respondToUserUpdateRequest(InetAddress userAddress, int userPort, Packet response) {
+        try {
+            System.out.println("UPDATE MANAGER: Responding to user request at" + userAddress + " at "+ userPort);
+            Socket socket = new Socket(userAddress,userPort);
+            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+
+            outputStream.writeObject(response);
+            outputStream.close();
+            socket.close();
 
         } catch (IOException e) {
             e.printStackTrace();
