@@ -1,5 +1,7 @@
 package chain;
 
+import common.Addresses;
+import common.Ports;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -13,6 +15,7 @@ import java.math.BigInteger;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.UnknownHostException;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -24,36 +27,41 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by Michael on 4/14/2018.
  */
 public class User {
-    private final static String USER_INFO_PATH = "UserResources/USER_INFO.dat";
-    private final static String PRIVATE_KEY_PATH = "UserResources/PRIVATE.dat";
-    private final static String PUBLIC_KEY_PATH = "UserResources/PUBLIC.dat";
+    private final static String BLOCKCHAIN_PATH = "UserResources" + File.separator + "BLOCKCHAIN";
+    private final static String USER_INFO_PATH = "UserResources" + File.separator + "USER_INFO.dat";
+    private final static String PRIVATE_KEY_PATH = "UserResources" + File.separator + "PRIVATE.dat";
+    private final static String PUBLIC_KEY_PATH = "UserResources" + File.separator + "PUBLIC.dat";
     private final static int DESIRED_CHARS_FROM_NAMES = 3;
+    private final static int TIMEOUT_MILLISECONDS = 20000;
+    private final static int TTL = 12;
     private final RSAPublicKey publicKey;
     private final RSAPrivateKey privateKey;
+    private final InetAddress requestAddress;
+    private final InetAddress receiveUpdateAddress;
     private final String firstName;
     private final String lastName;
-    private String ID;
+    private final String ID;
+    private final int requestPort;
+    private final int receiveUpdatePort;
     private BlockChain blockChain;
     private Double netWorth;
     private BigInteger lastUpdatedBlockNumber;
-    private final static int TIMEOUT_MILLISECONDS = 20000;
-    private final static int TTL = 12;
-    private int requestPort;
-    private int receiveUpdatePort;
-    private InetAddress requestAddress;
-    private InetAddress receiveUpdateAddress;
 
 
-    public User(String firstName, String lastName, Double initialNetWorth, int requestPort, int receiveUpdatePort) throws NoSuchAlgorithmException {
-        this.receiveUpdatePort = receiveUpdatePort;
-        this.requestPort = requestPort;
+    public User(String firstName, String lastName, Double initialNetWorth) throws NoSuchAlgorithmException, UnknownHostException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(2048);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
         this.publicKey = (RSAPublicKey) keyPair.getPublic();
         this.privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        this.requestAddress = InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS);
+        this.receiveUpdateAddress = InetAddress.getByName(Addresses.USER_RECEIVE_UPDATE_ADDRESS);
         this.firstName = firstName;
         this.lastName = lastName;
+        this.ID = generateID();
+        this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
+        this.requestPort = Ports.USER_REQUEST_PORT;
+        this.blockChain = null;
         this.netWorth = initialNetWorth;
         this.lastUpdatedBlockNumber = BigInteger.valueOf(0);
         /*
@@ -61,39 +69,39 @@ public class User {
         * TODO ----- Note: - if no file is found, ask user if they changed the file location. If not/they can't find it,
         * TODO -----         request to download the BlockChain.
         * TODO -----       - if the file IS found, update the existing chain before leaving Constructor.
-        *
-        * TODO ----- NOTE: ID must remain a String to avoid restructuring of code elsewhere.
         * */
-        this.blockChain = null;
 
 //        updateBlockChain();
 
     }
 
 
-    private User(RSAPrivateKey privateKey, RSAPublicKey publicKey, String firstName, String lastName, String id, Double netWorth, InetAddress requestAddress) {
+    private User(RSAPrivateKey privateKey, RSAPublicKey publicKey, String firstName, String lastName, String id, Double netWorth) throws UnknownHostException {
         this.privateKey = privateKey;
         this.publicKey = publicKey;
+        this.requestAddress = InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS);
+        this.receiveUpdateAddress = InetAddress.getByName(Addresses.USER_RECEIVE_UPDATE_ADDRESS);
         this.firstName = firstName;
         this.lastName = lastName;
         this.ID = id;
+        this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
+        this.requestPort = Ports.USER_REQUEST_PORT;
         this.netWorth = netWorth;
     }
 
-    private User(String id, Double netWorth, BigInteger lastUpdatedBlockNumber, InetAddress requestAddress, int requestPort, InetAddress receiveUpdateAddress, int receiveUpdatePort, RSAPublicKey publicKey, RSAPrivateKey privateKey){
-        this.ID = id;
-        this.netWorth = netWorth;
-        this.lastUpdatedBlockNumber = lastUpdatedBlockNumber;
-        this.requestAddress = requestAddress;
-        this.requestPort = requestPort;
-        this.receiveUpdateAddress = receiveUpdateAddress;
-        this.receiveUpdatePort = receiveUpdatePort;
+    private User(RSAPublicKey publicKey, RSAPrivateKey privateKey, String id, Double netWorth, BigInteger lastUpdatedBlockNumber) throws UnknownHostException {
+        //TO-DO: take RSAPublicKey and RSAPrivateKey here for loading file
         this.publicKey = publicKey;
         this.privateKey = privateKey;
-        //TO-DO: take RSAPublicKey and RSAPrivateKey here for loading file
-
+        this.requestAddress = InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS);
+        this.receiveUpdateAddress = InetAddress.getByName(Addresses.USER_RECEIVE_UPDATE_ADDRESS);
         this.firstName = null;
         this.lastName = null;
+        this.ID = id;
+        this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
+        this.requestPort = Ports.USER_REQUEST_PORT;
+        this.netWorth = netWorth;
+        this.lastUpdatedBlockNumber = lastUpdatedBlockNumber;
     }
 
 
@@ -140,7 +148,12 @@ public class User {
 
 
     protected User clone() {
-        return new User(privateKey, publicKey, firstName, lastName, ID, netWorth, requestAddress);
+        try {
+            return new User(privateKey, publicKey, firstName, lastName, ID, netWorth);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /** send out an updateRequest to get the most recent copy of block chain
@@ -214,16 +227,20 @@ public class User {
 
     public void updateBlockChain() {
         //TODO: generalized path?
-        String path = "blk.dat";
-        File file = new File(path);
+        String filePath = BLOCKCHAIN_PATH + File.separator + "CHAIN.dat";
+        File file = new File(filePath);
         if(file.exists()){
             // if file/a copy of the block chain (possibly an old version) already exists on user's machine
             //TODO:
-            readAndUpdateBlockChainFrom(path);
+            readAndUpdateBlockChainFrom(filePath);
 
         }else{
             // no copy of the blockchain exist
-            downloadBlockChainTo(path);
+            File blockchainDirectory = new File(BLOCKCHAIN_PATH);
+            if (!file.exists() || !blockchainDirectory.isDirectory()) {
+                blockchainDirectory.mkdirs();
+            }
+            downloadBlockChainTo(filePath);
 
         }
 
@@ -292,21 +309,19 @@ public class User {
 
 
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
     }
 
     public void login() throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException, IOException {
-
+        /*
+        * FIXME -- This needs restructuring. IDs should be invariant and final, created once and reused after. Just like the Keys.
+        * FIXME -- This should probably instead read something like "if !userFile.exists()"
+        * */
         if(this.ID == null){
             //create a new one
-            this.ID = generateID();
             makeTransaction(this, 0.0);
             writeUser();
         }
@@ -339,8 +354,7 @@ public class User {
             RSAPublicKey loadedPublicKey = User.loadPublicKeyFromFile();
             RSAPrivateKey loadedPrivateKey = User.loadPrivateKeyFromFile();
 
-            return new User(loadedID, loadedNetWorth, loadedLastUpdatedBlockNumber, loadedRequestAddress,
-                    loadedRequestPort, loadedReceiveUpdateAddress, loadedReceiveUpdatePort, loadedPublicKey, loadedPrivateKey);
+            return new User(loadedPublicKey, loadedPrivateKey, loadedID, loadedNetWorth, loadedLastUpdatedBlockNumber);
         }catch(IOException | ParseException | ClassNotFoundException ex){
             return null;
         }
