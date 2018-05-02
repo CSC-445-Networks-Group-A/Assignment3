@@ -186,12 +186,12 @@ public class ClientView extends javax.swing.JFrame {
 
         Double initialNetWorth = 20000.00;
 
-        try {
-            buyer = new User(firstName_Person1, lastName_Person1, initialNetWorth);
-            seller = new User(firstName_Person2, lastName_Person2, initialNetWorth);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            buyer = new User(firstName_Person1, lastName_Person1, initialNetWorth);
+//            seller = new User(firstName_Person2, lastName_Person2, initialNetWorth);
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//        }
         //END DEMO CODE
 
 

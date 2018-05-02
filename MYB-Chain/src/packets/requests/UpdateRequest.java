@@ -1,5 +1,6 @@
 package packets.requests;
 
+import chain.User;
 import packets.Packet;
 
 import java.math.BigInteger;
@@ -9,9 +10,15 @@ import java.math.BigInteger;
  */
 public class UpdateRequest extends Packet {
     private final BigInteger lastRecordedBlock;
+    private final User user;
 
-    public UpdateRequest(BigInteger lastBlockRecorded) {
+    //TODO: we might no long need this?
+  /*  public UpdateRequest(BigInteger lastBlockRecorded) {
         this.lastRecordedBlock = lastBlockRecorded;
+    }*/
+    public UpdateRequest(BigInteger lastBlockRecorded, User user){
+        this.lastRecordedBlock = lastBlockRecorded;
+        this.user = user;
     }
 
     public BigInteger getLastRecordedBlock() {
