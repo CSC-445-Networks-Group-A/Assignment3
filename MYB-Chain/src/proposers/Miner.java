@@ -3,6 +3,8 @@ package proposers;
 import chain.Block;
 import chain.Transaction;
 import chain.User;
+import common.Addresses;
+import common.Ports;
 import javafx.util.Pair;
 import packets.Packet;
 import packets.acceptances.AcceptedPacket;
@@ -33,16 +35,15 @@ public class Miner extends Thread{
     private ConcurrentLinkedQueue<Transaction> pendingTransactions;
     private ConcurrentLinkedQueue<Pair<InetAddress, Integer>> pendingAddresses;
 
-    public Miner(User mybChainMiner, int requestPortNumber, String addressToMakeRequestsOn, int proposalPortNumber,
-                 String addressToProposeOn, int learningPortNumber, String addressToLearnOn) throws UnknownHostException {
+    public Miner(User mybChainMiner) throws UnknownHostException {
         super("Miner: " + mybChainMiner.getID());
         this.miner = mybChainMiner;
-        this.requestAddress = InetAddress.getByName(addressToMakeRequestsOn);
-        this.proposalAddress = InetAddress.getByName(addressToProposeOn);
-        this.learnAddress = InetAddress.getByName(addressToLearnOn);
-        this.requestPort = requestPortNumber;
-        this.proposalPort = proposalPortNumber;
-        this.learnPort = learningPortNumber;
+        this.requestAddress = InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS);
+        this.proposalAddress = InetAddress.getByName(Addresses.MINER_PROPOSAL_ADDRESS);
+        this.learnAddress = InetAddress.getByName(Addresses.MINER_LEARNING_ADDRESS);
+        this.requestPort = Ports.USER_REQUEST_PORT;
+        this.proposalPort = Ports.MINER_PROPOSAL_PORT;
+        this.learnPort = Ports.MINER_LEARNING_PORT;
         this.pendingTransactions = new ConcurrentLinkedQueue<>();
         this.pendingAddresses = new ConcurrentLinkedQueue<>();
     }
@@ -54,9 +55,7 @@ public class Miner extends Thread{
             Thread miningThread = new Thread(() -> {
                 try {
                     mine();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
+                } catch (IOException | NoSuchAlgorithmException e) {
                     e.printStackTrace();
                 }
             });
@@ -229,9 +228,7 @@ public class Miner extends Thread{
 
         } catch (SocketTimeoutException ste) {
             return null;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         return null;

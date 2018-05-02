@@ -3,6 +3,8 @@ package acceptors;
 import chain.Block;
 import chain.Transaction;
 import chain.User;
+import common.Addresses;
+import common.Ports;
 import javafx.util.Pair;
 import packets.proposals.ProposalPacket;
 import packets.verifications.VerifyAllPacket;
@@ -35,10 +37,10 @@ public class ChainChecker extends Thread{
     private final User checker;
     private final RSAPrivateKey checkerPrivateKey;
     private final InetAddress proposalAddress;
-    private final InetAddress generalAcceptanceAddress;
+    private final InetAddress acceptanceAddress;
     private final InetAddress learnAddress;
     private final int proposalPort;
-    private final int generalAcceptancePort;
+    private final int acceptancePort;
     private final int learnPort;
 
     /**
@@ -49,23 +51,22 @@ public class ChainChecker extends Thread{
      * The protocol requires consensus of 2f + 1 Acceptors.
      *
      * */
-    public ChainChecker(User mybChainChecker, int proposalPortNumber, String addressToProposeOn,
-                        int generalAcceptancePortNumber, String generalAddressToAcceptOn,
-                        int learningPortNumber, String addressToLearnOn) throws IOException, ClassNotFoundException {
+    public ChainChecker(User mybChainChecker) throws IOException, ClassNotFoundException {
         super("ChainChecker: " + mybChainChecker.getID());
         this.checker = mybChainChecker;
         this.checkerPrivateKey = User.loadPrivateKeyFromFile();
-        this.proposalPort = proposalPortNumber;
-        this.proposalAddress = InetAddress.getByName(addressToProposeOn);
-        this.generalAcceptancePort = generalAcceptancePortNumber;
-        this.generalAcceptanceAddress = InetAddress.getByName(generalAddressToAcceptOn);
-        this.learnPort = learningPortNumber;
-        this.learnAddress = InetAddress.getByName(addressToLearnOn);
+        this.proposalPort = Ports.MINER_PROPOSAL_PORT;
+        this.proposalAddress = InetAddress.getByName(Addresses.MINER_PROPOSAL_ADDRESS);
+        this.acceptancePort = Ports.CHECKER_ACCEPTANCE_PORT;
+        this.acceptanceAddress = InetAddress.getByName(Addresses.CHECKER_ACCEPTANCE_ADDRESS);
+        this.learnPort = Ports.CHECKER_LEARNING_PORT;
+        this.learnAddress = InetAddress.getByName(Addresses.CHECKER_LEARNING_ADDRESS);
     }
+
 
     @Override
     public void run() {
-
+        this.acceptBlocks();
     }
 
 
@@ -192,8 +193,8 @@ public class ChainChecker extends Thread{
             int timesReset = 0;
             HashMap<RSAPublicKey, VerifyPacket> receivedProposals = new HashMap<>(N);
             receivedProposals.put(packetToSend.getPublicKey(), packetToSend);
-            MulticastSocket multicastSocket = new MulticastSocket(generalAcceptancePort);
-            multicastSocket.joinGroup(generalAcceptanceAddress);
+            MulticastSocket multicastSocket = new MulticastSocket(acceptancePort);
+            multicastSocket.joinGroup(acceptanceAddress);
             multicastSocket.setTimeToLive(TTL);
             multicastSocket.setSoTimeout(
                     ThreadLocalRandom.current().nextInt(MIN_COLLISION_PREVENTING_TIMEOUT_TIME, COLLISION_PREVENTING_TIMEOUT_TIME));
@@ -254,7 +255,7 @@ public class ChainChecker extends Thread{
 
             inputStream.close();
             bais.close();
-            multicastSocket.leaveGroup(generalAcceptanceAddress);
+            multicastSocket.leaveGroup(acceptanceAddress);
             return receivedProposals;
 
         } catch (IOException |InterruptedException | ClassNotFoundException e) {
@@ -302,8 +303,8 @@ public class ChainChecker extends Thread{
             HashMap<RSAPublicKey, VerifyAllPacket> knowledgeOfAllAcceptors = new HashMap<>(N);
             VerifyAllPacket verifyAllPacket = new VerifyAllPacket(checker.getPublicKey(), validatedPackets);
             knowledgeOfAllAcceptors.put(checker.getPublicKey(), verifyAllPacket);
-            MulticastSocket multicastSocket = new MulticastSocket(generalAcceptancePort);
-            multicastSocket.joinGroup(generalAcceptanceAddress);
+            MulticastSocket multicastSocket = new MulticastSocket(acceptancePort);
+            multicastSocket.joinGroup(acceptanceAddress);
             multicastSocket.setTimeToLive(TTL);
             multicastSocket.setSoTimeout(
                     ThreadLocalRandom.current().nextInt(MIN_COLLISION_PREVENTING_TIMEOUT_TIME, COLLISION_PREVENTING_TIMEOUT_TIME));
@@ -366,7 +367,7 @@ public class ChainChecker extends Thread{
 
             inputStream.close();
             bais.close();
-            multicastSocket.leaveGroup(generalAcceptanceAddress);
+            multicastSocket.leaveGroup(acceptanceAddress);
 
             return compareData(knowledgeOfAllAcceptors);
 
