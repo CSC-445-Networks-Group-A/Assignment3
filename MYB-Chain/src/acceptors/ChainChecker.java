@@ -8,11 +8,17 @@ import packets.proposals.ProposalPacket;
 import packets.verifications.VerifyAllPacket;
 import packets.verifications.VerifyPacket;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.*;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -27,6 +33,7 @@ public class ChainChecker extends Thread{
     private final static int N = 10;
     private final static int f = (N-1)/3;
     private final User checker;
+    private final RSAPrivateKey checkerPrivateKey;
     private final InetAddress proposalAddress;
     private final InetAddress generalAcceptanceAddress;
     private final InetAddress learnAddress;
@@ -47,6 +54,7 @@ public class ChainChecker extends Thread{
                         int learningPortNumber, String addressToLearnOn, int intialNumberOfCheckers) throws UnknownHostException {
         super("ChainChecker: " + mybChainChecker.getID());
         this.checker = mybChainChecker;
+        this.checkerPrivateKey = checker.readKeyFromFile();
         this.proposalPort = proposalPortNumber;
         this.proposalAddress = InetAddress.getByName(addressToProposeOn);
         this.generalAcceptancePort = generalAcceptancePortNumber;
@@ -59,6 +67,7 @@ public class ChainChecker extends Thread{
     public void run() {
 
     }
+
 
     private void acceptBlocks() {
         try {
@@ -79,7 +88,6 @@ public class ChainChecker extends Thread{
                     if ((object != null) && (object instanceof ProposalPacket)) {
                         ProposalPacket proposalPacket = (ProposalPacket) object;
                         BigInteger chainLength = proposalPacket.getChainLength();
-                        String proposerID = proposalPacket.getProposerID();
                         Block proposedBlock = proposalPacket.getBlock();
                         //long roundID = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
                         boolean validated = validate(proposedBlock, chainLength);
@@ -95,6 +103,16 @@ public class ChainChecker extends Thread{
                     bais.close();
                 } catch (SocketTimeoutException ste) {
                     ste.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (NoSuchPaddingException e) {
+                    e.printStackTrace();
+                } catch (BadPaddingException e) {
+                    e.printStackTrace();
+                } catch (IllegalBlockSizeException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -143,7 +161,8 @@ public class ChainChecker extends Thread{
         return true;
     }
 
-    private void verify(ProposalPacket proposalPacket) throws IOException, NoSuchAlgorithmException {
+    private void verify(ProposalPacket proposalPacket) throws IOException, NoSuchAlgorithmException,
+            IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, BadPaddingException {
         /*
         * Open multicast sockets to collect info
         *
@@ -172,15 +191,14 @@ public class ChainChecker extends Thread{
         *
         * */
         BigInteger chainLength = proposalPacket.getChainLength();
-        String proposerID = proposalPacket.getProposerID();
         Block verifiedBlock = proposalPacket.getBlock();
         int packetsVerified = 1;
 
         while (packetsVerified < (2*f + 1)) {
-            VerifyPacket verifyPacket =
-                    new VerifyPacket(chainLength, checker.getID(), verifiedBlock);
-            HashMap<String, VerifyPacket> packetsToValidate = sendAndReceivePackets(verifyPacket);
-            HashMap<String, VerifyPacket> validatedPackets = validatePackets(packetsToValidate);
+            byte[] encryptedData = VerifyPacket.encryptPacketData(checkerPrivateKey, chainLength, verifiedBlock);
+            VerifyPacket verifyPacket = new VerifyPacket(checker.getPublicKey(), chainLength, verifiedBlock, encryptedData);
+            HashMap<RSAPublicKey, VerifyPacket> packetsToValidate = sendAndReceivePackets(verifyPacket);
+            HashMap<RSAPublicKey, VerifyPacket> validatedPackets = validatePackets(packetsToValidate);
             VerifyPacket bestPacket = determineBestPacket(validatedPackets);
             packetsVerified = attemptToAchieveConsensus(validatedPackets, bestPacket);
         }
@@ -190,12 +208,12 @@ public class ChainChecker extends Thread{
     }
 
 
-    private HashMap<String, VerifyPacket> sendAndReceivePackets(VerifyPacket packetToSend) {
+    private HashMap<RSAPublicKey, VerifyPacket> sendAndReceivePackets(VerifyPacket packetToSend) {
         try {
             int receiveAttempts = 0;
             int timesReset = 0;
-            HashMap<String, VerifyPacket> receivedProposals = new HashMap<>(N);
-            receivedProposals.put(packetToSend.getID(), packetToSend);
+            HashMap<RSAPublicKey, VerifyPacket> receivedProposals = new HashMap<>(N);
+            receivedProposals.put(packetToSend.getPublicKey(), packetToSend);
             MulticastSocket multicastSocket = new MulticastSocket(generalAcceptancePort);
             multicastSocket.joinGroup(generalAcceptanceAddress);
             multicastSocket.setTimeToLive(TTL);
@@ -227,18 +245,15 @@ public class ChainChecker extends Thread{
                     Object object = inputStream.readObject();
                     if ((object != null) && (object instanceof VerifyPacket)) {
                         VerifyPacket verifyPacket = (VerifyPacket) object;
-                        if (verifyPacket.getID() != null && verifyPacket.getBlock() != null) {
-                            String id = verifyPacket.getID();
-                            if (receivedProposals.containsKey(id)) {
-                                receivedProposals.put(id, null);
-                            }else {
-                                receivedProposals.put(id, verifyPacket);
-                            }
+                        if (verifyPacket.getPublicKey() != null && verifyPacket.getBlock() != null) {
+                            RSAPublicKey publicKey = verifyPacket.getPublicKey();
+                            receivedProposals.putIfAbsent(publicKey, verifyPacket);
                             System.out.println("Block sent by:\n\n" +
-                                    "Sender:\t" + id + "\n\n");
+                                    "Sender:\t" + publicKey + "\n\n");
+
                         }else {
-                            System.out.println("WARNING -- Null block received:\n\n" +
-                                    "Sender:\t" + verifyPacket.getID() + "\n\n" +
+                            System.out.println("WARNING -- Null data received:\n\n" +
+                                    "Sender:\t" + verifyPacket.getPublicKey() + "\n\n" +
                                     "Further monitoring may be necessary");
                         }
                     }
@@ -276,20 +291,21 @@ public class ChainChecker extends Thread{
     }
 
 
-    private HashMap<String, VerifyPacket> validatePackets(HashMap<String, VerifyPacket> packetsToValidate) throws IOException, NoSuchAlgorithmException {
+    private HashMap<RSAPublicKey, VerifyPacket> validatePackets(HashMap<RSAPublicKey, VerifyPacket> packetsToValidate)
+            throws IOException, NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
 
-        HashMap<String, VerifyPacket> validatedPackets = new HashMap<>(N);
-        for (String acceptorID : packetsToValidate.keySet()) {
-            VerifyPacket packet = packetsToValidate.get(acceptorID);
-            if (validate(packet.getBlock(), packet.getChainLength())) {
-                validatedPackets.putIfAbsent(acceptorID, packet);
+        HashMap<RSAPublicKey, VerifyPacket> validatedPackets = new HashMap<>(N);
+        for (RSAPublicKey publicKey : packetsToValidate.keySet()) {
+            VerifyPacket packet = packetsToValidate.get(publicKey);
+            if (validate(packet.getBlock(), packet.getChainLength()) && packet.isHonest()) {
+                validatedPackets.putIfAbsent(publicKey, packet);
             }
         }
         return validatedPackets;
     }
 
 
-    private VerifyPacket determineBestPacket(HashMap<String, VerifyPacket> validatedPackets) {
+    private VerifyPacket determineBestPacket(HashMap<RSAPublicKey, VerifyPacket> validatedPackets) {
 
         VerifyPacket bestPacket = null;
 
@@ -305,7 +321,7 @@ public class ChainChecker extends Thread{
     }
 
 
-    private int attemptToAchieveConsensus(HashMap<String, VerifyPacket> validatedPackets, VerifyPacket packetToVerify) {
+    private int attemptToAchieveConsensus(HashMap<RSAPublicKey, VerifyPacket> validatedPackets) {
         /*
         * while consensus is not achieved
         *     send out what this acceptor believes to be the best packet
@@ -332,9 +348,9 @@ public class ChainChecker extends Thread{
         try {
             int receiveAttempts = 0;
             int timesReset = 0;
-            HashMap<String, VerifyAllPacket> knowledgeOfAllAcceptors = new HashMap<>(N);
-            VerifyAllPacket verifyAllPacket = new VerifyAllPacket(checker.getID(), validatedPackets);
-            knowledgeOfAllAcceptors.put(checker.getID(), verifyAllPacket);
+            HashMap<RSAPublicKey, VerifyAllPacket> knowledgeOfAllAcceptors = new HashMap<>(N);
+            VerifyAllPacket verifyAllPacket = new VerifyAllPacket(checker.getPublicKey(), validatedPackets);
+            knowledgeOfAllAcceptors.put(checker.getPublicKey(), verifyAllPacket);
             MulticastSocket multicastSocket = new MulticastSocket(generalAcceptancePort);
             multicastSocket.joinGroup(generalAcceptanceAddress);
             multicastSocket.setTimeToLive(TTL);
@@ -348,6 +364,8 @@ public class ChainChecker extends Thread{
 
             /*
             * FIXME It may be that N here should actually be 2f+1
+            *
+            * FIXME Or perhaps <<<<<    validatedPackets.size()    >>>>>
             * */
             while (knowledgeOfAllAcceptors.size() < N) {
                 outputStream.writeObject(verifyAllPacket);
@@ -367,18 +385,14 @@ public class ChainChecker extends Thread{
                     if ((object != null) && (object instanceof VerifyAllPacket)) {
                         VerifyAllPacket acceptorKnowledgePacket = (VerifyAllPacket) object;
 
-                        if (acceptorKnowledgePacket.getID() != null) {
-                            String id = acceptorKnowledgePacket.getID();
-                            if (knowledgeOfAllAcceptors.containsKey(id)) {
-                                knowledgeOfAllAcceptors.put(id, null);
-                            }else {
-                                knowledgeOfAllAcceptors.put(id, acceptorKnowledgePacket);
-                            }
+                        if (acceptorKnowledgePacket.getPublicKey() != null) {
+                            RSAPublicKey publicKey = acceptorKnowledgePacket.getPublicKey();
+                            knowledgeOfAllAcceptors.putIfAbsent(publicKey, acceptorKnowledgePacket);
                             System.out.println("Block sent by:\n\n" +
-                                    "Sender:\t" + acceptorKnowledgePacket.getID() + "\n\n");
+                                    "Sender:\t" + acceptorKnowledgePacket.getPublicKey() + "\n\n");
                         }else {
-                            System.out.println("WARNING -- Null block sent by:\n\n" +
-                                    "Sender:\t" + acceptorKnowledgePacket.getID() + "\n\n" +
+                            System.out.println("WARNING -- Null data sent by:\n\n" +
+                                    "Sender:\t" + acceptorKnowledgePacket + "\n\n" +
                                     "Further monitoring may be necessary");
                         }
                     }
@@ -403,12 +417,7 @@ public class ChainChecker extends Thread{
             bais.close();
             multicastSocket.leaveGroup(generalAcceptanceAddress);
 
-            compareData(knowledgeOfAllAcceptors, validatedPackets, packetToVerify);
-
-            /*
-            * This
-            * */
-            return receivedProposals;
+            return compareData(knowledgeOfAllAcceptors);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -418,9 +427,68 @@ public class ChainChecker extends Thread{
             e.printStackTrace();
         }
 
-        return null;
-
         return -1;
+    }
+
+
+    private int compareData(HashMap<RSAPublicKey, VerifyAllPacket> knowledgeOfAllAcceptors) {
+        HashMap<RSAPublicKey, HashMap<VerifyPacket, Integer>> packetFrequencies = new HashMap<>(N);
+
+        for (RSAPublicKey rsaPublicKey : knowledgeOfAllAcceptors.keySet()) {
+            HashMap<RSAPublicKey, VerifyPacket> acceptorKnowledge = knowledgeOfAllAcceptors.get(rsaPublicKey).getAcceptorKnowledge();
+            for (RSAPublicKey publicKey : acceptorKnowledge.keySet()) {
+
+                if (packetFrequencies.containsKey(publicKey)) {
+                    HashMap<VerifyPacket, Integer> frequencies = packetFrequencies.get(publicKey);
+                    VerifyPacket verifyPacket = acceptorKnowledge.get(publicKey);
+
+                    if (frequencies.containsKey(verifyPacket)) {
+                        Integer frequency = frequencies.get(verifyPacket);
+                        frequencies.put(verifyPacket, (frequency + 1));
+                    }else {
+                        frequencies.put(verifyPacket, 1);
+                    }
+
+                    packetFrequencies.put(publicKey, frequencies);
+
+                }else {
+                    HashMap<VerifyPacket, Integer> frequencies = new HashMap<>(1);
+                    frequencies.put(acceptorKnowledge.get(publicKey), 1);
+
+                    packetFrequencies.put(publicKey, frequencies);
+
+                }
+
+            }
+        }
+
+        /*
+        * For each publicKey, check if there is more than 1. If so, take the most agreed upon one. put into array.
+        * finally, return most agreed upon from the array?
+        * */
+
+        HashMap<RSAPublicKey, Pair<VerifyPacket, Integer>> mostFrequentPacketPerAcceptor = new HashMap<>(N);
+
+        for (RSAPublicKey publicKey : packetFrequencies.keySet()) {
+            for (VerifyPacket verifyPacket : packetFrequencies.get(publicKey).keySet()) {
+
+                if (mostFrequentPacketPerAcceptor.containsKey(publicKey)) {
+                    if (mostFrequentPacketPerAcceptor.get(publicKey).getValue() < packetFrequencies.get(publicKey).get(verifyPacket)) {
+                        mostFrequentPacketPerAcceptor.put(publicKey,
+                                new Pair<>(verifyPacket, packetFrequencies.get(publicKey).get(verifyPacket)));
+                    }
+                }else if (packetFrequencies.get(publicKey).get(verifyPacket) >= (2*f+1)){
+                    mostFrequentPacketPerAcceptor.put(publicKey,
+                            new Pair<>(verifyPacket, packetFrequencies.get(publicKey).get(verifyPacket)));
+                }
+
+            }
+        }
+
+        if (mostFrequentPacketPerAcceptor.size() > (2*f+1)) {
+
+        }
+
     }
 
 
