@@ -68,7 +68,7 @@ public class Transaction implements Serializable{
 
     }
 
-    protected Transaction(User miner, Double transactionAmount) {
+    public Transaction(User miner, Double transactionAmount) {
         /*
         * TODO -- Finish transaction constructor for miners
         * */

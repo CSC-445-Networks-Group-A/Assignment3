@@ -1,6 +1,8 @@
 package chain;
 
-import packets.acceptances.AcceptedPacket;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import packets.requests.UpdateRequest;
 
 import javax.crypto.BadPaddingException;
@@ -14,19 +16,23 @@ import java.net.MulticastSocket;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
  * Created by Michael on 4/14/2018.
  */
-public class User {
+public class User implements Serializable{
+    private final static String USER_INFO_PATH = "UserResources/USER_INFO.dat";
+    private final static String PRIVATE_KEY_PATH = "UserResources/PRIVATE.dat";
+    private final static String PUBLIC_KEY_PATH = "UserResources/PUBLIC.dat";
     private final static int DESIRED_CHARS_FROM_NAMES = 3;
     private final RSAPublicKey publicKey;
     private final RSAPrivateKey privateKey;
     private final String firstName;
     private final String lastName;
-    private final String ID;
+    private String ID;
     private BlockChain blockChain;
     private Double netWorth;
     private BigInteger lastUpdatedBlockNumber;
@@ -48,7 +54,6 @@ public class User {
         this.privateKey = (RSAPrivateKey) keyPair.getPrivate();
         this.firstName = firstName;
         this.lastName = lastName;
-        this.ID = generateID();
         this.netWorth = initialNetWorth;
         this.lastUpdatedBlockNumber = BigInteger.valueOf(0);
         /*
@@ -61,7 +66,7 @@ public class User {
         * */
         this.blockChain = null;
 
-        updateBlockChain();
+//        updateBlockChain();
 
     }
 
@@ -73,6 +78,22 @@ public class User {
         this.lastName = lastName;
         this.ID = id;
         this.netWorth = netWorth;
+    }
+
+    private User(String id, Double netWorth, BigInteger lastUpdatedBlockNumber, InetAddress requestAddress, int requestPort, InetAddress receiveUpdateAddress, int receiveUpdatePort, RSAPublicKey publicKey, RSAPrivateKey privateKey){
+        this.ID = id;
+        this.netWorth = netWorth;
+        this.lastUpdatedBlockNumber = lastUpdatedBlockNumber;
+        this.requestAddress = requestAddress;
+        this.requestPort = requestPort;
+        this.receiveUpdateAddress = receiveUpdateAddress;
+        this.receiveUpdatePort = receiveUpdatePort;
+        this.publicKey = publicKey;
+        this.privateKey = privateKey;
+        //TO-DO: take RSAPublicKey and RSAPrivateKey here for loading file
+
+        this.firstName = null;
+        this.lastName = null;
     }
 
 
@@ -125,7 +146,7 @@ public class User {
     /** send out an updateRequest to get the most recent copy of block chain
      *  through multicast
      * */
-    private void sendUpdateRequest(){
+   /* private void sendUpdateRequest(){
         MulticastSocket multicastSocket = null;
         try {
             multicastSocket = new MulticastSocket(requestPort);
@@ -151,12 +172,12 @@ public class User {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     /**
      * receiving newly updated blockchain object? Blocks?
      */
-    private BlockChain receiveUpdate(){
+  /*  private BlockChain receiveUpdate(){
 
         try {
 
@@ -189,7 +210,7 @@ public class User {
         }
 
         return null;
-    }
+    }*/
 
     public void updateBlockChain() {
         //TODO: generalized path?
@@ -210,9 +231,10 @@ public class User {
 
     private void downloadBlockChainTo(String path){
         //send out a UPDATEREQUEST TO ALL
-        sendUpdateRequest();
+        //TODO:
+        //sendUpdateRequest();
         //whatever returned
-        this.blockChain = receiveUpdate();
+        //this.blockChain = receiveUpdate();
         //save own copy in local
         File f = new File(path);
         FileOutputStream fos = null;
@@ -222,7 +244,7 @@ public class User {
 
             //writing older blocks first
             for(int i = blockChain.getChainLength().intValueExact()-1; i >=0; i --){
-                oos.writeObject(blockChain.getBlocks().get(i));
+//                oos.writeObject(blockChain.getBlocks().get(i));
                 oos.flush();
             }
 
@@ -278,6 +300,96 @@ public class User {
 
     }
 
+    public void login() throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException, IOException {
+
+        if(this.ID == null){
+            //create a new one
+            this.ID = generateID();
+            makeTransaction(this, 0.0);
+            writeUser();
+        }
+//        update();
+    }
+
+    public static boolean userFileExists(){
+        File tmpDir = new File(USER_INFO_PATH);
+        return tmpDir.exists();
+    }
+
+    public RSAPrivateKey ReadPublicKeyFromFile() throws IOException, ClassNotFoundException {
+        FileInputStream privateFileInput = new FileInputStream(PRIVATE_KEY_PATH);
+        ObjectInputStream privateObjectInput = new ObjectInputStream(privateFileInput);
+        RSAPrivateKey loadedPrivateKey = (RSAPrivateKey) privateObjectInput.readObject();
+        privateObjectInput.close();
+        privateFileInput.close();
+
+        return loadedPrivateKey;
+    }
+
+    public static User loadUser() throws NoSuchAlgorithmException, InvalidKeySpecException {
+        JSONParser parser = new JSONParser();
+
+        try {
+            FileInputStream publicFileInput = new FileInputStream(PUBLIC_KEY_PATH);
+            ObjectInputStream publicObjectInput = new ObjectInputStream(publicFileInput);
+            RSAPublicKey loadedPublicKey = (RSAPublicKey) publicObjectInput.readObject();
+            publicObjectInput.close();
+            publicFileInput.close();
+
+            FileInputStream privateFileInput = new FileInputStream(PRIVATE_KEY_PATH);
+            ObjectInputStream privateObjectInput = new ObjectInputStream(privateFileInput);
+            RSAPrivateKey loadedPrivateKey = (RSAPrivateKey) privateObjectInput.readObject();
+            privateObjectInput.close();
+            privateFileInput.close();
+
+            JSONObject userJson = (JSONObject) parser.parse(new FileReader(USER_INFO_PATH));
+
+            String loadedID = (String) userJson.get("ID");
+            Double loadedNetWorth = (Double) userJson.get("netWorth");
+            BigInteger loadedLastUpdatedBlockNumber = BigInteger.valueOf((long) userJson.get("lastUpdatedBlockNumber"));
+
+            InetAddress loadedRequestAddress = InetAddress.getByName((String) userJson.get("requestAddress"));
+            Long loadedRequestPortLong = (Long) userJson.get("requestPort");
+            int loadedRequestPort = loadedRequestPortLong.intValue();
+
+            InetAddress loadedReceiveUpdateAddress = InetAddress.getByName((String) userJson.get("receiveUpdateAddress"));
+            Long loadedReceiveUpdatePortLong = (Long) userJson.get("receiveUpdatePort");
+            int loadedReceiveUpdatePort = loadedReceiveUpdatePortLong.intValue();
+
+
+            return new User(loadedID, loadedNetWorth, loadedLastUpdatedBlockNumber, loadedRequestAddress, loadedRequestPort, loadedReceiveUpdateAddress, loadedReceiveUpdatePort, loadedPublicKey, loadedPrivateKey);
+        }catch(IOException | ParseException | ClassNotFoundException ex){
+            return null;
+        }
+    }
+
+
+    private void writeUser() throws IOException {
+        FileOutputStream publicFileOutput = new FileOutputStream(PUBLIC_KEY_PATH);
+        ObjectOutputStream publicObjectOutput = new ObjectOutputStream(publicFileOutput);
+        publicObjectOutput.writeObject(publicKey);
+        publicObjectOutput.close();
+        publicFileOutput.close();
+
+        FileOutputStream privateFileOutput = new FileOutputStream(PRIVATE_KEY_PATH);
+        ObjectOutputStream privateObjectOutput = new ObjectOutputStream(privateFileOutput);
+        privateObjectOutput.writeObject(privateKey);
+        privateObjectOutput.close();
+        privateFileOutput.close();
+
+        JSONObject userJson = new JSONObject();
+        userJson.put("ID", this.ID);
+        userJson.put("netWorth", this.netWorth);
+        userJson.put("lastUpdatedBlockNumber", this.lastUpdatedBlockNumber);
+        userJson.put("requestAddress", this.requestAddress);
+        userJson.put("requestPort", this.requestPort);
+        userJson.put("receiveUpdateAddress", this.receiveUpdateAddress);
+        userJson.put("receiveUpdatePort", this.receiveUpdatePort);
+
+        FileWriter userFile = new FileWriter(USER_INFO_PATH);
+        userFile.write(userJson.toJSONString());
+        userFile.close();
+    }
 
 
 

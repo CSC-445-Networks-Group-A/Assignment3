@@ -2,37 +2,56 @@ package client;
 
 import chain.Transaction;
 import chain.User;
+import org.json.simple.parser.ParseException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
 
 public class Main {
     private static final String CLIENT_TO_PROPOSER_ADDRESS = "230.0.0.0";
 
     public static void main(String[] args) throws NoSuchAlgorithmException, IllegalBlockSizeException,
-            InvalidKeyException, BadPaddingException, NoSuchPaddingException {
-        String firstName_Person1 = "Person";
-        String lastName_Person1 = "One";
+            InvalidKeyException, BadPaddingException, NoSuchPaddingException, IOException, InvalidKeySpecException {
 
-        String firstName_Person2 = "Person";
-        String lastName_Person2 = "Two";
+        User myUser;
+        if(User.userFileExists()){
+            myUser = User.loadUser();
+        }else {
+            RegistrationView regView = new RegistrationView();
+            regView.setVisible(true);
 
-        Double initialNetWorth = 20000.00;
+            while(regView.isFinished() == false){
+                //
+            }
+            regView.setVisible(false);
+            System.out.println("HERE");
+        }
 
-        User buyer = new User(firstName_Person1, lastName_Person1, initialNetWorth);
-        User seller = new User(firstName_Person2, lastName_Person2, initialNetWorth);
 
-        printPersonInfo(buyer);
-        printPersonInfo(seller);
+//        myUser.login();
+//
+//        ClientView clientView = new ClientView();
+//        clientView.setVisible(true);
 
-        Double amount = 10000.00;
+//        System.out.println(loaded.getID());
+//        System.out.println(loaded.getNetWorth());
 
-        Transaction transaction = buyer.makeTransaction(seller, amount);
-        printTransactionInfo(transaction, buyer.getPublicKey());
+
+        //        printPersonInfo(buyer);
+//        printPersonInfo(seller);
+//
+//        Double amount = 10000.00;
+//
+//        Transaction transaction = buyer.makeTransaction(seller, amount);
+//        printTransactionInfo(transaction, buyer.getPublicKey());
 
     }
 
