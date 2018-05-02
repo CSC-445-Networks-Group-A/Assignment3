@@ -51,10 +51,10 @@ public class ChainChecker extends Thread{
      * */
     public ChainChecker(User mybChainChecker, int proposalPortNumber, String addressToProposeOn,
                         int generalAcceptancePortNumber, String generalAddressToAcceptOn,
-                        int learningPortNumber, String addressToLearnOn, int intialNumberOfCheckers) throws UnknownHostException {
+                        int learningPortNumber, String addressToLearnOn) throws IOException, ClassNotFoundException {
         super("ChainChecker: " + mybChainChecker.getID());
         this.checker = mybChainChecker;
-        this.checkerPrivateKey = checker.readKeyFromFile();
+        this.checkerPrivateKey = User.loadPrivateKeyFromFile();
         this.proposalPort = proposalPortNumber;
         this.proposalAddress = InetAddress.getByName(addressToProposeOn);
         this.generalAcceptancePort = generalAcceptancePortNumber;
@@ -76,6 +76,7 @@ public class ChainChecker extends Thread{
             multicastSocket.setTimeToLive(TTL);
             multicastSocket.setSoTimeout(TIMEOUT_MILLISECONDS);
             boolean running = true;
+
             while (running) {
                 try {
                     byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
@@ -89,30 +90,25 @@ public class ChainChecker extends Thread{
                         ProposalPacket proposalPacket = (ProposalPacket) object;
                         BigInteger chainLength = proposalPacket.getChainLength();
                         Block proposedBlock = proposalPacket.getBlock();
-                        //long roundID = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
                         boolean validated = validate(proposedBlock, chainLength);
                         if (validated) {
-                            verify(proposalPacket);
-                            learn(proposalPacket);
-                        }else {
-
+                            VerifyPacket verifiedPacket = verify(proposalPacket);
+                            if (verifiedPacket != null) {
+                                learn(verifiedPacket);
+                            }
                         }
+                        /*
+                        * otherwise, ignore
+                        * */
 
                     }
                     inputStream.close();
                     bais.close();
                 } catch (SocketTimeoutException ste) {
                     ste.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
+                } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException e) {
                     e.printStackTrace();
-                } catch (InvalidKeyException e) {
-                    e.printStackTrace();
-                } catch (NoSuchPaddingException e) {
-                    e.printStackTrace();
-                } catch (BadPaddingException e) {
-                    e.printStackTrace();
-                } catch (IllegalBlockSizeException e) {
-                    e.printStackTrace();
+                    running = false;
                 }
             }
 
@@ -161,49 +157,31 @@ public class ChainChecker extends Thread{
         return true;
     }
 
-    private void verify(ProposalPacket proposalPacket) throws IOException, NoSuchAlgorithmException,
+
+    private VerifyPacket verify(ProposalPacket proposalPacket) throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, BadPaddingException {
-        /*
-        * Open multicast sockets to collect info
-        *
-        * Learn current ChainCheckers
-        *
-        * While a packet has not been received from all other nodes:
-        *   Keep collecting info from the other nodes
-        *   Store a value if no information has been received from that other node yet
-        * Close the socket
-        *
-        * Compare packets and pick the 'best'
-        *   First compare BlockChain length (pick the longest)
-        *   Then compare bytes in the proof of work (pick the one with most zeros)
-        *   Then compare the IDs of proposers (pick the... 'Biggest'? (compare string values))
-        *   Then compare the IDs of Acceptors (pick the biggest)
-        *
-        * Send out this Acceptor's idea of what the 'best' is
-        * While a packet has not been received from all other nodes:
-        *   Keep collecting info from the other nodes
-        *   Store a value if no information has been received from that other node yet
-        *
-        * if consensus reached:
-        *   done?
-        * else:
-        *  retry(?)
-        *
-        * */
         BigInteger chainLength = proposalPacket.getChainLength();
         Block verifiedBlock = proposalPacket.getBlock();
-        int packetsVerified = 1;
+        VerifyPacket verifiedPacket = null;
+        int packetsVerified = 0;
 
+        /*
+        * FIXME --- Maybe also include a variable here - "attemptNumber" - as a control variable to keep from looping infinitely
+        * */
         while (packetsVerified < (2*f + 1)) {
             byte[] encryptedData = VerifyPacket.encryptPacketData(checkerPrivateKey, chainLength, verifiedBlock);
             VerifyPacket verifyPacket = new VerifyPacket(checker.getPublicKey(), chainLength, verifiedBlock, encryptedData);
             HashMap<RSAPublicKey, VerifyPacket> packetsToValidate = sendAndReceivePackets(verifyPacket);
             HashMap<RSAPublicKey, VerifyPacket> validatedPackets = validatePackets(packetsToValidate);
-            VerifyPacket bestPacket = determineBestPacket(validatedPackets);
-            packetsVerified = attemptToAchieveConsensus(validatedPackets, bestPacket);
+            //VerifyPacket bestPacket = determineBestPacket(validatedPackets);
+            Pair<VerifyPacket, Integer> agreedUponPacketInfo = attemptToAchieveConsensus(validatedPackets);
+            if (agreedUponPacketInfo != null) {
+                verifiedPacket = agreedUponPacketInfo.getKey();
+                packetsVerified = agreedUponPacketInfo.getValue();
+            }
         }
 
-        return; /*TODO either the verified packet or the verified packets */
+        return verifiedPacket;
 
     }
 
@@ -279,11 +257,7 @@ public class ChainChecker extends Thread{
             multicastSocket.leaveGroup(generalAcceptanceAddress);
             return receivedProposals;
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException |InterruptedException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
@@ -321,30 +295,7 @@ public class ChainChecker extends Thread{
     }
 
 
-    private int attemptToAchieveConsensus(HashMap<RSAPublicKey, VerifyPacket> validatedPackets) {
-        /*
-        * while consensus is not achieved
-        *     send out what this acceptor believes to be the best packet
-        *     receive packets back
-        *     pick the best/most agreed upon
-        * */
-        int agreeingAcceptors = 1;
-
-        while (agreeingAcceptors < (2*f + 1)) {
-            agreeingAcceptors = 1;
-            /*
-            * Communicate with each address individually
-            * Store results as Address, Result mapping
-            * Send out mapping via multicast and receive other mappings via multicast.
-            * Compare, and keep track of the number that agree for each address
-            *
-            * */
-
-        }
-
-
-
-
+    private Pair<VerifyPacket, Integer> attemptToAchieveConsensus(HashMap<RSAPublicKey, VerifyPacket> validatedPackets) {
         try {
             int receiveAttempts = 0;
             int timesReset = 0;
@@ -419,19 +370,15 @@ public class ChainChecker extends Thread{
 
             return compareData(knowledgeOfAllAcceptors);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-        return -1;
+        return null;
     }
 
 
-    private int compareData(HashMap<RSAPublicKey, VerifyAllPacket> knowledgeOfAllAcceptors) {
+    private Pair<VerifyPacket, Integer> compareData(HashMap<RSAPublicKey, VerifyAllPacket> knowledgeOfAllAcceptors) {
         HashMap<RSAPublicKey, HashMap<VerifyPacket, Integer>> packetFrequencies = new HashMap<>(N);
 
         for (RSAPublicKey rsaPublicKey : knowledgeOfAllAcceptors.keySet()) {
@@ -477,7 +424,7 @@ public class ChainChecker extends Thread{
                         mostFrequentPacketPerAcceptor.put(publicKey,
                                 new Pair<>(verifyPacket, packetFrequencies.get(publicKey).get(verifyPacket)));
                     }
-                }else if (packetFrequencies.get(publicKey).get(verifyPacket) >= (2*f+1)){
+                }else if (packetFrequencies.get(publicKey).get(verifyPacket) >= (2*f + 1)){
                     mostFrequentPacketPerAcceptor.put(publicKey,
                             new Pair<>(verifyPacket, packetFrequencies.get(publicKey).get(verifyPacket)));
                 }
@@ -485,14 +432,46 @@ public class ChainChecker extends Thread{
             }
         }
 
-        if (mostFrequentPacketPerAcceptor.size() > (2*f+1)) {
+        if (mostFrequentPacketPerAcceptor.size() >= (2*f+1)) {
+            Pair<VerifyPacket, Integer> mostFrequentPacket = null;
+            int frequencyVerification = 0;
 
+            for (Pair<VerifyPacket, Integer> pair : mostFrequentPacketPerAcceptor.values()) {
+
+                if (mostFrequentPacket == null) {
+                    mostFrequentPacket = pair;
+                    frequencyVerification = 1;
+
+                }else if (pair.getValue() > mostFrequentPacket.getValue()) {
+
+                    mostFrequentPacket = pair;
+                    if (mostFrequentPacket.getKey().equals(pair.getKey())) {
+                        frequencyVerification++;
+                    }else {
+                        frequencyVerification = 1;
+                    }
+
+                }else if (mostFrequentPacket.getKey().equals(pair.getKey())) {
+                    frequencyVerification++;
+                }
+            }
+
+            if (frequencyVerification != mostFrequentPacket.getValue()) {
+                System.out.println("WARNING:\n" +
+                        "Mismatch of most frequent Packet's frequency as determined by all acceptors and as determined by final verification.");
+            }
+
+            return mostFrequentPacket;
         }
 
-    }
-
-
-    private void updateUsers() {
+        return null;
 
     }
+
+
+    private void learn(VerifyPacket verifiedPacket) {
+
+
+    }
+
 }

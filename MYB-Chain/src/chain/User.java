@@ -318,22 +318,10 @@ public class User {
         return tmpDir.exists();
     }
 
-    public static User loadUser() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static User loadUser() {
         JSONParser parser = new JSONParser();
 
         try {
-            FileInputStream publicFileInput = new FileInputStream(PUBLIC_KEY_PATH);
-            ObjectInputStream publicObjectInput = new ObjectInputStream(publicFileInput);
-            RSAPublicKey loadedPublicKey = (RSAPublicKey) publicObjectInput.readObject();
-            publicObjectInput.close();
-            publicFileInput.close();
-
-            FileInputStream privateFileInput = new FileInputStream(PRIVATE_KEY_PATH);
-            ObjectInputStream privateObjectInput = new ObjectInputStream(privateFileInput);
-            RSAPrivateKey loadedPrivateKey = (RSAPrivateKey) privateObjectInput.readObject();
-            privateObjectInput.close();
-            privateFileInput.close();
-
             JSONObject userJson = (JSONObject) parser.parse(new FileReader(USER_INFO_PATH));
 
             String loadedID = (String) userJson.get("ID");
@@ -348,8 +336,11 @@ public class User {
             Long loadedReceiveUpdatePortLong = (Long) userJson.get("receiveUpdatePort");
             int loadedReceiveUpdatePort = loadedReceiveUpdatePortLong.intValue();
 
+            RSAPublicKey loadedPublicKey = User.loadPublicKeyFromFile();
+            RSAPrivateKey loadedPrivateKey = User.loadPrivateKeyFromFile();
 
-            return new User(loadedID, loadedNetWorth, loadedLastUpdatedBlockNumber, loadedRequestAddress, loadedRequestPort, loadedReceiveUpdateAddress, loadedReceiveUpdatePort, loadedPublicKey, loadedPrivateKey);
+            return new User(loadedID, loadedNetWorth, loadedLastUpdatedBlockNumber, loadedRequestAddress,
+                    loadedRequestPort, loadedReceiveUpdateAddress, loadedReceiveUpdatePort, loadedPublicKey, loadedPrivateKey);
         }catch(IOException | ParseException | ClassNotFoundException ex){
             return null;
         }
@@ -383,6 +374,27 @@ public class User {
         userFile.close();
     }
 
+
+    private static RSAPublicKey loadPublicKeyFromFile() throws IOException, ClassNotFoundException {
+        FileInputStream publicFileInput = new FileInputStream(PUBLIC_KEY_PATH);
+        ObjectInputStream publicObjectInput = new ObjectInputStream(publicFileInput);
+        RSAPublicKey loadedPublicKey = (RSAPublicKey) publicObjectInput.readObject();
+        publicObjectInput.close();
+        publicFileInput.close();
+
+        return loadedPublicKey;
+    }
+
+
+    public static RSAPrivateKey loadPrivateKeyFromFile() throws IOException, ClassNotFoundException {
+        FileInputStream privateFileInput = new FileInputStream(PRIVATE_KEY_PATH);
+        ObjectInputStream privateObjectInput = new ObjectInputStream(privateFileInput);
+        RSAPrivateKey loadedPrivateKey = (RSAPrivateKey) privateObjectInput.readObject();
+        privateObjectInput.close();
+        privateFileInput.close();
+
+        return loadedPrivateKey;
+    }
 
 
     public Transaction makeTransaction(User seller, Double transactionAmount) throws IllegalBlockSizeException,

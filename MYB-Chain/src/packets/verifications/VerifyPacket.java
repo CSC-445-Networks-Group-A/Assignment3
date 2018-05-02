@@ -100,6 +100,12 @@ public class VerifyPacket extends Packet implements Comparable<VerifyPacket>{
     }
 
 
+    @Override
+    /**
+     * Used to compare this packet to some "otherPacket", and determines which is "best" by:
+     *   First comparing BlockChain length (picks the longest)
+     *   Then comparing bytes in the proof of work (picks the one with most leading zeros)
+     * */
     public int compareTo(VerifyPacket otherPacket) {
         if (chainLength.compareTo(otherPacket.getChainLength()) != 0) {
             return chainLength.compareTo(otherPacket.getChainLength());
@@ -109,15 +115,42 @@ public class VerifyPacket extends Packet implements Comparable<VerifyPacket>{
         byte[] otherProofOfWork = otherPacket.getBlock().getProofOfWork();
 
         for (int i = 0; i < thisProofOfWork.length; i++) {
-            if (thisProofOfWork[i] != 0 && otherProofOfWork[i] != 0) {
-                break;
-            }else if (thisProofOfWork[i] == 0 && otherProofOfWork[i] != 0) {
+            if (thisProofOfWork[i] == 0 && otherProofOfWork[i] != 0) {
                 return 1;
             }else if (otherProofOfWork[i] == 0 && thisProofOfWork[i] != 0) {
                 return -1;
+            }else if (thisProofOfWork[i] != 0 && otherProofOfWork[i] != 0) {
+                if (thisProofOfWork[i] < otherProofOfWork[i]) {
+                    return 1;
+                }else if (thisProofOfWork[i] > otherProofOfWork[i]) {
+                    return -1;
+                }
             }
         }
         return 0;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof VerifyPacket) {
+            VerifyPacket otherPacket = (VerifyPacket) obj;
+            if (chainLength.equals(otherPacket.chainLength) && block.equals(otherPacket.block)) {
+                if (encryptedData.length != otherPacket.encryptedData.length) {
+                    return false;
+                }
+
+                for (int i = 0; i < encryptedData.length; i++) {
+                    if (encryptedData[i] != otherPacket.encryptedData[i]) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }else {
+                return false;
+            }
+        }else {
+            return false;
+        }
+    }
 }
