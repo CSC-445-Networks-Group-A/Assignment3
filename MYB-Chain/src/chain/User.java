@@ -315,17 +315,9 @@ public class User {
 
     }
 
-    public void login() throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException, IOException {
-        /*
-        * FIXME -- This needs restructuring. IDs should be invariant and final, created once and reused after. Just like the Keys.
-        * FIXME -- This should probably instead read something like "if !userFile.exists()"
-        * */
-        if(this.ID == null){
-            //create a new one
-            makeTransaction(this, 0.0);
-            writeUser();
-        }
-//        update();
+    public void commitUser() throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException, IOException {
+        makeTransaction(this, 0.0);
+        writeUser();
     }
 
     public static boolean userFileExists(){
@@ -356,6 +348,7 @@ public class User {
 
             return new User(loadedPublicKey, loadedPrivateKey, loadedID, loadedNetWorth, loadedLastUpdatedBlockNumber);
         }catch(IOException | ParseException | ClassNotFoundException ex){
+            ex.printStackTrace();
             return null;
         }
     }
@@ -378,9 +371,9 @@ public class User {
         userJson.put("ID", this.ID);
         userJson.put("netWorth", this.netWorth);
         userJson.put("lastUpdatedBlockNumber", this.lastUpdatedBlockNumber);
-        userJson.put("requestAddress", this.requestAddress);
+        userJson.put("requestAddress", this.requestAddress.getHostAddress());
         userJson.put("requestPort", this.requestPort);
-        userJson.put("receiveUpdateAddress", this.receiveUpdateAddress);
+        userJson.put("receiveUpdateAddress", this.receiveUpdateAddress.getHostAddress());
         userJson.put("receiveUpdatePort", this.receiveUpdatePort);
 
         FileWriter userFile = new FileWriter(USER_INFO_PATH);
