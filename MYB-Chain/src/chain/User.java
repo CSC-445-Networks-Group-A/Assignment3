@@ -26,11 +26,14 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Created by Michael on 4/14/2018.
  */
-public class User {
+
+public class User implements Serializable{
+
     private final static String BLOCKCHAIN_PATH = "UserResources" + File.separator + "BLOCKCHAIN";
     private final static String USER_INFO_PATH = "UserResources" + File.separator + "USER_INFO.dat";
     private final static String PRIVATE_KEY_PATH = "UserResources" + File.separator + "PRIVATE.dat";
     private final static String PUBLIC_KEY_PATH = "UserResources" + File.separator + "PUBLIC.dat";
+
     private final static int DESIRED_CHARS_FROM_NAMES = 3;
     private final static int TIMEOUT_MILLISECONDS = 20000;
     private final static int TTL = 12;
@@ -274,8 +277,6 @@ public class User {
             fos.close();
             oos.close();
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -333,7 +334,18 @@ public class User {
         return tmpDir.exists();
     }
 
-    public static User loadUser() {
+
+    public RSAPrivateKey readPrivateKeyFromFile() throws IOException, ClassNotFoundException {
+        FileInputStream privateFileInput = new FileInputStream(PRIVATE_KEY_PATH);
+        ObjectInputStream privateObjectInput = new ObjectInputStream(privateFileInput);
+        RSAPrivateKey loadedPrivateKey = (RSAPrivateKey) privateObjectInput.readObject();
+        privateObjectInput.close();
+        privateFileInput.close();
+
+        return loadedPrivateKey;
+    }
+
+    public static User loadUser() throws NoSuchAlgorithmException, InvalidKeySpecException {
         JSONParser parser = new JSONParser();
 
         try {
