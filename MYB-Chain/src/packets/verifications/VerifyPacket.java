@@ -4,85 +4,153 @@ import chain.Block;
 import packets.Packet;
 import packets.PacketTypes;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.io.IOException;
 import java.math.BigInteger;
-import java.net.InetAddress;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
 
 /**
  * Created by Michael on 4/18/2018.
  */
 public class VerifyPacket extends Packet implements Comparable<VerifyPacket>{
+    private final RSAPublicKey publicKey;
     private final BigInteger chainLength;
-    private final InetAddress address;
-    private final int port;
-    private final String ID;
     private final Block block;
+    private final byte[] encryptedData;
 
-    public VerifyPacket(BigInteger blockChainLength, InetAddress acceptorAddress, int acceptorPort, String acceptorID, Block blockValue) {
-        super(PacketTypes.VERIFICATION);
+
+    public VerifyPacket(RSAPublicKey rsaPublicKey, BigInteger blockChainLength, Block blockValue, byte[] dataEncrypted) {
+        super(PacketTypes.SINGLE_VERIFICATION);
+        this.publicKey = rsaPublicKey;
         this.chainLength = blockChainLength;
-        this.address = acceptorAddress;
-        this.port = acceptorPort;
-        this.ID = acceptorID;
         this.block = blockValue;
+        this.encryptedData = dataEncrypted;
+
     }
+
+
+    public static byte[] encryptPacketData(RSAPrivateKey rsaPrivateKey, BigInteger blockChainLength, Block blockValue)
+            throws IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, rsaPrivateKey);
+        return cipher.doFinal(getUnencryptedData(blockChainLength, blockValue));
+    }
+
+
+    public static byte[] getUnencryptedData(BigInteger blockChainLength, Block blockValue) throws IOException {
+        byte[] lengthData = blockChainLength.toByteArray();
+        byte[] blockData = blockValue.getBlockBytes();
+        byte[] packetData = new byte[lengthData.length + blockData.length];
+        int offset = 0;
+        for (int i = 0; i < lengthData.length; i++) {
+            packetData[offset + i] = lengthData[i];
+        }
+        offset += lengthData.length;
+        for (int i = 0; i < blockData.length; i++) {
+            packetData[offset + i] = blockData[i];
+        }
+        return packetData;
+    }
+
+
+    public RSAPublicKey getPublicKey() {
+        return publicKey;
+    }
+
 
     public BigInteger getChainLength() {
         return chainLength;
     }
 
-    public InetAddress getAddress() {
-        return address;
-    }
-
-    public Integer getPort() {
-        return port;
-    }
-
-    public String getID() {
-        return ID;
-    }
 
     public Block getBlock() {
         return block;
     }
 
-    public int compareTo(VerifyPacket otherPacket) {
-        byte[] thisProofOfWork = block.getProofOfWork();
-        byte[] otherProofOfWork = otherPacket.getBlock().getProofOfWork();
 
-        for (int i = 0; i < thisProofOfWork.length; i++) {
-            if (thisProofOfWork[i] != 0 && otherProofOfWork[i] != 0) {
-                break;
-            }else if (thisProofOfWork[i] == 0 && otherProofOfWork[i] != 0) {
-                return 1;
-            }else if (otherProofOfWork[i] == 0 && thisProofOfWork[i] != 0) {
-                return -1;
+    public byte[] getEncryptedData() {
+        return Arrays.copyOf(encryptedData, encryptedData.length);
+    }
+
+
+    public boolean isHonest() throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        byte[] unencryptedData = getUnencryptedData(chainLength, block);
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, publicKey);
+        byte[] decryptedData = cipher.doFinal(encryptedData);
+
+        if (decryptedData.length != unencryptedData.length) {
+            return false;
+        }
+
+        for (int i = 0; i < unencryptedData.length; i++) {
+            if (decryptedData[i] != unencryptedData[i]) {
+                return false;
             }
         }
 
+        return true;
+    }
+
+
+    @Override
+    /**
+     * Used to compare this packet to some "otherPacket", and determines which is "best" by:
+     *   First comparing BlockChain length (picks the longest)
+     *   Then comparing bytes in the proof of work (picks the one with most leading zeros)
+     * */
+    public int compareTo(VerifyPacket otherPacket) {
         if (chainLength.compareTo(otherPacket.getChainLength()) != 0) {
             return chainLength.compareTo(otherPacket.getChainLength());
         }
 
-        if (ID.compareTo(otherPacket.getID()) != 0) {
-            return ID.compareTo(otherPacket.getID());
+        byte[] thisProofOfWork = block.getProofOfWork();
+        byte[] otherProofOfWork = otherPacket.getBlock().getProofOfWork();
+
+        for (int i = 0; i < thisProofOfWork.length; i++) {
+            if (thisProofOfWork[i] == 0 && otherProofOfWork[i] != 0) {
+                return 1;
+            }else if (otherProofOfWork[i] == 0 && thisProofOfWork[i] != 0) {
+                return -1;
+            }else if (thisProofOfWork[i] != 0 && otherProofOfWork[i] != 0) {
+                if (thisProofOfWork[i] < otherProofOfWork[i]) {
+                    return 1;
+                }else if (thisProofOfWork[i] > otherProofOfWork[i]) {
+                    return -1;
+                }
+            }
         }
+        return 0;
+    }
 
-        if (getPort().compareTo(otherPacket.getPort()) != 0) {
-            return getPort().compareTo(otherPacket.getPort());
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof VerifyPacket) {
+            VerifyPacket otherPacket = (VerifyPacket) obj;
+            if (chainLength.equals(otherPacket.chainLength) && block.equals(otherPacket.block)) {
+                if (encryptedData.length != otherPacket.encryptedData.length) {
+                    return false;
+                }
+
+                for (int i = 0; i < encryptedData.length; i++) {
+                    if (encryptedData[i] != otherPacket.encryptedData[i]) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }else {
+                return false;
+            }
+        }else {
+            return false;
         }
-
-        Integer addressHashCode = address.hashCode();
-        Integer otherAddressHashCode = otherPacket.getAddress().hashCode();
-
-        if (addressHashCode.compareTo(otherAddressHashCode) != 0) {
-            return addressHashCode.compareTo(otherAddressHashCode);
-        }
-
-        Integer hashCode = this.hashCode();
-        Integer otherHashCode = otherPacket.hashCode();
-
-        return hashCode.compareTo(otherHashCode);
-
     }
 }
