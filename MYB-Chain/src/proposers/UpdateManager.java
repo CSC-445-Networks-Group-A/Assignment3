@@ -24,6 +24,7 @@ public class UpdateManager extends Thread {
     private final static int TTL = 12;
     private final InetAddress listenAddress;
     private final InetAddress requestAddress;
+    //TODO: another address and port for receiving from acceptors
     private final int listenPort;
     private final int requestPort;
     private ConcurrentLinkedQueue<Pair<BigInteger, User>> pendingRequest;
@@ -83,11 +84,12 @@ public class UpdateManager extends Thread {
 
             Object object = inputStream.readObject();
             if ((object != null) && (object instanceof UpdateRequest)) {
+
                 UpdateRequest updateRequest = (UpdateRequest) object;
                 Pair <BigInteger, User> pair = new Pair<>(updateRequest.getLastRecordedBlock(), updateRequest.getUser());
                 pendingRequest.add(pair);
                 //TODO: maybe? sending back a simple message to user indicating that it is updating...?
-                InetAddress userAddress =updateRequest.getUser().getReceiveUpdateAddress();
+                InetAddress userAddress = updateRequest.getUser().getReceiveUpdateAddress();
                 int userPort = updateRequest.getUser().getReceiveUpdatePort();
                 GeneralResponse messageToUser = new GeneralResponse("Updating in progress......");
                 //TODO: add to pending address? not sure if it is needed this point
