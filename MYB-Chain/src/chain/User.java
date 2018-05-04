@@ -404,6 +404,15 @@ public class User {
     }
 
 
+    /**
+     * This function is responsible for creating a Transaction object with the specified seller, for the specified
+     * transactionAmount, where upon the completion of a successful Transaction, the specified transactionAmount will be
+     * sent to the seller.
+     * TODO
+     * Note that this includes creating a Transaction and sending a TransactionRequest to a Miner via the
+     * USER_REQUEST_ADDRESS and USER_REQUEST_PORT in the Addresses and Ports classes respectively. The User will then
+     * wait to hear back from the Miner via TCP over the provided InetAddress and port specified in the TransactionRequest.
+     * */
     public Transaction makeTransaction(User seller, Double transactionAmount) throws IllegalBlockSizeException,
             InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidParameterException {
         return new Transaction(this, seller, transactionAmount, privateKey);
