@@ -6,6 +6,7 @@ import chain.User;
 import common.Addresses;
 import common.Ports;
 import javafx.util.Pair;
+import packets.acceptances.AcceptedPacket;
 import packets.proposals.ProposalPacket;
 import packets.verifications.VerifyAllPacket;
 import packets.verifications.VerifyPacket;
@@ -38,10 +39,12 @@ public class ChainChecker extends Thread{
     private final RSAPrivateKey checkerPrivateKey;
     private final InetAddress proposalAddress;
     private final InetAddress acceptanceAddress;
-    private final InetAddress learnAddress;
+    private final InetAddress minerLearningAddress;
+    private final InetAddress chainHolderLearningAddress;
     private final int proposalPort;
     private final int acceptancePort;
-    private final int learnPort;
+    private final int minerLearningPort;
+    private final int chainHolderLearningPort;
 
     /**
      * Note that for N ChainCheckers, Byzantine Paxos can handle f faulty or malicious Acceptors where
@@ -55,12 +58,14 @@ public class ChainChecker extends Thread{
         super("ChainChecker: " + mybChainChecker.getID());
         this.checker = mybChainChecker;
         this.checkerPrivateKey = User.loadPrivateKeyFromFile();
-        this.proposalPort = Ports.MINER_PROPOSAL_PORT;
         this.proposalAddress = InetAddress.getByName(Addresses.MINER_PROPOSAL_ADDRESS);
-        this.acceptancePort = Ports.CHECKER_ACCEPTANCE_PORT;
         this.acceptanceAddress = InetAddress.getByName(Addresses.CHECKER_ACCEPTANCE_ADDRESS);
-        this.learnPort = Ports.CHECKER_LEARNING_PORT;
-        this.learnAddress = InetAddress.getByName(Addresses.CHECKER_LEARNING_ADDRESS);
+        this.minerLearningAddress = InetAddress.getByName(Addresses.MINER_LEARNING_ADDRESS);
+        this.chainHolderLearningAddress = InetAddress.getByName(Addresses.HOLDER_LEARNING_ADDRESS);
+        this.proposalPort = Ports.MINER_PROPOSAL_PORT;
+        this.acceptancePort = Ports.CHECKER_ACCEPTANCE_PORT;
+        this.minerLearningPort = Ports.MINER_LEARNING_PORT;
+        this.chainHolderLearningPort = Ports.HOLDER_LEARNING_PORT;
     }
 
 
@@ -349,6 +354,9 @@ public class ChainChecker extends Thread{
                         }
                     }
 
+                    /*
+                    * TODO: close output streams?
+                    * */
                 }catch (SocketTimeoutException ste) {
                     ste.printStackTrace();
                     receiveAttempts++;
@@ -433,7 +441,7 @@ public class ChainChecker extends Thread{
             }
         }
 
-        if (mostFrequentPacketPerAcceptor.size() >= (2*f+1)) {
+        if (mostFrequentPacketPerAcceptor.size() >= (2*f + 1)) {
             Pair<VerifyPacket, Integer> mostFrequentPacket = null;
             int frequencyVerification = 0;
 
@@ -471,8 +479,83 @@ public class ChainChecker extends Thread{
 
 
     private void learn(VerifyPacket verifiedPacket) {
+        /*
+        * for miners: this.minerLearningAddress = InetAddress.getByName(Addresses.MINER_LEARNING_ADDRESS);
+        * */
 
+        /*
+        * for learners: this.chainHolderLearningAddress = InetAddress.getByName(Addresses.HOLDER_LEARNING_ADDRESS);
+        * */
+
+        /*
+        * send message to learners until you get a 2f + 1 responses
+        * */
+        AcceptedPacket packetToLearn = new AcceptedPacket(verifiedPacket.getChainLength(), verifiedPacket.getBlock());
+        AcceptedPacket packetLearned = null;
+        while (packetLearned == null) {
+            packetLearned = learnPacket(packetToLearn, chainHolderLearningAddress, chainHolderLearningPort);
+        }
+
+
+        /*
+        * send message to all miners
+        * */
+
+        learnPacket(packetLearned, proposalAddress, proposalPort);
 
     }
+
+
+    private AcceptedPacket learnPacket(AcceptedPacket acceptedPacket, InetAddress address, int port) {
+        try {
+            System.out.println("LEARNING:\t" + Thread.currentThread().getName() + "\n" +
+                    "Learning Port:\t" + port);
+
+            MulticastSocket multicastSocket = new MulticastSocket(port);
+            multicastSocket.joinGroup(address);
+            multicastSocket.setTimeToLive(TTL);
+            multicastSocket.setSoTimeout(TIMEOUT_MILLISECONDS);
+            multicastSocket.setSoTimeout(
+                    ThreadLocalRandom.current().nextInt(MIN_COLLISION_PREVENTING_TIMEOUT_TIME, COLLISION_PREVENTING_TIMEOUT_TIME));
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream outputStream = new ObjectOutputStream(baos);
+
+            outputStream.writeObject(acceptedPacket);
+            byte[] output = baos.toByteArray();
+            DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
+            multicastSocket.send(datagramPacket);
+
+
+            byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
+            datagramPacket = new DatagramPacket(buf, buf.length);
+            multicastSocket.receive(datagramPacket);
+            ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
+            ObjectInputStream inputStream = new ObjectInputStream(bais);
+
+            Object object = inputStream.readObject();
+            AcceptedPacket packetAccepted = null;
+            if ((object != null) && (object instanceof AcceptedPacket)) {
+                packetAccepted = ((AcceptedPacket) object);
+
+            }
+            inputStream.close();
+            bais.close();
+            outputStream.close();
+            baos.close();
+            multicastSocket.leaveGroup(address);
+            System.out.println("FINISHING LEARNING:\t" + Thread.currentThread().getName() + "\n" +
+                    "Learning Port:\t" + port);
+
+            return packetAccepted;
+
+        } catch (SocketTimeoutException ste) {
+            return null;
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
 }
