@@ -5,14 +5,13 @@
  */
 package client;
 
+import java.awt.event.ActionListener;
+
 /**
  *
  * @author admin
  */
 public class RegistrationView extends javax.swing.JFrame {
-
-    private boolean isFinished = false;
-
 
     /**
      * Creates new form RegistrationView
@@ -149,13 +148,18 @@ public class RegistrationView extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+
+    public void addActionListener(ActionListener listener) {
+        btnRegister.addActionListener(listener);
+    }
+
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
         // TODO add your handling code here:
+
     }//GEN-LAST:event_btnRegisterActionPerformed
 
     private void btnDoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDoneActionPerformed
         // TODO add your handling code here:
-        this.isFinished = true;
     }//GEN-LAST:event_btnDoneActionPerformed
 
     public String getFirstname(){
@@ -166,9 +170,6 @@ public class RegistrationView extends javax.swing.JFrame {
         return this.tbxLastname.getText();
     }
 
-    public boolean isFinished(){
-        return this.isFinished;
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel RegistrationPanel;

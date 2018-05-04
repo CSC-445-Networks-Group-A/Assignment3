@@ -210,6 +210,10 @@ public class Miner extends Thread{
             multicastSocket.setTimeToLive(TTL);
             multicastSocket.setSoTimeout(TIMEOUT_MILLISECONDS);
 
+            /*
+            * TODO: Wait for 2f + 1 responses that are equivalent, then use that response accordingly
+            * */
+
             byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
             DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
             multicastSocket.receive(datagramPacket);
