@@ -445,11 +445,11 @@ public class User {
         return blockChain;
     }
 
-    public InetAddress getReceiveUpdateAddress() {
-        return receiveUpdateAddress;
-    }
+  //  public InetAddress getReceiveUpdateAddress() {
+  //      return receiveUpdateAddress;
+  //  }
 
-    public int getReceiveUpdatePort() {
+   /* public int getReceiveUpdatePort() {
         return receiveUpdatePort;
-    }
+    }*/
 }

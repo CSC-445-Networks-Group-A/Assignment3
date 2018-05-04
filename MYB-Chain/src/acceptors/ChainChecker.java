@@ -69,6 +69,9 @@ public class ChainChecker extends Thread{
         this.acceptBlocks();
     }
 
+    /**
+     * receiving a block from miner the newly computed block
+     */
 
     private void acceptBlocks() {
         try {
@@ -471,7 +474,6 @@ public class ChainChecker extends Thread{
 
 
     private void learn(VerifyPacket verifiedPacket) {
-
 
     }
 

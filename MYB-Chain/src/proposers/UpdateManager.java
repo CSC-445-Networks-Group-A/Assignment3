@@ -26,8 +26,8 @@ public class UpdateManager extends Thread {
     //TODO: another address and port for receiving from acceptors
     private final int listenPort;
     private final int requestPort;
-    private ConcurrentLinkedQueue<Pair<BigInteger, User>> pendingRequest;
-    private ConcurrentLinkedQueue<Pair<InetAddress, User>> pendingAddresses;
+    private ConcurrentLinkedQueue<Pair<BigInteger, InetAddress>> pendingRequest;
+    private ConcurrentLinkedQueue<Pair<InetAddress, Integer>> pendingAddresses;
 
     public UpdateManager(int listenPort, String listenAddress, int requestPort, String requestAddress, int listenAcceptorPort,
                          String listenAcceptorAddress) throws UnknownHostException {
@@ -94,11 +94,13 @@ public class UpdateManager extends Thread {
             if ((object != null) && (object instanceof UpdateRequest)) {
 
                 UpdateRequest updateRequest = (UpdateRequest) object;
-                Pair <BigInteger, User> pair = new Pair<>(updateRequest.getLastRecordedBlock(), updateRequest.getUser());
+                Pair <BigInteger, InetAddress> pair = new Pair<>(updateRequest.getLastRecordedBlock(), updateRequest.getUserAddress());
                 pendingRequest.add(pair);
                 //TODO:sending back a simple message to user indicating that it is updating...
-                InetAddress userAddress = updateRequest.getUser().getReceiveUpdateAddress();
-                int userPort = updateRequest.getUser().getReceiveUpdatePort();
+                InetAddress userAddress = updateRequest.getUserAddress();
+                int userPort = updateRequest.getUserPort();
+                Pair<InetAddress, Integer> addressPortPair = new Pair<>(userAddress,userPort);
+                pendingAddresses.add(addressPortPair);
                 GeneralResponse messageToUser = new GeneralResponse("Updating in progress......");
                 respondToUserUpdateRequest(userAddress,userPort,messageToUser);
             }
@@ -131,8 +133,13 @@ public class UpdateManager extends Thread {
 
             //TODO: check when queue is empty? when pendingRequest.poll() == null?
             //get from the queue
-            Pair<BigInteger, User> pair = pendingRequest.poll();
-            UpdateRequest updateRequestPacket = new UpdateRequest(pair.getKey(), pair.getValue());
+            Pair<BigInteger, InetAddress> pair = pendingRequest.poll();
+            Pair<InetAddress, Integer> userAddressPortPair = pendingAddresses.poll();
+            BigInteger lastBlockRecorded = pair.getKey();
+            InetAddress userAddress = pair.getValue();
+            // this SHOULD BE the same as looping through the addressPort pairs and find by InetAddress
+            int userPort = userAddressPortPair.getValue();
+            UpdateRequest updateRequestPacket = new UpdateRequest(lastBlockRecorded,userAddress,userPort);
             outputStream.writeObject(updateRequestPacket);
             byte[] output = baos.toByteArray();
             DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
@@ -169,8 +176,8 @@ public class UpdateManager extends Thread {
 
                 //simply sending back a message to user that he/she is successfully updated
                 //actual update occurs at learners side
-                InetAddress userAddress = successPacket.getUser().getReceiveUpdateAddress();
-                int userPort = successPacket.getUser().getReceiveUpdatePort();
+                InetAddress userAddress = successPacket.getUserAddress();
+                int userPort = successPacket.getUserPort();
                 GeneralResponse messageToUser = new GeneralResponse("Update successful!");
                 respondToUserUpdateRequest(userAddress, userPort, messageToUser);
             }
