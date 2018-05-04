@@ -24,4 +24,7 @@ public class UpdateRequest extends Packet {
     public BigInteger getLastRecordedBlock() {
         return lastRecordedBlock;
     }
+    public User getUser(){
+        return this.user;
+    }
 }
