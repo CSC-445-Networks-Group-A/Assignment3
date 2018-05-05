@@ -18,7 +18,6 @@ public class Client {
 
     public static void main(String args[]){
 
-//        User myUser;
         if(User.userFileExists()){
             myUser = User.loadUser();
             ClientUI client = new ClientUI(myUser);
@@ -49,8 +48,6 @@ public class Client {
             });
 
             regView.setVisible(true);
-
-            System.out.println("HERE");
         }
 
     }

@@ -7,6 +7,13 @@ package client;
 
 import chain.User;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.security.InvalidKeyException;
+import java.security.InvalidParameterException;
+import java.security.NoSuchAlgorithmException;
+
 /**
  *
  * @author admin
@@ -172,13 +179,24 @@ public class ClientUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnSendMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSendMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnSendMouseClicked
+    private void btnSendMouseClicked(java.awt.event.MouseEvent evt) {
+        double amount = Double.parseDouble(tbxSendValue.getText());
+        String sendToId = tbxSentToAccount.getText();
+        System.out.println(amount + " -> " + sendToId);
+//        User user = new User("", );
+        try {
+            myUser.makeTransaction(myUser, amount);
+            lblMessage.setText("Transaction Pending...");
+        } catch (IllegalBlockSizeException | InvalidKeyException | BadPaddingException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidParameterException e) {
+            e.printStackTrace();
+            lblMessage.setText("Error. Try again.");
+        }
 
-    private void btnSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnSendActionPerformed
+    }
+
+    private void btnSendActionPerformed(java.awt.event.ActionEvent evt) {
+
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel ClientPanel;

@@ -405,7 +405,7 @@ public class User {
 
 
     public Transaction makeTransaction(User seller, Double transactionAmount) throws IllegalBlockSizeException,
-            InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidParameterException {
+            InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, java.security.InvalidParameterException {
         return new Transaction(this, seller, transactionAmount, privateKey);
     }
 
