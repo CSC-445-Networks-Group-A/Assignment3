@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9cab0336-60ab-49cc-9c8c-4bce677818b9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/packets/learnings/LearnedPacket.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/acceptors/ChainChecker.java" afterPath="$PROJECT_DIR$/src/acceptors/ChainChecker.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/learners/ChainHolder.java" afterPath="$PROJECT_DIR$/src/learners/ChainHolder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/packets/PacketTypes.java" afterPath="$PROJECT_DIR$/src/packets/PacketTypes.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/packets/acceptances/AcceptedPacket.java" afterPath="$PROJECT_DIR$/src/packets/acceptances/AcceptedPacket.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/packets/verifications/VerifyPacket.java" afterPath="$PROJECT_DIR$/src/packets/verifications/VerifyPacket.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -114,8 +108,8 @@
       <file leaf-file-name="ChainChecker.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2926">
-              <caret line="154" column="0" lean-forward="true" selection-start-line="154" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
+            <state relative-caret-position="2506">
+              <caret line="312" column="57" lean-forward="true" selection-start-line="312" selection-start-column="57" selection-end-line="312" selection-end-column="57" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -152,16 +146,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="988">
               <caret line="159" column="13" lean-forward="false" selection-start-line="159" selection-start-column="13" selection-end-line="159" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SuccessfulUpdate.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/packets/acceptances/SuccessfulUpdate.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="242">
-              <caret line="15" column="29" lean-forward="false" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="29" />
               <folding />
             </state>
           </provider>
@@ -540,8 +524,13 @@
           <option name="mySupportsDeletion" value="false" />
           <option name="myCanBeAbsent" value="false" />
           <option name="myId" value="UPDATED" />
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/chain/Block.java</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/client/Client.java</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/acceptors/UpdateChecker.java</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/common/Addresses.java</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/common/Ports.java</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/learners/ChainHolder.java</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/packets/PacketTypes.java</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/packets/proposals/UpdateUsersPacket.java</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/proposers/UpdateManager.java</PATH>
         </FILE-GROUP>
         <FILE-GROUP>
           <option name="myUpdateName" value="Created" />
@@ -549,6 +538,10 @@
           <option name="mySupportsDeletion" value="false" />
           <option name="myCanBeAbsent" value="false" />
           <option name="myId" value="CREATED" />
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/acceptors/UpdateCheckerInitializer.java</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/packets/acceptances/AcceptedUpdatePacket.java</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/packets/responses/SuccessfulUpdate.java</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/packets/verifications/VerifyUpdatePacket.java</PATH>
         </FILE-GROUP>
         <FILE-GROUP>
           <option name="myUpdateName" value="Deleted" />
@@ -556,6 +549,7 @@
           <option name="mySupportsDeletion" value="false" />
           <option name="myCanBeAbsent" value="true" />
           <option name="myId" value="REMOVED_FROM_REPOSITORY" />
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/packets/acceptances/SuccessfulUpdate.java</PATH>
         </FILE-GROUP>
         <FILE-GROUP>
           <option name="myUpdateName" value="Restored" />
@@ -1212,7 +1206,21 @@
       <option name="project" value="LOCAL" />
       <updated>1525575662124</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Initial implementation of ChainHolder&#10;Bug fix in the verify method of ChainChecker where a computed packet was not updating properly&#10;&#10;Merged bug fix in Block class">
+      <created>1525608142057</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1525608142057</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Initial implementation of ChainHolder&#10;Bug fix in the verify method of ChainChecker where a computed packet was not updating properly&#10;&#10;Merged bug fix in Block class">
+      <created>1525608410036</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1525608410036</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1492,8 +1500,7 @@
         <state relative-caret-position="154">
           <caret line="17" column="13" lean-forward="false" selection-start-line="17" selection-start-column="13" selection-end-line="17" selection-end-column="13" />
           <folding>
-            <element signature="imports" expanded="false" />
-            <marker date="1525397774350" expanded="true" signature="8814:8900" ph="{...}" />
+            <marker date="1525608367076" expanded="true" signature="8814:8900" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -1548,14 +1555,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="198">
           <caret line="9" column="13" lean-forward="false" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/common/Ports.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="12" column="49" lean-forward="false" selection-start-line="12" selection-start-column="49" selection-end-line="12" selection-end-column="49" />
           <folding />
         </state>
       </provider>
@@ -1641,22 +1640,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/common/Addresses.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="12" column="55" lean-forward="false" selection-start-line="12" selection-start-column="55" selection-end-line="12" selection-end-column="55" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/packets/PacketTypes.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="132">
-          <caret line="6" column="33" lean-forward="false" selection-start-line="6" selection-start-column="33" selection-end-line="6" selection-end-column="33" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/packets/acceptances/AcceptedPacket.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="680">
@@ -1664,14 +1647,6 @@
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/packets/verifications/VerifyPacket.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="988">
-          <caret line="159" column="13" lean-forward="false" selection-start-line="159" selection-start-column="13" selection-end-line="159" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1711,10 +1686,42 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/common/Ports.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="264">
+          <caret line="12" column="49" lean-forward="false" selection-start-line="12" selection-start-column="49" selection-end-line="12" selection-end-column="49" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/common/Addresses.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="264">
+          <caret line="12" column="55" lean-forward="false" selection-start-line="12" selection-start-column="55" selection-end-line="12" selection-end-column="55" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/packets/PacketTypes.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="132">
+          <caret line="6" column="33" lean-forward="false" selection-start-line="6" selection-start-column="33" selection-end-line="6" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/packets/verifications/VerifyPacket.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="988">
+          <caret line="159" column="13" lean-forward="false" selection-start-line="159" selection-start-column="13" selection-end-line="159" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2926">
-          <caret line="154" column="0" lean-forward="true" selection-start-line="154" selection-start-column="0" selection-end-line="154" selection-end-column="0" />
+        <state relative-caret-position="2506">
+          <caret line="312" column="57" lean-forward="true" selection-start-line="312" selection-start-column="57" selection-end-line="312" selection-end-column="57" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
