@@ -3,6 +3,7 @@ package learners;
 import chain.User;
 import proposers.Miner;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 
@@ -11,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
  */
 public class ChainHolderInitializer {
 
-    public static void main(String[] args) throws UnknownHostException, NoSuchAlgorithmException, InterruptedException {
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InterruptedException, ClassNotFoundException {
         User user;
         if(User.userFileExists()){
             user = User.loadUser();
@@ -19,9 +20,9 @@ public class ChainHolderInitializer {
             user = new User("Some", "Person", 100.0);
         }
 
-        /*Thread chainHolder = new ChainHolder(user);
+        Thread chainHolder = new ChainHolder(user);
         chainHolder.start();
-        chainHolder.join();*/
+        chainHolder.join();
 
     }
 }

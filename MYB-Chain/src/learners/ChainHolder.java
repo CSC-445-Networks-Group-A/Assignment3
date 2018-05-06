@@ -1,15 +1,15 @@
 package learners;
 
 import chain.Block;
+import chain.Transaction;
 import chain.User;
 import common.Addresses;
 import common.Ports;
 import javafx.util.Pair;
 import packets.acceptances.AcceptedPacket;
 
-import packets.acceptances.SuccessfulUpdate;
+import packets.acceptances.AcceptedUpdatePacket;
 import packets.learnings.LearnedPacket;
-import packets.verifications.VerifyAllPacket;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -27,6 +27,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -42,11 +43,15 @@ public class ChainHolder extends Thread{
     private final User holder;
     private final RSAPrivateKey holderPrivateKey;
     private final InetAddress learningAddress;
+    private final InetAddress updatingAddress;
+    private final InetAddress checkingAddress;
     private final InetAddress finalAcceptanceAddress;
     private final int learningPort;
+    private final int updatingPort;
+    private final int checkingPort;
     private final int finalAcceptancePort;
     private ConcurrentHashMap<RSAPublicKey, AcceptedPacket> acceptedPackets;
-    private ConcurrentHashMap<RSAPublicKey, SuccessfulUpdate> successfulUpdates;
+    private ConcurrentLinkedQueue<AcceptedUpdatePacket> acceptedUpdates;
 
 
     public ChainHolder(User mybHolder) throws IOException, ClassNotFoundException {
@@ -54,21 +59,42 @@ public class ChainHolder extends Thread{
         this.holder = mybHolder;
         this.holderPrivateKey = holder.loadPrivateKeyFromFile();
         this.learningAddress = InetAddress.getByName(Addresses.HOLDER_LEARNING_ADDRESS);
-        this.finalAcceptanceAddress = InetAddress.getByName(Addresses.HOLDER_CHECKING_ADDRESS);
+        this.updatingAddress = InetAddress.getByName(Addresses.HOLDER_UPDATING_ADDRESS);
+        this.checkingAddress = InetAddress.getByName(Addresses.HOLDER_CHECKING_ADDRESS);
+        this.finalAcceptanceAddress = InetAddress.getByName(Addresses.HOLDER_ACCEPTANCE_ADDRESS);
         this.learningPort = Ports.HOLDER_LEARNING_PORT;
-        this.finalAcceptancePort = Ports.HOLDER_CHECKING_PORT;
+        this.updatingPort = Ports.HOLDER_UPDATING_PORT;
+        this.checkingPort = Ports.HOLDER_CHECKING_PORT;
+        this.finalAcceptancePort = Ports.HOLDER_ACCEPTANCE_PORT;
         this.acceptedPackets = new ConcurrentHashMap<>(N);
-        this.successfulUpdates = new ConcurrentHashMap<>(N);
+        this.acceptedUpdates = new ConcurrentLinkedQueue<>();
     }
 
 
     @Override
     public void run() {
+        try {
+            Thread learningThread = new Thread(() -> learn());
+            Thread updatingThread = new Thread(() -> sendUpdates());
 
+            learningThread.start();
+            updatingThread.start();
+
+            while (!learningThread.getState().equals(State.TERMINATED) && !updatingThread.getState().equals(State.TERMINATED)) {
+                /*
+                * SPIN
+                * */
+            }
+
+            learningThread.join();
+            updatingThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 
-    private void listen() {
+    private void learn() {
         try {
             System.out.println("STARTING:\t" + Thread.currentThread().getName() + "\n" +
                     "Learning Port:\t" + learningPort);
@@ -80,6 +106,9 @@ public class ChainHolder extends Thread{
 
             while (running) {
                 try {
+                    updateIfNecessary();
+                    pruneAcceptedPackets();
+
                     byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
                     DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
                     multicastSocket.receive(datagramPacket);
@@ -92,36 +121,35 @@ public class ChainHolder extends Thread{
                         RSAPublicKey rsaPublicKey = acceptedPacket.getPublicKey();
                         Block block = acceptedPacket.getBlock();
                         BigInteger chainLength = acceptedPacket.getChainLength();
-                        byte[] encryptedDate = acceptedPacket.getEncryptedData();
                         boolean validated = validate(block, chainLength);
 
+                        /*
+                        * FIXME -- May need to remove the validation here
+                        * */
                         if (validated && acceptedPacket.isHonest()) {
                             acceptedPackets.putIfAbsent(rsaPublicKey, acceptedPacket);
 
                             if (acceptedPackets.size() >= (2*f + 1)) {
-                                LearnedPacket learnedPacket = learn(acceptedPacket);
+                                LearnedPacket learnedPacket = reassure(acceptedPacket);
                                 if (learnedPacket != null) {
                                     /*
                                     * Remove packets which are equal to or less than(?) the current packet
                                     * Remove packets which have lesser chainLength values
                                     *   otherPacket.compareTo(learnedPacket) takes care of this
-                                    *       Reomve if otherPacket.compareTo(learnedPacket) <= 0
+                                    *       Remove if otherPacket.compareTo(learnedPacket) <= 0
                                     * */
-                                    updateIfNecessary();
-                                    record();
-                                    acknowledge(learnedPacket);
+                                    if (!updateIsNecessary(learnedPacket)) {
+                                        record(learnedPacket);
+                                        acknowledge(multicastSocket, learnedPacket);
+                                    }else {
+                                        holder.updateBlockChain();
+                                    }
                                 }
                             }
-
-                        }else {
-
-
-
                         }
-                    }else if ((object != null) && (object instanceof SuccessfulUpdate)) {
-
-
-
+                    }else if ((object != null) && (object instanceof AcceptedUpdatePacket)) {
+                        AcceptedUpdatePacket acceptedUpdatePacket = (AcceptedUpdatePacket) object;
+                        acceptedUpdates.add(acceptedUpdatePacket);
                     }
 
                     inputStream.close();
@@ -143,7 +171,153 @@ public class ChainHolder extends Thread{
             e.printStackTrace();
         }
 
+    }
 
+
+    private void sendUpdates() {
+        try {
+            System.out.println("STARTING:\t" + Thread.currentThread().getName() + "\n" +
+                    "Learning Port:\t" + updatingPort);
+
+            MulticastSocket multicastSocket = new MulticastSocket(updatingPort);
+            multicastSocket.joinGroup(updatingAddress);
+
+            boolean running = true;
+
+            while (running) {
+                AcceptedUpdatePacket acceptedUpdatePacket = acceptedUpdates.poll();
+
+                if (acceptedUpdatePacket != null) {
+                    Block[] blocks = getBlocksForUpdate(acceptedUpdatePacket);
+                    AcceptedUpdatePacket updatePacket = new AcceptedUpdatePacket(blocks, holder.getBlockChain().getChainLength());
+
+                    sendUpdate(updatePacket, updatingAddress, updatingPort);
+                }
+            }
+
+            multicastSocket.leaveGroup(updatingAddress);
+            System.out.println("FINISHING:\t" + Thread.currentThread().getName());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    private void updateIfNecessary() {
+        HashMap<BigInteger, Integer> chainLengthFrequencies = sendAndReceiveChainLengths();
+        BigInteger longestChain = filter(chainLengthFrequencies);
+        if (longestChain.compareTo(holder.getBlockChain().getChainLength()) == 1) {
+            holder.updateBlockChain();
+        }
+    }
+
+
+    private void pruneAcceptedPackets() {
+        ConcurrentHashMap<RSAPublicKey, AcceptedPacket> newestAcceptedPackets = new ConcurrentHashMap<>(N);
+        AcceptedPacket newestPacket = null;
+
+        for (RSAPublicKey publicKey : acceptedPackets.keySet()) {
+            if (newestPacket == null) {
+                acceptedPackets.get(publicKey);
+            }else if (acceptedPackets.get(publicKey).getChainLength().compareTo(newestPacket.getChainLength()) > 0) {
+                newestPacket = acceptedPackets.get(publicKey);
+            }
+        }
+
+        for (RSAPublicKey publicKey : acceptedPackets.keySet()) {
+            if (acceptedPackets.get(publicKey).getChainLength().compareTo(newestPacket.getChainLength()) == 0) {
+                newestAcceptedPackets.put(publicKey, acceptedPackets.get(publicKey));
+            }
+        }
+
+        acceptedPackets = newestAcceptedPackets;
+    }
+
+
+    private HashMap<BigInteger, Integer> sendAndReceiveChainLengths() {
+        try {
+            int receiveAttempts = 0;
+            int timesReset = 0;
+            BigInteger sendValue = holder.getBlockChain().getChainLength();
+            HashMap<BigInteger, Integer> receivedChainLengths = new HashMap<>(N);
+            receivedChainLengths.put(sendValue, 1);
+            MulticastSocket multicastSocket = new MulticastSocket(checkingPort);
+            multicastSocket.joinGroup(checkingAddress);
+            multicastSocket.setTimeToLive(TTL);
+            multicastSocket.setSoTimeout(
+                    ThreadLocalRandom.current().nextInt(MIN_COLLISION_PREVENTING_TIMEOUT_TIME, COLLISION_PREVENTING_TIMEOUT_TIME));
+            ByteArrayInputStream bais = null;
+            ObjectInputStream inputStream = null;
+            ByteArrayOutputStream baos = null;
+            ObjectOutputStream outputStream = null;
+            Thread.sleep(ThreadLocalRandom.current().nextLong(COLLISION_PREVENTING_TIMEOUT_TIME));
+
+            /*
+            * FIXME It may be that N here should actually be 2f+1
+            * */
+            while ((receivedChainLengths.size() < (2*f + 1)) && (timesReset < N)) {
+                outputStream.writeObject(sendValue);
+                byte[] buf = baos.toByteArray();
+                DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
+                multicastSocket.send(datagramPacket);
+
+                buf = new byte[multicastSocket.getReceiveBufferSize()];
+                datagramPacket = new DatagramPacket(buf, buf.length);
+
+                try {
+                    multicastSocket.receive(datagramPacket);
+                    bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
+                    inputStream = new ObjectInputStream(bais);
+
+                    Object object = inputStream.readObject();
+                    if ((object != null) && (object instanceof BigInteger)) {
+                        BigInteger learnedValue = (BigInteger) object;
+                        if (receivedChainLengths.containsKey(learnedValue)) {
+                            Integer frequency = receivedChainLengths.get(learnedValue);
+                            receivedChainLengths.put(learnedValue, frequency + 1);
+                        }else {
+                            receivedChainLengths.put(learnedValue, 1);
+                        }
+                    }
+
+                }catch (SocketTimeoutException ste) {
+                    ste.printStackTrace();
+                    receiveAttempts++;
+                    if (receiveAttempts >= 2*N) {
+                        multicastSocket.setSoTimeout(
+                                ThreadLocalRandom.current().nextInt(MIN_COLLISION_PREVENTING_TIMEOUT_TIME, COLLISION_PREVENTING_TIMEOUT_TIME));
+                        timesReset++;
+                        receiveAttempts = 0;
+                    }
+                }
+            }
+
+            inputStream.close();
+            bais.close();
+            multicastSocket.leaveGroup(checkingAddress);
+            return receivedChainLengths;
+
+        } catch (IOException |InterruptedException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    private BigInteger filter(HashMap<BigInteger, Integer> chainLengthFrequencies) {
+        Pair<BigInteger, Integer> mostFrequent = null;
+
+        for (BigInteger chainLength : chainLengthFrequencies.keySet()) {
+            if (mostFrequent == null) {
+                mostFrequent = new Pair<>(chainLength, chainLengthFrequencies.get(chainLength));
+            }else if (chainLengthFrequencies.get(chainLength) > mostFrequent.getValue()) {
+                mostFrequent = new Pair<>(chainLength, chainLengthFrequencies.get(chainLength));
+            }
+        }
+
+        return mostFrequent.getKey();
     }
 
 
@@ -183,17 +357,18 @@ public class ChainHolder extends Thread{
     }
 
 
-    private LearnedPacket learn(AcceptedPacket acceptedPacket) throws IOException, NoSuchAlgorithmException,
+    private LearnedPacket reassure(AcceptedPacket acceptedPacket) throws IOException, NoSuchAlgorithmException,
             IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, BadPaddingException {
         BigInteger chainLength = acceptedPacket.getChainLength();
         Block verifiedBlock = acceptedPacket.getBlock();
         LearnedPacket learnedPacket = null;
+        int attemptsToLearn = 0;
         int packetsLearned = 0;
 
         /*
         * FIXME --- Maybe also include a variable here - "attemptNumber" - as a control variable to keep from looping infinitely
         * */
-        while (packetsLearned < (2*f + 1)) {
+        while ((packetsLearned < (2*f + 1)) && (attemptsToLearn < 2*N)) {
             byte[] encryptedData = LearnedPacket.encryptPacketData(holderPrivateKey, chainLength, verifiedBlock);
             LearnedPacket packetLearned = new LearnedPacket(holder.getPublicKey(), chainLength, verifiedBlock, encryptedData);
             HashMap<RSAPublicKey, LearnedPacket> packetsToValidate = sendAndReceivePackets(packetLearned);
@@ -207,10 +382,14 @@ public class ChainHolder extends Thread{
                 verifiedBlock = learnedPacket.getBlock();
                 packetsLearned = agreedUponPacketInfo.getValue();
             }
+            attemptsToLearn++;
         }
 
-        return learnedPacket;
-
+        if (packetsLearned < (2*f + 1)) {
+            return null;
+        }else {
+            return learnedPacket;
+        }
     }
 
 
@@ -234,7 +413,7 @@ public class ChainHolder extends Thread{
             /*
             * FIXME It may be that N here should actually be 2f+1
             * */
-            while (receivedPackets.size() < N) {
+            while ((receivedPackets.size() < (2*f + 1)) && (timesReset < N)) {
                 outputStream.writeObject(packetToSend);
                 byte[] buf = baos.toByteArray();
                 DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
@@ -251,7 +430,7 @@ public class ChainHolder extends Thread{
                     Object object = inputStream.readObject();
                     if ((object != null) && (object instanceof LearnedPacket)) {
                         LearnedPacket learnedPacket = (LearnedPacket) object;
-                        if (learnedPacket.getPublicKey() != null && learnedPacket.getBlock() != null) {
+                        if (learnedPacket.getPublicKey() != null && learnedPacket.getBlock() != null && learnedPacket.equals(packetToSend)) {
                             RSAPublicKey publicKey = learnedPacket.getPublicKey();
                             receivedPackets.putIfAbsent(publicKey, learnedPacket);
                             System.out.println("Block sent by:\n\n" +
@@ -273,10 +452,6 @@ public class ChainHolder extends Thread{
                         timesReset++;
                         receiveAttempts = 0;
                     }
-                    if (timesReset >= N) {
-                        break;
-                    }
-
                 }
             }
 
@@ -287,9 +462,8 @@ public class ChainHolder extends Thread{
 
         } catch (IOException |InterruptedException | ClassNotFoundException e) {
             e.printStackTrace();
+            return null;
         }
-
-        return null;
     }
 
 
@@ -350,6 +524,93 @@ public class ChainHolder extends Thread{
     }
 
 
+    private boolean updateIsNecessary(LearnedPacket learnedPacket) {
+        return !holder.getBlockChain().getChainLength().equals(learnedPacket.getChainLength());
+    }
+
+
+    private void record(LearnedPacket learnedPacket) {
+        holder.getBlockChain().addBlock(learnedPacket.getBlock());
+    }
+
+
+    private void acknowledge(MulticastSocket socket, LearnedPacket learnedPacket) throws BadPaddingException,
+            NoSuchAlgorithmException, IOException, IllegalBlockSizeException, NoSuchPaddingException, InvalidKeyException {
+        byte[] encryptedData =
+                AcceptedPacket.encryptPacketData(holderPrivateKey, holder.getBlockChain().getChainLength(), learnedPacket.getBlock());
+        AcceptedPacket acceptedPacket =
+                new AcceptedPacket(holder.getPublicKey(), holder.getBlockChain().getChainLength(), learnedPacket.getBlock(), encryptedData);
+
+        sendAcceptedPacket(socket, acceptedPacket, learningAddress, learningPort);
+
+    }
+
+    private int sendAcceptedPacket(MulticastSocket socket, AcceptedPacket acceptedPacket, InetAddress address, int port) {
+        try {
+            System.out.println("ACKNOWLEDGING:\t" + Thread.currentThread().getName() + "\n" +
+                    "Learner:\t" + holder.getFullName());
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream outputStream = new ObjectOutputStream(baos);
+
+            outputStream.writeObject(acceptedPacket);
+            byte[] output = baos.toByteArray();
+            DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
+            socket.send(datagramPacket);
+
+            outputStream.close();
+            baos.close();
+
+            System.out.println("FINISHING ACKNOWLEDGING:\t" + Thread.currentThread().getName() + "\n" +
+                    "Learner:\t" + holder.getFullName());
+
+            return 1;
+
+        } catch (SocketTimeoutException ste) {
+            return 0;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    private Block[] getBlocksForUpdate(AcceptedUpdatePacket acceptedUpdatePacket) {
+        return holder.getBlockChain().getSubChain(acceptedUpdatePacket.getLastUpdatedBlockNumber());
+    }
+
+
+    private int sendUpdate(AcceptedUpdatePacket acceptedUpdatePacket, InetAddress address, int port) {
+        try {
+            System.out.println("SENDING UPDATE:\t" + Thread.currentThread().getName() + "\n" +
+                    "Updating Port:\t" + port);
+
+            MulticastSocket multicastSocket = new MulticastSocket(port);
+            multicastSocket.joinGroup(address);
+            multicastSocket.setTimeToLive(TTL);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream outputStream = new ObjectOutputStream(baos);
+
+            outputStream.writeObject(acceptedUpdatePacket);
+            byte[] output = baos.toByteArray();
+            DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
+            multicastSocket.send(datagramPacket);
+
+            outputStream.close();
+            baos.close();
+            multicastSocket.leaveGroup(address);
+            System.out.println("FINISHING SENDING UPDATE:\t" + Thread.currentThread().getName() + "\n" +
+                    "Updating Port:\t" + port);
+
+            return 1;
+
+        } catch (SocketTimeoutException ste) {
+            return 0;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
 
 
 }
