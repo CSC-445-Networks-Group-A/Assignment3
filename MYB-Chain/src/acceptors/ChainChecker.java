@@ -181,8 +181,11 @@ public class ChainChecker extends Thread{
             HashMap<RSAPublicKey, VerifyPacket> validatedPackets = validatePackets(packetsToValidate);
             //VerifyPacket bestPacket = determineBestPacket(validatedPackets);
             Pair<VerifyPacket, Integer> agreedUponPacketInfo = attemptToAchieveConsensus(validatedPackets);
+
             if (agreedUponPacketInfo != null) {
                 verifiedPacket = agreedUponPacketInfo.getKey();
+                chainLength = verifiedPacket.getChainLength();
+                verifiedBlock = verifiedPacket.getBlock();
                 packetsVerified = agreedUponPacketInfo.getValue();
             }
         }
@@ -492,8 +495,15 @@ public class ChainChecker extends Thread{
         * */
         AcceptedPacket packetToLearn = new AcceptedPacket(verifiedPacket.getChainLength(), verifiedPacket.getBlock());
         AcceptedPacket packetLearned = null;
+        int attemptNumber = 0;
         while (packetLearned == null) {
-            packetLearned = learnPacket(packetToLearn, chainHolderLearningAddress, chainHolderLearningPort);
+            if (attemptNumber % N == 0) {
+                sendPacket(packetToLearn, chainHolderLearningAddress, chainHolderLearningPort);
+                attemptNumber = 0;
+            }
+
+            packetLearned = receivePacket(chainHolderLearningAddress, chainHolderLearningPort);
+            attemptNumber++;
         }
 
 
@@ -501,12 +511,12 @@ public class ChainChecker extends Thread{
         * send message to all miners
         * */
 
-        learnPacket(packetLearned, proposalAddress, proposalPort);
+        sendPacket(packetLearned, proposalAddress, proposalPort);
 
     }
 
 
-    private AcceptedPacket learnPacket(AcceptedPacket acceptedPacket, InetAddress address, int port) {
+    private int sendPacket(AcceptedPacket acceptedPacket, InetAddress address, int port) {
         try {
             System.out.println("LEARNING:\t" + Thread.currentThread().getName() + "\n" +
                     "Learning Port:\t" + port);
@@ -514,7 +524,6 @@ public class ChainChecker extends Thread{
             MulticastSocket multicastSocket = new MulticastSocket(port);
             multicastSocket.joinGroup(address);
             multicastSocket.setTimeToLive(TTL);
-            multicastSocket.setSoTimeout(TIMEOUT_MILLISECONDS);
             multicastSocket.setSoTimeout(
                     ThreadLocalRandom.current().nextInt(MIN_COLLISION_PREVENTING_TIMEOUT_TIME, COLLISION_PREVENTING_TIMEOUT_TIME));
 
@@ -526,9 +535,37 @@ public class ChainChecker extends Thread{
             DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
             multicastSocket.send(datagramPacket);
 
+            outputStream.close();
+            baos.close();
+            multicastSocket.leaveGroup(address);
+            System.out.println("FINISHING LEARNING:\t" + Thread.currentThread().getName() + "\n" +
+                    "Learning Port:\t" + port);
+
+            return 1;
+
+        } catch (SocketTimeoutException ste) {
+            return 0;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+
+    private AcceptedPacket receivePacket(InetAddress address, int port) {
+        try {
+            System.out.println("LEARNING:\t" + Thread.currentThread().getName() + "\n" +
+                    "Learning Port:\t" + port);
+
+            MulticastSocket multicastSocket = new MulticastSocket(port);
+            multicastSocket.joinGroup(address);
+            multicastSocket.setTimeToLive(TTL);
+            multicastSocket.setSoTimeout(
+                    ThreadLocalRandom.current().nextInt(MIN_COLLISION_PREVENTING_TIMEOUT_TIME, COLLISION_PREVENTING_TIMEOUT_TIME));
+
 
             byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
-            datagramPacket = new DatagramPacket(buf, buf.length);
+            DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
             multicastSocket.receive(datagramPacket);
             ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
             ObjectInputStream inputStream = new ObjectInputStream(bais);
@@ -541,8 +578,6 @@ public class ChainChecker extends Thread{
             }
             inputStream.close();
             bais.close();
-            outputStream.close();
-            baos.close();
             multicastSocket.leaveGroup(address);
             System.out.println("FINISHING LEARNING:\t" + Thread.currentThread().getName() + "\n" +
                     "Learning Port:\t" + port);
