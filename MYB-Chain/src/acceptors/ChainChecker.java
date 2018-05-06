@@ -120,9 +120,7 @@ public class ChainChecker extends Thread{
 
             multicastSocket.leaveGroup(proposalAddress);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 

@@ -1,4 +1,4 @@
-package packets.acceptances;
+package packets.learnings;
 
 import chain.Block;
 import packets.Packet;
@@ -17,16 +17,16 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 
 /**
- * Created by Michael on 4/21/2018.
+ * Created by Michael on 5/6/2018.
  */
-public class AcceptedPacket extends Packet implements Comparable<AcceptedPacket>{
+public class LearnedPacket extends Packet implements Comparable<LearnedPacket> {
     private final RSAPublicKey publicKey;
     private final BigInteger chainLength;
     private final Block block;
     private final byte[] encryptedData;
 
-    public AcceptedPacket(RSAPublicKey rsaPublicKey, BigInteger blockChainLength, Block blockValue, byte[] dataEncrypted) {
-        super(PacketTypes.ACCEPTANCE);
+    public LearnedPacket(RSAPublicKey rsaPublicKey, BigInteger blockChainLength, Block blockValue, byte[] dataEncrypted) {
+        super(PacketTypes.LEARNING);
         this.publicKey = rsaPublicKey;
         this.chainLength = blockChainLength;
         this.block = blockValue;
@@ -104,7 +104,7 @@ public class AcceptedPacket extends Packet implements Comparable<AcceptedPacket>
      *   First comparing BlockChain length (picks the longest)
      *   Then comparing bytes in the proof of work (picks the one with most leading zeros)
      * */
-    public int compareTo(AcceptedPacket otherPacket) {
+    public int compareTo(LearnedPacket otherPacket) {
         if (chainLength.compareTo(otherPacket.getChainLength()) != 0) {
             return chainLength.compareTo(otherPacket.getChainLength());
         }
@@ -130,8 +130,8 @@ public class AcceptedPacket extends Packet implements Comparable<AcceptedPacket>
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof AcceptedPacket) {
-            AcceptedPacket otherPacket = (AcceptedPacket) obj;
+        if (obj instanceof LearnedPacket) {
+            LearnedPacket otherPacket = (LearnedPacket) obj;
             if (chainLength.equals(otherPacket.chainLength) && block.equals(otherPacket.block)) {
                 try {
                     byte[] thisPacketsData = getUnencryptedData(chainLength, block);
@@ -160,4 +160,11 @@ public class AcceptedPacket extends Packet implements Comparable<AcceptedPacket>
             return false;
         }
     }
+
+
+
+
+
+
+
 }
