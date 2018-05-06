@@ -7,6 +7,13 @@ package client;
 
 import chain.User;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.net.UnknownHostException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
 /**
  *
  * @author admin
@@ -176,7 +183,27 @@ public class ClientUI extends javax.swing.JFrame {
 
         lblMessage.setText("Initiating Transaction...");
 
+        try {
+            Double transactionAmount = Double.parseDouble(tbxSendValue.getText());
 
+            try {
+                myUser.makeTransaction(null, transactionAmount); // To-Do: NULL USER, NEED TO FIGURE HOW TO SEND USER OBJECT ONLY KNOWING USERNAME
+                lblMessage.setText("Transaction Pending.");
+
+            } catch (IllegalBlockSizeException | InvalidKeyException | BadPaddingException | NoSuchPaddingException | NoSuchAlgorithmException | NullPointerException e) {
+                lblMessage.setText("Transaction Failed!");
+                e.printStackTrace();
+            }
+
+        }catch(NumberFormatException e){
+            lblMessage.setText("Invalid Amount");
+            e.printStackTrace();
+        }
+
+        btnSend.setEnabled(true);
+        tbxSendValue.setEditable(true);
+        tbxSentToAccount.setEditable(true);
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
