@@ -82,49 +82,7 @@ public class Miner extends Thread{
      *
      * */
     private void listenToClients() {
-        try {
-            System.out.println("STARTING:\t" + Thread.currentThread().getName() + "\n" +
-                    "Listen Port:\t" + requestPort);
 
-            MulticastSocket multicastSocket = new MulticastSocket(requestPort);
-            multicastSocket.joinGroup(requestAddress);
-
-            boolean running = true;
-
-            while (running) {
-                byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
-                DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
-                multicastSocket.receive(datagramPacket);
-                ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
-                ObjectInputStream inputStream = new ObjectInputStream(bais);
-
-                Object object = inputStream.readObject();
-                if ((object != null) && (object instanceof TransactionRequest)) {
-                    TransactionRequest transactionRequest = (TransactionRequest) object;
-                    Transaction transaction = transactionRequest.getTransaction();
-                    InetAddress userAddress = transactionRequest.getReturnAddress();
-                    int userPort = transactionRequest.getReturnPort();
-                    if (transaction.isVerified()) {
-                        pendingTransactions.add(transaction);
-                        pendingAddresses.add(new Pair<>(userAddress, userPort));
-                        respondToUserRequest(userAddress, userPort, new TransactionPending("Transaction Pending..."));
-                    }else {
-                        respondToUserRequest(userAddress, userPort, new TransactionDenied("Transaction Denied: Insufficient Funds or Invalid Signature"));
-                    }
-                }
-
-                inputStream.close();
-                bais.close();
-            }
-
-            multicastSocket.leaveGroup(requestAddress);
-            System.out.println("FINISHING:\t" + Thread.currentThread().getName());
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 
 
