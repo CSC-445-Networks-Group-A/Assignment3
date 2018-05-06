@@ -1,11 +1,11 @@
 package proposers;
 
-import chain.User;
 import javafx.util.Pair;
 import packets.Packet;
+import packets.proposals.UpdateUsersPacket;
 import packets.requests.UpdateRequest;
 import packets.responses.GeneralResponse;
-import packets.acceptances.SuccessfulUpdate;
+import packets.responses.SuccessfulUpdate;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -139,7 +139,7 @@ public class UpdateManager extends Thread {
             InetAddress userAddress = pair.getValue();
             // this SHOULD BE the same as looping through the addressPort pairs and find by InetAddress
             int userPort = userAddressPortPair.getValue();
-            UpdateRequest updateRequestPacket = new UpdateRequest(lastBlockRecorded,userAddress,userPort);
+            UpdateUsersPacket updateRequestPacket = new UpdateUsersPacket(lastBlockRecorded,userAddress,userPort);
             outputStream.writeObject(updateRequestPacket);
             byte[] output = baos.toByteArray();
             DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
