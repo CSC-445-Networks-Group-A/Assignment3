@@ -1,4 +1,4 @@
-package packets.acceptances;
+package packets.responses;
 
 import chain.User;
 import packets.Packet;

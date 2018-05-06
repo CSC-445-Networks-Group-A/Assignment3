@@ -1,14 +1,13 @@
 package learners;
 
 import chain.Block;
-import chain.Transaction;
 import chain.User;
 import common.Addresses;
 import common.Ports;
 import javafx.util.Pair;
 import packets.acceptances.AcceptedPacket;
-import packets.acceptances.SuccessfulUpdate;
-import packets.requests.TransactionRequest;
+
+import packets.responses.SuccessfulUpdate;
 import packets.responses.TransactionDenied;
 import packets.responses.TransactionPending;
 
@@ -20,7 +19,6 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.security.interfaces.RSAPrivateKey;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by Michael on 4/18/2018.
