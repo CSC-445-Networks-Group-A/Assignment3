@@ -135,17 +135,26 @@ public class VerifyPacket extends Packet implements Comparable<VerifyPacket>{
         if (obj instanceof VerifyPacket) {
             VerifyPacket otherPacket = (VerifyPacket) obj;
             if (chainLength.equals(otherPacket.chainLength) && block.equals(otherPacket.block)) {
-                if (encryptedData.length != otherPacket.encryptedData.length) {
-                    return false;
-                }
+                try {
+                    byte[] thisPacketsData = getUnencryptedData(chainLength, block);
+                    byte[] otherPacketsData = getUnencryptedData(otherPacket.getChainLength(), otherPacket.getBlock());
 
-                for (int i = 0; i < encryptedData.length; i++) {
-                    if (encryptedData[i] != otherPacket.encryptedData[i]) {
+                    if (thisPacketsData.length != otherPacketsData.length) {
                         return false;
                     }
-                }
 
-                return true;
+                    for (int i = 0; i < thisPacketsData.length; i++) {
+                        if (thisPacketsData[i] != otherPacketsData[i]) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
+                }
             }else {
                 return false;
             }
