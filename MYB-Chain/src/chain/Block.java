@@ -110,7 +110,7 @@ public class Block implements Serializable{
             blockBytes[offset] = transactionBytes[i];
         }
         for (int i = 0; i < counterBytes.length; i++, offset++) {
-            blockBytes[offset] = transactionBytes[i];
+            blockBytes[offset] = counterBytes[i];
         }
 
         return blockBytes;
@@ -124,9 +124,7 @@ public class Block implements Serializable{
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             incrementCounter();
             byte[] hash = digest.digest(getBlockBytes());
-            System.out.println(Arrays.toString(hash));
-//            if (hash[0] == 0 && hash[1] == 0) {
-            if (hash[0] == 0) {
+            if (hash[0] == 0 && hash[1] == 0) {
                 proofOfWork = hash;
                 return true;
             }
