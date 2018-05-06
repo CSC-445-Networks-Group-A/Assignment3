@@ -26,7 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Created by Michael on 4/14/2018.
  */
-public class User {
+public class User implements Serializable{
     private final static String BLOCKCHAIN_PATH = "UserResources" + File.separator + "BLOCKCHAIN";
     private final static String USER_INFO_PATH = "UserResources" + File.separator + "USER_INFO.dat";
     private final static String PRIVATE_KEY_PATH = "UserResources" + File.separator + "PRIVATE.dat";
