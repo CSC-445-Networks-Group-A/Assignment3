@@ -83,6 +83,16 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="Block.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/chain/Block.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="484">
+              <caret line="106" column="49" lean-forward="true" selection-start-line="106" selection-start-column="49" selection-end-line="106" selection-end-column="49" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="Miner.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/proposers/Miner.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -95,11 +105,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ChainChecker.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ChainChecker.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="266">
-              <caret line="120" column="48" lean-forward="true" selection-start-line="120" selection-start-column="48" selection-end-line="120" selection-end-column="48" />
+              <caret line="120" column="48" lean-forward="false" selection-start-line="120" selection-start-column="48" selection-end-line="120" selection-end-column="48" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -237,7 +247,6 @@
         <option value="$PROJECT_DIR$/src/chain/Transaction.java" />
         <option value="$PROJECT_DIR$/src/packets/PacketTypes.java" />
         <option value="$PROJECT_DIR$/src/packets/verifications/VerifyAllPacket.java" />
-        <option value="$PROJECT_DIR$/src/chain/Block.java" />
         <option value="$PROJECT_DIR$/src/client/Main.java" />
         <option value="$PROJECT_DIR$/src/proposers/MinerInitializer.java" />
         <option value="$PROJECT_DIR$/src/learners/ChainHolderInitializer.java" />
@@ -251,6 +260,7 @@
         <option value="$PROJECT_DIR$/src/packets/verifications/VerifyPacket.java" />
         <option value="$PROJECT_DIR$/src/packets/acceptances/AcceptedPacket.java" />
         <option value="$PROJECT_DIR$/src/acceptors/ChainChecker.java" />
+        <option value="$PROJECT_DIR$/src/chain/Block.java" />
       </list>
     </option>
   </component>
@@ -537,10 +547,7 @@
           <option name="myCanBeAbsent" value="false" />
           <option name="myId" value="UPDATED" />
           <PATH vcs="Git" revision="">$PROJECT_DIR$/src/chain/Block.java</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/chain/User.java</PATH>
           <PATH vcs="Git" revision="">$PROJECT_DIR$/src/client/Client.java</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/client/ClientUI.java</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/client/RegistrationView.java</PATH>
         </FILE-GROUP>
         <FILE-GROUP>
           <option name="myUpdateName" value="Created" />
@@ -548,10 +555,6 @@
           <option name="mySupportsDeletion" value="false" />
           <option name="myCanBeAbsent" value="false" />
           <option name="myId" value="CREATED" />
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/NucScripts/nuc-kill-script.sh</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/NucScripts/nuc-run-script.sh</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/NucScripts/start-script.sh</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/NucScripts/stop-script.sh</PATH>
         </FILE-GROUP>
         <FILE-GROUP>
           <option name="myUpdateName" value="Deleted" />
@@ -1201,7 +1204,14 @@
       <option name="project" value="LOCAL" />
       <updated>1525573401369</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Initial implementation of ChainHolder&#10;Bug fix in the verify method of ChainChecker where a computed packet was not updating properly">
+      <created>1525573758540</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1525573758540</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1266,13 +1276,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/common/ByzantinePaxosStates.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="132">
-          <caret line="6" column="65" lean-forward="false" selection-start-line="6" selection-start-column="65" selection-end-line="6" selection-end-column="65" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/server/Proposer.java" />
     <entry file="file://$PROJECT_DIR$/src/common/RoundID.java" />
     <entry file="jar://C:/Program Files/Java/jdk1.8.0_111/src.zip!/java/security/InvalidParameterException.java">
@@ -1628,21 +1631,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/chain/Block.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="828">
-          <caret line="159" column="35" lean-forward="true" selection-start-line="159" selection-start-column="35" selection-end-line="159" selection-end-column="35" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/client/Client.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="44">
           <caret line="2" column="7" lean-forward="true" selection-start-line="2" selection-start-column="7" selection-end-line="2" selection-end-column="7" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1669,13 +1662,29 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/Downloads/docs/_build/doctrees/environment.pickle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-12100">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="266">
-          <caret line="120" column="48" lean-forward="true" selection-start-line="120" selection-start-column="48" selection-end-line="120" selection-end-column="48" />
+          <caret line="120" column="48" lean-forward="false" selection-start-line="120" selection-start-column="48" selection-end-line="120" selection-end-column="48" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/chain/Block.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="484">
+          <caret line="106" column="49" lean-forward="true" selection-start-line="106" selection-start-column="49" selection-end-line="106" selection-end-column="49" />
+          <folding />
         </state>
       </provider>
     </entry>
