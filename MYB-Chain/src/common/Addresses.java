@@ -11,4 +11,5 @@ public class Addresses {
     public static final String MINER_LEARNING_ADDRESS;
     public static final String HOLDER_LEARNING_ADDRESS;
     public static final String HOLDER_CHECKING_ADDRESS;
+    public static final String UPDATE_MANAGER_PROPOSAL_ADDRESS;
 }
