@@ -86,8 +86,8 @@ public class BlockChain {
     /**
      * Adds a Block to the BlockChain.
      * */
-    protected void addBlock(Block block) {
-
+    public void addBlock(Block block) {
+        chain.add(block);
     }
 
     public double computeMinerAward(BigInteger chainLength) {
@@ -104,7 +104,7 @@ public class BlockChain {
     }
 
     public byte[] getMostRecentHash() {
-        return chain.get(0).getProofOfWork();
+        return chain.get(chain.size()).getProofOfWork();
     }
 
     public BigInteger getChainLength() {
@@ -112,7 +112,22 @@ public class BlockChain {
     }
 
     public Block getMostRecentBlock() {
-        return chain.get(0);
+        return chain.get(chain.size());
+    }
+
+    public Block[] getSubChain(BigInteger origin) {
+        Integer startIndex = origin.intValue();
+        Integer endIndex = getChainLength().intValue();
+        Integer length = (1+endIndex) - startIndex;
+
+        Block[] subChain = new Block[length];
+
+        for (int chainIndex = startIndex, arrayIndex = 0; chainIndex <= endIndex; chainIndex++, arrayIndex++) {
+            subChain[arrayIndex] = chain.get(chainIndex);
+        }
+
+        return subChain;
+
     }
 
 }

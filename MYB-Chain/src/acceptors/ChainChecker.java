@@ -479,7 +479,8 @@ public class ChainChecker extends Thread{
     }
 
 
-    private void learn(VerifyPacket verifiedPacket) {
+    private void learn(VerifyPacket verifiedPacket) throws BadPaddingException,
+            NoSuchAlgorithmException, IOException, IllegalBlockSizeException, NoSuchPaddingException, InvalidKeyException {
         /*
         * for miners: this.minerLearningAddress = InetAddress.getByName(Addresses.MINER_LEARNING_ADDRESS);
         * */
@@ -491,7 +492,8 @@ public class ChainChecker extends Thread{
         /*
         * send message to learners until you get a 2f + 1 responses
         * */
-        AcceptedPacket packetToLearn = new AcceptedPacket(verifiedPacket.getChainLength(), verifiedPacket.getBlock());
+        byte[] encryptedData = AcceptedPacket.encryptPacketData(checkerPrivateKey, verifiedPacket.getChainLength(), verifiedPacket.getBlock());
+        AcceptedPacket packetToLearn = new AcceptedPacket(checker.getPublicKey(), verifiedPacket.getChainLength(), verifiedPacket.getBlock(), encryptedData);
         AcceptedPacket packetLearned = null;
         int attemptNumber = 0;
         while (packetLearned == null) {
