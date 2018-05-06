@@ -5,7 +5,16 @@
  */
 package client;
 
-import java.awt.event.ActionListener;
+import chain.User;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.swing.*;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  *
@@ -13,11 +22,14 @@ import java.awt.event.ActionListener;
  */
 public class RegistrationView extends javax.swing.JFrame {
 
+    private User myUser;
+
     /**
      * Creates new form RegistrationView
      */
     public RegistrationView() {
         initComponents();
+        this.btnDone.setEnabled(false);
     }
 
     /**
@@ -35,8 +47,8 @@ public class RegistrationView extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         tbxLastname = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        lblMessage = new javax.swing.JLabel();
+        tbxUserId = new javax.swing.JTextField();
         btnDone = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
 
@@ -59,10 +71,9 @@ public class RegistrationView extends javax.swing.JFrame {
 
         jLabel1.setText("Lastname:");
 
-        jLabel3.setText("STATUS_MESSAGE");
+        lblMessage.setText("");
 
-        jTextField1.setEditable(false);
-        jTextField1.setText("UNIQUE_WALLET_ID");
+        tbxUserId.setEditable(false);
 
         btnDone.setText("Done");
         btnDone.addActionListener(new java.awt.event.ActionListener() {
@@ -81,7 +92,7 @@ public class RegistrationView extends javax.swing.JFrame {
                 .addGroup(RegistrationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(RegistrationPanelLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE))
+                        .addComponent(tbxUserId, javax.swing.GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE))
                     .addGroup(RegistrationPanelLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(btnDone)))
@@ -102,7 +113,7 @@ public class RegistrationView extends javax.swing.JFrame {
                                     .addComponent(tbxFirstname)
                                     .addComponent(tbxLastname, javax.swing.GroupLayout.DEFAULT_SIZE, 180, Short.MAX_VALUE)))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, RegistrationPanelLayout.createSequentialGroup()
-                                .addComponent(jLabel3)
+                                .addComponent(lblMessage)
                                 .addContainerGap())))
                     .addGroup(RegistrationPanelLayout.createSequentialGroup()
                         .addComponent(jLabel4)
@@ -122,11 +133,11 @@ public class RegistrationView extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnRegister)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3)
+                .addComponent(lblMessage)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(tbxUserId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(37, 37, 37)
                 .addComponent(btnDone)
                 .addContainerGap())
@@ -148,18 +159,34 @@ public class RegistrationView extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-
-    public void addActionListener(ActionListener listener) {
-        btnRegister.addActionListener(listener);
-    }
-
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
-        // TODO add your handling code here:
+        try {
+            myUser = new User(this.getFirstname(), this.getLastname(), 0.0);
+            try {
+                myUser.commitUser();
+                lblMessage.setText("Registration Successful.");
+                tbxUserId.setText(myUser.getID());
+                btnDone.setEnabled(true);
+                btnRegister.setEnabled(false);
+                tbxFirstname.setEnabled(false);
+                tbxLastname.setEnabled(false);
+            } catch (InvalidKeyException | BadPaddingException | NoSuchPaddingException | IllegalBlockSizeException | IOException e) {
+                lblMessage.setText("Registration Failed!");
+                e.printStackTrace();
+            }
+
+        } catch (NoSuchAlgorithmException | UnknownHostException e) {
+            lblMessage.setText("Registration Failed!");
+            e.printStackTrace();
+        }
 
     }//GEN-LAST:event_btnRegisterActionPerformed
 
     private void btnDoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDoneActionPerformed
-        // TODO add your handling code here:
+        this.setVisible(false);
+        ClientUI client = new ClientUI(myUser);
+        client.setVisible(true);
+        client.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }//GEN-LAST:event_btnDoneActionPerformed
 
     public String getFirstname(){
@@ -177,9 +204,9 @@ public class RegistrationView extends javax.swing.JFrame {
     private javax.swing.JButton btnRegister;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel lblMessage;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField tbxUserId;
     private javax.swing.JTextField tbxFirstname;
     private javax.swing.JTextField tbxLastname;
     // End of variables declaration//GEN-END:variables

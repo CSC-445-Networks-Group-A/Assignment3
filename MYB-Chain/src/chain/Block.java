@@ -9,6 +9,7 @@ import java.security.InvalidParameterException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by Michael on 4/11/2018.
@@ -89,7 +90,7 @@ public class Block implements Serializable{
 
 
     private void incrementCounter() {
-        hashManipulator.add(BigInteger.ONE);
+        hashManipulator = hashManipulator.add(BigInteger.ONE);
     }
 
 
@@ -123,7 +124,9 @@ public class Block implements Serializable{
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             incrementCounter();
             byte[] hash = digest.digest(getBlockBytes());
-            if (hash[0] == 0 && hash[1] == 0) {
+            System.out.println(Arrays.toString(hash));
+//            if (hash[0] == 0 && hash[1] == 0) {
+            if (hash[0] == 0) {
                 proofOfWork = hash;
                 return true;
             }

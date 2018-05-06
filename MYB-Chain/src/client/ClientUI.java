@@ -7,6 +7,13 @@ package client;
 
 import chain.User;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.net.UnknownHostException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
 /**
  *
  * @author admin
@@ -20,7 +27,8 @@ public class ClientUI extends javax.swing.JFrame {
     public ClientUI(User user) {
         initComponents();
         this.myUser = user;
-        this.lblUsername.setText(user.getID());
+        this.tbxUsername.setText(user.getID());
+        this.tbxUsername.setEditable(false);
         this.lblAccountValue.setText(String.valueOf(user.getNetWorth()));
     }
 
@@ -34,7 +42,7 @@ public class ClientUI extends javax.swing.JFrame {
     private void initComponents() {
 
         ClientPanel = new javax.swing.JPanel();
-        lblUsername = new javax.swing.JLabel();
+        tbxUsername = new javax.swing.JTextField();
         lblAccountValue = new javax.swing.JLabel();
         TransactionPanel = new javax.swing.JPanel();
         accountlabel = new javax.swing.JLabel();
@@ -51,9 +59,11 @@ public class ClientUI extends javax.swing.JFrame {
 
         ClientPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("User Info:"));
 
-        lblUsername.setText("USERNAME");
+        tbxUsername.setText("USERNAME");
 
         lblAccountValue.setText("ACCTVALUEMYB");
+
+        lblMessage.setText(" ");
 
         javax.swing.GroupLayout ClientPanelLayout = new javax.swing.GroupLayout(ClientPanel);
         ClientPanel.setLayout(ClientPanelLayout);
@@ -62,7 +72,7 @@ public class ClientUI extends javax.swing.JFrame {
             .addGroup(ClientPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(ClientPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblUsername)
+                    .addComponent(tbxUsername)
                     .addComponent(lblAccountValue))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -70,13 +80,13 @@ public class ClientUI extends javax.swing.JFrame {
             ClientPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ClientPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lblUsername)
+                .addComponent(tbxUsername)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblAccountValue)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        lblUsername.getAccessibleContext().setAccessibleName("lblUsername");
+        tbxUsername.getAccessibleContext().setAccessibleName("lblUsername");
         lblAccountValue.getAccessibleContext().setAccessibleName("lblAccountVal");
 
         TransactionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Send MYB:"));
@@ -90,18 +100,12 @@ public class ClientUI extends javax.swing.JFrame {
         MYBlabel.setText("MYB");
 
         btnSend.setText("Send");
-        btnSend.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                btnSendMouseClicked(evt);
-            }
-        });
         btnSend.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSendActionPerformed(evt);
             }
         });
 
-        lblMessage.setText("msg");
         lblMessage.setAutoscrolls(true);
         lblMessage.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
@@ -172,13 +176,35 @@ public class ClientUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnSendMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSendMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnSendMouseClicked
-
     private void btnSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnSendActionPerformed
+        btnSend.setEnabled(false);
+        tbxSendValue.setEditable(false);
+        tbxSentToAccount.setEditable(false);
+
+        lblMessage.setText("Initiating Transaction...");
+
+        try {
+            Double transactionAmount = Double.parseDouble(tbxSendValue.getText());
+
+            try {
+                myUser.makeTransaction(null, transactionAmount); // To-Do: NULL USER, NEED TO FIGURE HOW TO SEND USER OBJECT ONLY KNOWING USERNAME
+                lblMessage.setText("Transaction Pending.");
+
+            } catch (IllegalBlockSizeException | InvalidKeyException | BadPaddingException | NoSuchPaddingException | NoSuchAlgorithmException | NullPointerException e) {
+                lblMessage.setText("Transaction Failed!");
+                e.printStackTrace();
+            }
+
+        }catch(NumberFormatException e){
+            lblMessage.setText("Invalid Amount");
+            e.printStackTrace();
+        }
+
+        btnSend.setEnabled(true);
+        tbxSendValue.setEditable(true);
+        tbxSentToAccount.setEditable(true);
+        
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel ClientPanel;
@@ -188,7 +214,7 @@ public class ClientUI extends javax.swing.JFrame {
     private javax.swing.JButton btnSend;
     private javax.swing.JLabel lblAccountValue;
     private javax.swing.JLabel lblMessage;
-    private javax.swing.JLabel lblUsername;
+    private javax.swing.JTextField tbxUsername;
     private javax.swing.JTextField tbxSendValue;
     private javax.swing.JTextField tbxSentToAccount;
     private javax.swing.JLabel valuelabel;
