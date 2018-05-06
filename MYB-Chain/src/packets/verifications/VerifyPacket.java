@@ -36,15 +36,7 @@ public class VerifyPacket extends Packet implements Comparable<VerifyPacket>{
     }
 
 
-    public static byte[] encryptPacketData(RSAPrivateKey rsaPrivateKey, BigInteger blockChainLength, Block blockValue)
-            throws IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.ENCRYPT_MODE, rsaPrivateKey);
-        return cipher.doFinal(getUnencryptedData(blockChainLength, blockValue));
-    }
-
-
-    public static byte[] getUnencryptedData(BigInteger blockChainLength, Block blockValue) throws IOException {
+    private static byte[] getUnencryptedData(BigInteger blockChainLength, Block blockValue) throws IOException {
         byte[] lengthData = blockChainLength.toByteArray();
         byte[] blockData = blockValue.getBlockBytes();
         byte[] packetData = new byte[lengthData.length + blockData.length];
@@ -57,6 +49,14 @@ public class VerifyPacket extends Packet implements Comparable<VerifyPacket>{
             packetData[offset + i] = blockData[i];
         }
         return packetData;
+    }
+
+
+    public static byte[] encryptPacketData(RSAPrivateKey rsaPrivateKey, BigInteger blockChainLength, Block blockValue)
+            throws IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, rsaPrivateKey);
+        return cipher.doFinal(getUnencryptedData(blockChainLength, blockValue));
     }
 
 

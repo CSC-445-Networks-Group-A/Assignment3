@@ -10,4 +10,5 @@ public class Ports {
     public static final int CHECKER_ACCEPTANCE_PORT;
     public static final int MINER_LEARNING_PORT;
     public static final int HOLDER_LEARNING_PORT;
+    public static final int HOLDER_CHECKING_PORT;
 }
