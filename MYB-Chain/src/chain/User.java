@@ -71,7 +71,7 @@ public class User implements Serializable{
         * TODO -----       - if the file IS found, update the existing chain before leaving Constructor.
         * */
 
-//        updateBlockChain();
+        updateBlockChain();
 
     }
 

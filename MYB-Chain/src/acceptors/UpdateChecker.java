@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import java.math.BigInteger;
 import java.net.*;
 
 /**
@@ -31,11 +32,15 @@ public class UpdateChecker extends Thread{
 
     private final int proposalPort; //for listening to update Manager (proposers)
     private final InetAddress proposalAddress;
+    private final int learnerPort;
+    private final InetAddress learnerAddress;
 
     public UpdateChecker(User checker) throws UnknownHostException {
         super("ChainChecker: " + checker.getID());
         this.proposalPort = Ports.UPDATE_MANAGER_PROPOSAL_PORT;
         this.proposalAddress = InetAddress.getByName(Addresses.UPDATE_MANAGER_PROPOSAL_ADDRESS);
+        this.learnerPort = Ports.HOLDER_UPDATING_PORT;
+        this.learnerAddress = InetAddress.getByName(Addresses.HOLDER_UPDATING_ADDRESS);
     }
 
     @Override
@@ -91,7 +96,9 @@ public class UpdateChecker extends Thread{
 
 
     public VerifyUpdatePacket verifyWithAllAcceptors(UpdateUsersPacket packet){
+        BigInteger lastBlockNumber = packet.getLastBlockRecorded();
         VerifyUpdatePacket vup = null;
+        int packetsVerified = 0;
 
         /**
          * TODO
@@ -112,7 +119,7 @@ public class UpdateChecker extends Thread{
         /**
          * inform all learners
          */
-        AcceptedUpdatePacket updatePacket = new AcceptedUpdatePacket(verifiedUpdatePacket.getBlocksToUpdate(),
+        AcceptedUpdatePacket updatePacket = new AcceptedUpdatePacket(
                 verifiedUpdatePacket.getLastUpdatedBlockNumber());
 
         /**

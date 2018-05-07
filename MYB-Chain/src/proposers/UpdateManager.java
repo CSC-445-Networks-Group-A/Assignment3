@@ -10,6 +10,7 @@ import packets.responses.SuccessfulUpdate;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.*;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -22,6 +23,7 @@ public class UpdateManager extends Thread {
     private final InetAddress requestAddress;
     private final InetAddress listenForAcceptorAddress;
     private final int listenForAcceptorPort;
+    private HashMap<InetAddress, Integer> usersAddressBook; //just one ...
 
     //TODO: another address and port for receiving from acceptors
     private final int listenPort;
@@ -37,6 +39,9 @@ public class UpdateManager extends Thread {
         this.requestAddress = InetAddress.getByName(requestAddress);
         this.listenForAcceptorAddress = InetAddress.getByName(listenAcceptorAddress);
         this.listenForAcceptorPort = listenAcceptorPort;
+        this.usersAddressBook = new HashMap<>();
+        this.pendingRequest = new ConcurrentLinkedQueue<>();
+        this.pendingAddresses = new ConcurrentLinkedQueue<>();
 
     }
 
@@ -101,6 +106,7 @@ public class UpdateManager extends Thread {
                 int userPort = updateRequest.getUserPort();
                 Pair<InetAddress, Integer> addressPortPair = new Pair<>(userAddress,userPort);
                 pendingAddresses.add(addressPortPair);
+                usersAddressBook.putIfAbsent(userAddress,userPort);
                 GeneralResponse messageToUser = new GeneralResponse("Updating in progress......");
                 respondToUserUpdateRequest(userAddress,userPort,messageToUser);
             }
@@ -154,6 +160,10 @@ public class UpdateManager extends Thread {
         }
     }
 
+    /**
+     * listening for acceptor responses - packet = AcceptedUpdatePacket
+     * filters out so that only one gets send out to the user that requested it
+     */
     public void receiveResponseFromAcceptor() {
         MulticastSocket multicastSocket = null;
         try {
@@ -165,8 +175,9 @@ public class UpdateManager extends Thread {
 
             byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
             DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
-            multicastSocket.receive(datagramPacket);
 
+
+            multicastSocket.receive(datagramPacket);
             ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
             ObjectInputStream inputStream = new ObjectInputStream(bais);
 
@@ -176,10 +187,19 @@ public class UpdateManager extends Thread {
 
                 //simply sending back a message to user that he/she is successfully updated
                 //actual update occurs at learners side
+
                 InetAddress userAddress = successPacket.getUserAddress();
                 int userPort = successPacket.getUserPort();
-                GeneralResponse messageToUser = new GeneralResponse("Update successful!");
-                respondToUserUpdateRequest(userAddress, userPort, messageToUser);
+                //filter
+                if(usersAddressBook.keySet().contains(userAddress)&&usersAddressBook.values().contains(userPort)){
+                    System.out.println("UPDATE MANAGER: Received a update for a user that exist in the address book...");
+                    GeneralResponse messageToUser = new GeneralResponse("Update successful!");
+                    respondToUserUpdateRequest(userAddress, userPort, messageToUser);
+                    //remove from the address book
+                    usersAddressBook.remove(userAddress,userPort);
+                }
+                //otherwise ignore the rest (because they are the same updates from learners)
+
             }
             inputStream.close();
             bais.close();

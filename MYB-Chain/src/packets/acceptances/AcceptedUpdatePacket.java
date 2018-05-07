@@ -9,19 +9,29 @@ import java.util.ArrayList;
 /**
  * Created by Yingying Xia on 2018/5/6.
  */
-public class AcceptedUpdatePacket extends Packet implements Comparable<AcceptedPacket> {
+public class AcceptedUpdatePacket extends Packet implements Comparable<AcceptedUpdatePacket> {
 
-    private final ArrayList<Block> blocksToUpdate;
+
     private final int lastUpdatedBlockNumber;
 
-    public AcceptedUpdatePacket(ArrayList<Block> blocks, int lastNumber){
+    public AcceptedUpdatePacket(int lastNumber){
 
         this.lastUpdatedBlockNumber = lastNumber;
-        this.blocksToUpdate = blocks;
+
+    }
+
+    public int getLastUpdatedBlockNumber(){
+        return this.lastUpdatedBlockNumber;
     }
 
     @Override
-    public int compareTo(AcceptedPacket acceptedPacket) {
-        return 0;
+    public int compareTo(AcceptedUpdatePacket acceptedPacket) {
+        if(this.lastUpdatedBlockNumber == acceptedPacket.getLastUpdatedBlockNumber()){
+            return 0;
+        }else if (this.lastUpdatedBlockNumber < acceptedPacket.lastUpdatedBlockNumber){
+            return -1;
+        }else{
+            return 1;
+        }
     }
 }
