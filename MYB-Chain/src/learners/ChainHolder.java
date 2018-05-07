@@ -10,6 +10,7 @@ import packets.acceptances.AcceptedPacket;
 
 import packets.acceptances.AcceptedUpdatePacket;
 import packets.learnings.LearnedPacket;
+import packets.proposals.UpdateUsersPacket;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -51,7 +52,7 @@ public class ChainHolder extends Thread{
     private final int checkingPort;
     private final int finalAcceptancePort;
     private ConcurrentHashMap<RSAPublicKey, AcceptedPacket> acceptedPackets;
-    private ConcurrentLinkedQueue<AcceptedUpdatePacket> acceptedUpdates;
+    private ConcurrentLinkedQueue<UpdateUsersPacket> updateRequests;
 
 
     public ChainHolder(User mybHolder) throws IOException, ClassNotFoundException {
@@ -67,7 +68,7 @@ public class ChainHolder extends Thread{
         this.checkingPort = Ports.HOLDER_CHECKING_PORT;
         this.finalAcceptancePort = Ports.HOLDER_ACCEPTANCE_PORT;
         this.acceptedPackets = new ConcurrentHashMap<>(N);
-        this.acceptedUpdates = new ConcurrentLinkedQueue<>();
+        this.updateRequests = new ConcurrentLinkedQueue<>();
     }
 
 
@@ -147,9 +148,9 @@ public class ChainHolder extends Thread{
                                 }
                             }
                         }
-                    }else if ((object != null) && (object instanceof AcceptedUpdatePacket)) {
-                        AcceptedUpdatePacket acceptedUpdatePacket = (AcceptedUpdatePacket) object;
-                        acceptedUpdates.add(acceptedUpdatePacket);
+                    }else if ((object != null) && (object instanceof UpdateUsersPacket)) {
+                        UpdateUsersPacket updateUsersPacket = (UpdateUsersPacket) object;
+                        updateRequests.add(updateUsersPacket);
                     }
 
                     inputStream.close();
@@ -185,11 +186,11 @@ public class ChainHolder extends Thread{
             boolean running = true;
 
             while (running) {
-                AcceptedUpdatePacket acceptedUpdatePacket = acceptedUpdates.poll();
+                UpdateUsersPacket updateUsersPacket = updateRequests.poll();
 
-                if (acceptedUpdatePacket != null) {
-                    Block[] blocks = getBlocksForUpdate(acceptedUpdatePacket);
-                    AcceptedUpdatePacket updatePacket = new AcceptedUpdatePacket(blocks, holder.getBlockChain().getChainLength());
+                if (updateUsersPacket != null) {
+                    Block[] blocks = getBlocksForUpdate(updateUsersPacket);
+                    AcceptedUpdatePacket updatePacket = new AcceptedUpdatePacket(blocks, updateUsersPacket.getUserAddress(), updateUsersPacket.);
 
                     sendUpdate(updatePacket, updatingAddress, updatingPort);
                 }
@@ -574,8 +575,8 @@ public class ChainHolder extends Thread{
         }
     }
 
-    private Block[] getBlocksForUpdate(AcceptedUpdatePacket acceptedUpdatePacket) {
-        return holder.getBlockChain().getSubChain(acceptedUpdatePacket.getLastUpdatedBlockNumber());
+    private Block[] getBlocksForUpdate(UpdateUsersPacket updateUsersPacket) {
+        return holder.getBlockChain().getSubChain(updateUsersPacket.getLastBlockRecorded());
     }
 
 
