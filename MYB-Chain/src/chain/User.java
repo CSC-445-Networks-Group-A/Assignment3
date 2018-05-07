@@ -450,6 +450,7 @@ public class User implements Serializable{
             baos.close();
             multicastSocket.close();
 
+            return true;
         }catch(IOException e){
             e.printStackTrace();
         }
