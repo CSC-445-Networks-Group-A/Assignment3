@@ -325,32 +325,40 @@ public class User implements Serializable{
         return tmpDir.exists();
     }
 
-    public static User loadUser() {
-        JSONParser parser = new JSONParser();
+    public static User loadUser() throws IOException, ClassNotFoundException {
 
-        try {
-            JSONObject userJson = (JSONObject) parser.parse(new FileReader(USER_INFO_PATH));
+        FileInputStream userFileInput = new FileInputStream(USER_INFO_PATH);
+        ObjectInputStream userFileObjectInput = new ObjectInputStream(userFileInput);
+        User loadedUser = (User) userFileObjectInput.readObject();
+        userFileObjectInput.close();
+        userFileInput.close();
 
-            String loadedID = (String) userJson.get("ID");
-            Double loadedNetWorth = (Double) userJson.get("netWorth");
-            BigInteger loadedLastUpdatedBlockNumber = BigInteger.valueOf((long) userJson.get("lastUpdatedBlockNumber"));
-
-            InetAddress loadedRequestAddress = InetAddress.getByName((String) userJson.get("requestAddress"));
-            Long loadedRequestPortLong = (Long) userJson.get("requestPort");
-            int loadedRequestPort = loadedRequestPortLong.intValue();
-
-            InetAddress loadedReceiveUpdateAddress = InetAddress.getByName((String) userJson.get("receiveUpdateAddress"));
-            Long loadedReceiveUpdatePortLong = (Long) userJson.get("receiveUpdatePort");
-            int loadedReceiveUpdatePort = loadedReceiveUpdatePortLong.intValue();
-
-            RSAPublicKey loadedPublicKey = User.loadPublicKeyFromFile();
-            RSAPrivateKey loadedPrivateKey = User.loadPrivateKeyFromFile();
-
-            return new User(loadedPublicKey, loadedPrivateKey, loadedID, loadedNetWorth, loadedLastUpdatedBlockNumber);
-        }catch(IOException | ParseException | ClassNotFoundException ex){
-            ex.printStackTrace();
-            return null;
-        }
+        return loadedUser;
+//        JSONParser parser = new JSONParser();
+//
+//        try {
+//            JSONObject userJson = (JSONObject) parser.parse(new FileReader(USER_INFO_PATH));
+//
+//            String loadedID = (String) userJson.get("ID");
+//            Double loadedNetWorth = (Double) userJson.get("netWorth");
+//            BigInteger loadedLastUpdatedBlockNumber = BigInteger.valueOf((long) userJson.get("lastUpdatedBlockNumber"));
+//
+//            InetAddress loadedRequestAddress = InetAddress.getByName((String) userJson.get("requestAddress"));
+//            Long loadedRequestPortLong = (Long) userJson.get("requestPort");
+//            int loadedRequestPort = loadedRequestPortLong.intValue();
+//
+//            InetAddress loadedReceiveUpdateAddress = InetAddress.getByName((String) userJson.get("receiveUpdateAddress"));
+//            Long loadedReceiveUpdatePortLong = (Long) userJson.get("receiveUpdatePort");
+//            int loadedReceiveUpdatePort = loadedReceiveUpdatePortLong.intValue();
+//
+//            RSAPublicKey loadedPublicKey = User.loadPublicKeyFromFile();
+//            RSAPrivateKey loadedPrivateKey = User.loadPrivateKeyFromFile();
+//
+//            return new User(loadedPublicKey, loadedPrivateKey, loadedID, loadedNetWorth, loadedLastUpdatedBlockNumber);
+//        }catch(IOException | ParseException | ClassNotFoundException ex){
+//            ex.printStackTrace();
+//            return null;
+//        }
     }
 
 
@@ -367,18 +375,25 @@ public class User implements Serializable{
         privateObjectOutput.close();
         privateFileOutput.close();
 
-        JSONObject userJson = new JSONObject();
-        userJson.put("ID", this.ID);
-        userJson.put("netWorth", this.netWorth);
-        userJson.put("lastUpdatedBlockNumber", this.lastUpdatedBlockNumber);
-        userJson.put("requestAddress", this.requestAddress.getHostAddress());
-        userJson.put("requestPort", this.requestPort);
-        userJson.put("receiveUpdateAddress", this.receiveUpdateAddress.getHostAddress());
-        userJson.put("receiveUpdatePort", this.receiveUpdatePort);
+        FileOutputStream userFileOutput = new FileOutputStream(USER_INFO_PATH);
+        ObjectOutputStream userFileObjectOutput = new ObjectOutputStream(userFileOutput);
+        userFileObjectOutput.writeObject(this);
+        userFileObjectOutput.close();
+        userFileOutput.close();
 
-        FileWriter userFile = new FileWriter(USER_INFO_PATH);
-        userFile.write(userJson.toJSONString());
-        userFile.close();
+
+//        JSONObject userJson = new JSONObject();
+//        userJson.put("ID", this.ID);
+//        userJson.put("netWorth", this.netWorth);
+//        userJson.put("lastUpdatedBlockNumber", this.lastUpdatedBlockNumber);
+//        userJson.put("requestAddress", this.requestAddress.getHostAddress());
+//        userJson.put("requestPort", this.requestPort);
+//        userJson.put("receiveUpdateAddress", this.receiveUpdateAddress.getHostAddress());
+//        userJson.put("receiveUpdatePort", this.receiveUpdatePort);
+//
+//        FileWriter userFile = new FileWriter(USER_INFO_PATH);
+//        userFile.write(userJson.toJSONString());
+//        userFile.close();
     }
 
 

@@ -2,6 +2,7 @@ package proposers;
 
 import chain.User;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 
@@ -10,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
  */
 public class UpdateManagerInitializer {
 
-    public static void main(String[] args) throws UnknownHostException, NoSuchAlgorithmException, InterruptedException {
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InterruptedException, ClassNotFoundException {
         User user;
         if(User.userFileExists()){
             user = User.loadUser();
