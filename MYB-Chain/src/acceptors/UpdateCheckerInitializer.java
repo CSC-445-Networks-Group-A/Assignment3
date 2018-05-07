@@ -2,6 +2,7 @@ package acceptors;
 
 import chain.User;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 
@@ -10,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
  */
 public class UpdateCheckerInitializer {
 
-    public static void main(String[] args) throws UnknownHostException, NoSuchAlgorithmException {
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, ClassNotFoundException {
 
 
         User user;
