@@ -190,7 +190,8 @@ public class ChainHolder extends Thread{
 
                 if (updateUsersPacket != null) {
                     Block[] blocks = getBlocksForUpdate(updateUsersPacket);
-                    AcceptedUpdatePacket updatePacket = new AcceptedUpdatePacket(blocks, updateUsersPacket.getUserAddress(), updateUsersPacket.);
+                    AcceptedUpdatePacket updatePacket = new AcceptedUpdatePacket(blocks, updateUsersPacket.getUserAddress(),
+                            updateUsersPacket.getUserPort());
 
                     sendUpdate(updatePacket, updatingAddress, updatingPort);
                 }

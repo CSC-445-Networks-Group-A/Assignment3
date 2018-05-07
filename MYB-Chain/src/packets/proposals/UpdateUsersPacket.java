@@ -29,7 +29,7 @@ public class UpdateUsersPacket extends Packet {
         return this.getUserAddress();
     }
 
-    public int userPort(){
+    public int getUserPort(){
         return this.userPort;
     }
 }
