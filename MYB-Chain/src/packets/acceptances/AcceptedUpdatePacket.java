@@ -2,26 +2,38 @@ package packets.acceptances;
 
 import chain.Block;
 import packets.Packet;
+import packets.PacketTypes;
 
+import java.math.BigInteger;
+import java.net.InetAddress;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 
 /**
  * Created by Yingying Xia on 2018/5/6.
  */
-public class AcceptedUpdatePacket extends Packet implements Comparable<AcceptedPacket> {
+public class AcceptedUpdatePacket extends Packet {
+    private final Block[] blocksToUpdate;
+    private final InetAddress address;
+    private final int port;
 
-    private final ArrayList<Block> blocksToUpdate;
-    private final int lastUpdatedBlockNumber;
-
-    public AcceptedUpdatePacket(ArrayList<Block> blocks, int lastNumber){
-
-        this.lastUpdatedBlockNumber = lastNumber;
+    public AcceptedUpdatePacket(Block[] blocks, InetAddress address, int portNumber){
+        super(PacketTypes.UPDATE_ACCEPTANCE);
         this.blocksToUpdate = blocks;
+        this.address = address;
+        this.port = portNumber;
     }
 
-    @Override
-    public int compareTo(AcceptedPacket acceptedPacket) {
-        return 0;
+
+    public Block[] getBlocksToUpdate() {
+        return blocksToUpdate;
+    }
+
+    public InetAddress getAddress() {
+        return address;
+    }
+
+    public int getPort() {
+        return port;
     }
 }
