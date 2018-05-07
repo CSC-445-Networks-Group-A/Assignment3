@@ -10,6 +10,7 @@ import packets.responses.SuccessfulUpdate;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.*;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -22,6 +23,7 @@ public class UpdateManager extends Thread {
     private final InetAddress requestAddress;
     private final InetAddress listenForAcceptorAddress;
     private final int listenForAcceptorPort;
+    private HashMap<InetAddress, Integer> usersAddressBook; //just one ...
 
     //TODO: another address and port for receiving from acceptors
     private final int listenPort;
@@ -29,6 +31,8 @@ public class UpdateManager extends Thread {
     private ConcurrentLinkedQueue<Pair<BigInteger, InetAddress>> pendingRequest;
     private ConcurrentLinkedQueue<Pair<InetAddress, Integer>> pendingAddresses;
 
+
+    // TODO: clear out the ports and address arguments
     public UpdateManager(int listenPort, String listenAddress, int requestPort, String requestAddress, int listenAcceptorPort,
                          String listenAcceptorAddress) throws UnknownHostException {
         this.listenPort = listenPort;
@@ -37,6 +41,9 @@ public class UpdateManager extends Thread {
         this.requestAddress = InetAddress.getByName(requestAddress);
         this.listenForAcceptorAddress = InetAddress.getByName(listenAcceptorAddress);
         this.listenForAcceptorPort = listenAcceptorPort;
+        this.usersAddressBook = new HashMap<>();
+        this.pendingRequest = new ConcurrentLinkedQueue<>();
+        this.pendingAddresses = new ConcurrentLinkedQueue<>();
 
     }
 
@@ -101,6 +108,7 @@ public class UpdateManager extends Thread {
                 int userPort = updateRequest.getUserPort();
                 Pair<InetAddress, Integer> addressPortPair = new Pair<>(userAddress,userPort);
                 pendingAddresses.add(addressPortPair);
+                usersAddressBook.putIfAbsent(userAddress,userPort);
                 GeneralResponse messageToUser = new GeneralResponse("Updating in progress......");
                 respondToUserUpdateRequest(userAddress,userPort,messageToUser);
             }
@@ -178,8 +186,16 @@ public class UpdateManager extends Thread {
                 //actual update occurs at learners side
                 InetAddress userAddress = successPacket.getUserAddress();
                 int userPort = successPacket.getUserPort();
-                GeneralResponse messageToUser = new GeneralResponse("Update successful!");
-                respondToUserUpdateRequest(userAddress, userPort, messageToUser);
+                //filter
+                if(usersAddressBook.keySet().contains(userAddress)&&usersAddressBook.values().contains(userPort)){
+                    System.out.println("UPDATE MANAGER: Received a update for a user that exist in the address book...");
+                    GeneralResponse messageToUser = new GeneralResponse("Update successful!");
+                    respondToUserUpdateRequest(userAddress, userPort, messageToUser);
+                    //remove from the address book
+                    usersAddressBook.remove(userAddress,userPort);
+                }
+                //otherwise ignore the rest (because they are the same updates from learners)
+
             }
             inputStream.close();
             bais.close();
