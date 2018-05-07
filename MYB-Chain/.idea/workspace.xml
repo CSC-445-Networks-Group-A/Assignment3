@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9cab0336-60ab-49cc-9c8c-4bce677818b9" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/acceptors/UpdateChecker.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/acceptors/UpdateCheckerInitializer.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/learners/ChainHolder.java" afterPath="$PROJECT_DIR$/src/learners/ChainHolder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/packets/acceptances/AcceptedUpdatePacket.java" afterPath="$PROJECT_DIR$/src/packets/acceptances/AcceptedUpdatePacket.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -1246,7 +1242,14 @@
       <option name="project" value="LOCAL" />
       <updated>1525648929804</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Completed the initial implementation of ChainHolder&#10;&#10;Restructured the AcceptedUpdatePacket">
+      <created>1525666693979</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1525666693979</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1300,7 +1303,8 @@
     <MESSAGE value="Initial implementation of ChainHolder&#10;Bug fix in the verify method of ChainChecker where a computed packet was not updating properly" />
     <MESSAGE value="Initial implementation of ChainHolder&#10;Bug fix in the verify method of ChainChecker where a computed packet was not updating properly&#10;&#10;Merged bug fix in Block class" />
     <MESSAGE value="Completed the initial implementation of ChainHolder" />
-    <option name="LAST_COMMIT_MESSAGE" value="Completed the initial implementation of ChainHolder" />
+    <MESSAGE value="Completed the initial implementation of ChainHolder&#10;&#10;Restructured the AcceptedUpdatePacket" />
+    <option name="LAST_COMMIT_MESSAGE" value="Completed the initial implementation of ChainHolder&#10;&#10;Restructured the AcceptedUpdatePacket" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
