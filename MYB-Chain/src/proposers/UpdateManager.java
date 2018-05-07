@@ -27,7 +27,7 @@ public class UpdateManager extends Thread {
 
     //TODO: another address and port for receiving from acceptors
     private final int listenPort;
-    private final int requestPort;
+    private final int requestPort; 
     private ConcurrentLinkedQueue<Pair<BigInteger, InetAddress>> pendingRequest;
     private ConcurrentLinkedQueue<Pair<InetAddress, Integer>> pendingAddresses;
 
