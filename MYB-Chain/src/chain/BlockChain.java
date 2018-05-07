@@ -129,5 +129,8 @@ public class BlockChain {
         return subChain;
 
     }
+    protected ArrayList<Block> getBlocks(){
+        return this.chain;
+    }
 
 }

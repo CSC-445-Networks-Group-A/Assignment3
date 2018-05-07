@@ -2,9 +2,6 @@ package chain;
 
 import common.Addresses;
 import common.Ports;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import packets.requests.UpdateRequest;
 
 import javax.crypto.BadPaddingException;
@@ -71,7 +68,7 @@ public class User implements Serializable{
         * TODO -----       - if the file IS found, update the existing chain before leaving Constructor.
         * */
 
-//        updateBlockChain();
+       updateBlockChain();
 
     }
 
@@ -159,7 +156,7 @@ public class User implements Serializable{
     /** send out an updateRequest to get the most recent copy of block chain
      *  through multicast
      * */
-   /* private void sendUpdateRequest(){
+    private void sendUpdateRequest(){
         MulticastSocket multicastSocket = null;
         try {
             multicastSocket = new MulticastSocket(requestPort);
@@ -169,7 +166,8 @@ public class User implements Serializable{
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream outputStream = new ObjectOutputStream(baos);
 
-            UpdateRequest updateRequestPacket = new UpdateRequest(this.lastUpdatedBlockNumber);
+            //   FIXME: USER PORT??? FIXME: USER PORT??? FIXME: USER PORT???
+            UpdateRequest updateRequestPacket = new UpdateRequest(this.lastUpdatedBlockNumber, InetAddress.getLocalHost(),);
             outputStream.writeObject(updateRequestPacket);
             byte[] output = baos.toByteArray();
             DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
@@ -185,10 +183,10 @@ public class User implements Serializable{
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }*/
+    }
 
     /**
-     * receiving newly updated blockchain object? Blocks?
+     * receiving newly updated blockchain object?
      */
   /*  private BlockChain receiveUpdate(){
 
@@ -261,7 +259,7 @@ public class User implements Serializable{
 
             //writing older blocks first
             for(int i = blockChain.getChainLength().intValueExact()-1; i >=0; i --){
-//                oos.writeObject(blockChain.getBlocks().get(i));
+                oos.writeObject(blockChain.getBlocks().get(i));
                 oos.flush();
             }
 
