@@ -1,11 +1,10 @@
 package learners;
 
 import chain.User;
-import proposers.Miner;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 
 /**
  * Created by Michael on 5/2/2018.
@@ -17,12 +16,16 @@ public class ChainHolderInitializer {
         if(User.userFileExists()){
             user = User.loadUser();
         }else {
-            user = new User("Some", "Person", 100.0);
+            Random random = new Random();
+            Long randomNumber = random.nextLong();
+            user = new User("ChainHolder", randomNumber.toString(), 100.0);
         }
 
         Thread chainHolder = new ChainHolder(user);
         chainHolder.start();
+        user.start();
         chainHolder.join();
+        user.join();
 
     }
 }

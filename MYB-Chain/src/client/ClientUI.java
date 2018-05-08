@@ -9,6 +9,7 @@ import chain.User;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 /**
  *
@@ -17,12 +18,15 @@ import java.awt.*;
 public class ClientUI extends javax.swing.JFrame {
 
     private User myUser;
+    private Thread userThread;
     /**
      * Creates new form ClientUI
      */
-    public ClientUI(User user) {
+    public ClientUI(User user) throws IOException, InterruptedException {
         initComponents();
         this.myUser = user;
+        myUser.updateBlockChain();
+        myUser.start();
         this.tbxUsername.setText(user.getID());
         this.tbxUsername.setEditable(false);
         this.lblAccountValue.setText(String.valueOf(user.getNetWorth()) + " MYB");
@@ -30,6 +34,7 @@ public class ClientUI extends javax.swing.JFrame {
         cmbxSentToAccount.setPreferredSize(new Dimension(10, 30));
         cmbxSentToAccount.setMaximumSize(new Dimension(10, 30));
         pack();
+        myUser.join();
     }
 
     /**

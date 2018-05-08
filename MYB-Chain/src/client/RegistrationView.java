@@ -78,7 +78,11 @@ public class RegistrationView extends javax.swing.JFrame {
         btnDone.setText("Done");
         btnDone.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDoneActionPerformed(evt);
+                try {
+                    btnDoneActionPerformed(evt);
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -175,14 +179,14 @@ public class RegistrationView extends javax.swing.JFrame {
                 e.printStackTrace();
             }
 
-        } catch (NoSuchAlgorithmException | UnknownHostException e) {
+        } catch (NoSuchAlgorithmException | IOException e) {
             lblMessage.setText("Registration Failed!");
             e.printStackTrace();
         }
 
     }//GEN-LAST:event_btnRegisterActionPerformed
 
-    private void btnDoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDoneActionPerformed
+    private void btnDoneActionPerformed(java.awt.event.ActionEvent evt) throws IOException, InterruptedException {//GEN-FIRST:event_btnDoneActionPerformed
         this.setVisible(false);
         ClientUI client = new ClientUI(myUser);
         client.setVisible(true);
