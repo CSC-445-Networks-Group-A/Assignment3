@@ -126,8 +126,11 @@ public class BlockChain {
             subChain[arrayIndex] = chain.get(chainIndex);
         }
 
-        return subChain;
+        return subChain; 
 
+    }
+    protected ArrayList<Block> getBlocks(){
+        return this.chain;
     }
 
 }

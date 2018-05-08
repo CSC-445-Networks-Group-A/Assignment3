@@ -5,6 +5,7 @@ import common.Ports;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import packets.requests.TransactionRequest;
 import packets.requests.UpdateRequest;
 
 import javax.crypto.BadPaddingException;
@@ -71,7 +72,7 @@ public class User implements Serializable{
         * TODO -----       - if the file IS found, update the existing chain before leaving Constructor.
         * */
 
-//        updateBlockChain();
+       updateBlockChain();
 
     }
 
@@ -159,7 +160,7 @@ public class User implements Serializable{
     /** send out an updateRequest to get the most recent copy of block chain
      *  through multicast
      * */
-   /* private void sendUpdateRequest(){
+    private void sendUpdateRequest(){
         MulticastSocket multicastSocket = null;
         try {
             multicastSocket = new MulticastSocket(requestPort);
@@ -169,7 +170,8 @@ public class User implements Serializable{
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream outputStream = new ObjectOutputStream(baos);
 
-            UpdateRequest updateRequestPacket = new UpdateRequest(this.lastUpdatedBlockNumber);
+            //   FIXME: USER PORT??? FIXME: USER PORT??? FIXME: USER PORT???
+            UpdateRequest updateRequestPacket = new UpdateRequest(this.lastUpdatedBlockNumber, InetAddress.getLocalHost(),);
             outputStream.writeObject(updateRequestPacket);
             byte[] output = baos.toByteArray();
             DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
@@ -185,10 +187,10 @@ public class User implements Serializable{
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }*/
+    }
 
     /**
-     * receiving newly updated blockchain object? Blocks?
+     * receiving newly updated blockchain object?
      */
   /*  private BlockChain receiveUpdate(){
 
@@ -261,7 +263,7 @@ public class User implements Serializable{
 
             //writing older blocks first
             for(int i = blockChain.getChainLength().intValueExact()-1; i >=0; i --){
-//                oos.writeObject(blockChain.getBlocks().get(i));
+                oos.writeObject(blockChain.getBlocks().get(i));
                 oos.flush();
             }
 
@@ -428,9 +430,33 @@ public class User implements Serializable{
      * USER_REQUEST_ADDRESS and USER_REQUEST_PORT in the Addresses and Ports classes respectively. The User will then
      * wait to hear back from the Miner via TCP over the provided InetAddress and port specified in the TransactionRequest.
      * */
-    public Transaction makeTransaction(User seller, Double transactionAmount) throws IllegalBlockSizeException,
-            InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidParameterException {
-        return new Transaction(this, seller, transactionAmount, privateKey);
+    public boolean makeTransaction(User seller, Double transactionAmount) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
+
+        Transaction transaction = new Transaction(this, seller, transactionAmount, privateKey);
+
+        try {
+            TransactionRequest transactionRequest = new TransactionRequest(transaction, InetAddress.getLocalHost(), Ports.USER_RECEIVE_UPDATE_PORT);
+            MulticastSocket multicastSocket = new MulticastSocket(Ports.USER_REQUEST_PORT);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream outputStream = new ObjectOutputStream(baos);
+            outputStream.writeObject(transactionRequest);
+            byte[] output = baos.toByteArray();
+
+            DatagramPacket datagramPacket = new DatagramPacket(output, output.length, InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS), Ports.USER_REQUEST_PORT);
+
+            multicastSocket.send(datagramPacket);
+
+            outputStream.close();
+            baos.close();
+            multicastSocket.close();
+
+            return true;
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
 
