@@ -29,11 +29,11 @@ public class AcceptedUpdatePacket extends Packet {
         return blocksToUpdate;
     }
 
-    public InetAddress getUserAddress() {
+    public InetAddress getAddress() {
         return address;
     }
 
-    public int getUserPort() {
+    public int getPort() {
         return port;
     }
 }
