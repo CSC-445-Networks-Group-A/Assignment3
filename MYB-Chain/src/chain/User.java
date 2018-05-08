@@ -7,16 +7,16 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import packets.requests.TransactionRequest;
 import packets.requests.UpdateRequest;
+import packets.responses.TransactionAccepted;
+import packets.responses.TransactionDenied;
+import packets.responses.TransactionPending;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.*;
 import java.math.BigInteger;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -171,7 +171,7 @@ public class User implements Serializable{
             ObjectOutputStream outputStream = new ObjectOutputStream(baos);
 
             //   FIXME: USER PORT??? FIXME: USER PORT??? FIXME: USER PORT???
-            UpdateRequest updateRequestPacket = new UpdateRequest(this.lastUpdatedBlockNumber, InetAddress.getLocalHost(),);
+            UpdateRequest updateRequestPacket = new UpdateRequest(this.lastUpdatedBlockNumber, InetAddress.getLocalHost(), 0);
             outputStream.writeObject(updateRequestPacket);
             byte[] output = baos.toByteArray();
             DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
@@ -317,9 +317,13 @@ public class User implements Serializable{
 
     }
 
-    public void commitUser() throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException, IOException {
-        makeTransaction(this, 0.0);
-        writeUser();
+    public boolean commitUser() throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException, IOException {
+        boolean response = makeTransaction(this, 0.0);
+        getTransationResponseMessage();
+        if(response){
+            writeUser();
+        }
+        return response;
     }
 
     public static boolean userFileExists(){
@@ -430,12 +434,12 @@ public class User implements Serializable{
      * USER_REQUEST_ADDRESS and USER_REQUEST_PORT in the Addresses and Ports classes respectively. The User will then
      * wait to hear back from the Miner via TCP over the provided InetAddress and port specified in the TransactionRequest.
      * */
-    public boolean makeTransaction(User seller, Double transactionAmount) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
-
-        Transaction transaction = new Transaction(this, seller, transactionAmount, privateKey);
+    public boolean makeTransaction(User seller, Double transactionAmount) {
 
         try {
-            TransactionRequest transactionRequest = new TransactionRequest(transaction, InetAddress.getLocalHost(), Ports.USER_RECEIVE_UPDATE_PORT);
+            Transaction transaction = new Transaction(this, seller, transactionAmount, privateKey);
+
+            TransactionRequest transactionRequest = new TransactionRequest(transaction, InetAddress.getLocalHost(), Ports.USER_REQUEST_PORT);
             MulticastSocket multicastSocket = new MulticastSocket(Ports.USER_REQUEST_PORT);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -445,18 +449,66 @@ public class User implements Serializable{
 
             DatagramPacket datagramPacket = new DatagramPacket(output, output.length, InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS), Ports.USER_REQUEST_PORT);
 
+            System.out.print("Sending TR... ");
+
             multicastSocket.send(datagramPacket);
+
+            System.out.println("sent.");
 
             outputStream.close();
             baos.close();
             multicastSocket.close();
 
             return true;
-        }catch(IOException e){
+        }catch(IOException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException e){
             e.printStackTrace();
         }
 
         return false;
+    }
+
+
+
+
+    public String getTransationResponseMessage(){
+        String message = null;
+
+        try {
+            ServerSocket serverSocket = new ServerSocket(Ports.USER_REQUEST_PORT);
+            Socket socket = serverSocket.accept();
+
+            ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
+            Object object = inputStream.readObject();
+            inputStream.close();
+            socket.close();
+            serverSocket.close();
+
+            if (object != null) {
+
+                if ((object instanceof TransactionPending)) {
+                    TransactionPending transationPending = (TransactionPending) object;
+                    message = transationPending.getPendingMessage();
+                }
+                if ((object instanceof TransactionDenied)) {
+                    TransactionDenied transationDenied = (TransactionDenied) object;
+                    message = transationDenied.getDenialMessage();
+                }
+                if ((object instanceof TransactionAccepted)) {
+                    TransactionAccepted transationAccepted = (TransactionAccepted) object;
+                    message = transationAccepted.getAcceptanceMessage();
+                }
+
+                if(message != null){
+                    System.out.println("Got Response msg: " + message);
+                }
+            }
+
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return message;
+
     }
 
 

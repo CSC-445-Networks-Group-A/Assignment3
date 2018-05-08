@@ -3,7 +3,6 @@ package proposers;
 import chain.User;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 
 /**
