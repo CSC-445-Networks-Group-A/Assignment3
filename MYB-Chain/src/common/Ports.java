@@ -14,6 +14,5 @@ public class Ports {
     public static final int HOLDER_CHECKING_PORT = 4007;
     public static final int HOLDER_ACCEPTANCE_PORT = 4008;
     public static final int UPDATE_MANAGER_PROPOSAL_PORT = 4009;
-    public static final int UPDATE_MANAGER_REQUEST_PORT= 4010;
-    public static final int UPDATE_MANAGER_ACCEPT_PORT = 4011;
+    public static final int CLIENT_UPDATE_PORT = 4010;
 }

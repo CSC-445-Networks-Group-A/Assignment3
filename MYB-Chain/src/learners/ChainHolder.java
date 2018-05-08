@@ -47,10 +47,12 @@ public class ChainHolder extends Thread{
     private final InetAddress updatingAddress;
     private final InetAddress checkingAddress;
     private final InetAddress finalAcceptanceAddress;
+    private final InetAddress clientUpdateAddress;
     private final int learningPort;
     private final int updatingPort;
     private final int checkingPort;
     private final int finalAcceptancePort;
+    private final int clientUpdatePort;
     private ConcurrentHashMap<RSAPublicKey, AcceptedPacket> acceptedPackets;
     private ConcurrentLinkedQueue<UpdateUsersPacket> updateRequests;
 
@@ -63,10 +65,12 @@ public class ChainHolder extends Thread{
         this.updatingAddress = InetAddress.getByName(Addresses.HOLDER_UPDATING_ADDRESS);
         this.checkingAddress = InetAddress.getByName(Addresses.HOLDER_CHECKING_ADDRESS);
         this.finalAcceptanceAddress = InetAddress.getByName(Addresses.HOLDER_ACCEPTANCE_ADDRESS);
+        this.clientUpdateAddress = InetAddress.getByName(Addresses.CLIENT_UPDATE_ADDRESS);
         this.learningPort = Ports.HOLDER_LEARNING_PORT;
         this.updatingPort = Ports.HOLDER_UPDATING_PORT;
         this.checkingPort = Ports.HOLDER_CHECKING_PORT;
         this.finalAcceptancePort = Ports.HOLDER_ACCEPTANCE_PORT;
+        this.clientUpdatePort = Ports.CLIENT_UPDATE_PORT;
         this.acceptedPackets = new ConcurrentHashMap<>(N);
         this.updateRequests = new ConcurrentLinkedQueue<>();
     }
@@ -142,6 +146,7 @@ public class ChainHolder extends Thread{
                                     if (!updateIsNecessary(learnedPacket)) {
                                         record(learnedPacket);
                                         acknowledge(multicastSocket, learnedPacket);
+                                        sendLearnedPacketToUsers(learnedPacket);
                                     }else {
                                         holder.updateBlockChain();
                                     }
@@ -603,6 +608,41 @@ public class ChainHolder extends Thread{
             multicastSocket.leaveGroup(address);
             System.out.println("FINISHING SENDING UPDATE:\t" + Thread.currentThread().getName() + "\n" +
                     "Updating Port:\t" + port);
+
+            return 1;
+
+        } catch (SocketTimeoutException ste) {
+            return 0;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+
+    private int sendLearnedPacketToUsers(LearnedPacket learnedPacket) {
+        try {
+            System.out.println("UPDATING USERS:\t" + Thread.currentThread().getName() + "\n" +
+                    "Learner:\t" + holder.getFullName());
+
+            MulticastSocket multicastSocket = new MulticastSocket(clientUpdatePort);
+            multicastSocket.joinGroup(clientUpdateAddress);
+            multicastSocket.setTimeToLive(TTL);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream outputStream = new ObjectOutputStream(baos);
+
+            outputStream.writeObject(learnedPacket);
+            byte[] output = baos.toByteArray();
+            DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
+            multicastSocket.send(datagramPacket);
+
+            outputStream.close();
+            baos.close();
+            multicastSocket.leaveGroup(clientUpdateAddress);
+
+            System.out.println("FINISHING USER UPDATE:\t" + Thread.currentThread().getName() + "\n" +
+                    "Learner:\t" + holder.getFullName());
 
             return 1;
 
