@@ -2,6 +2,7 @@ package chain;
 
 import common.Addresses;
 import common.Ports;
+import packets.acceptances.AcceptedUpdatePacket;
 import packets.requests.TransactionRequest;
 import packets.requests.UpdateRequest;
 import packets.responses.TransactionAccepted;
@@ -19,6 +20,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -26,7 +28,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Created by Michael on 4/14/2018.
  */
-public class User implements Serializable{
+public class User extends Thread implements Serializable{
     private final static String BLOCKCHAIN_PATH = "UserResources" + File.separator + "BLOCKCHAIN";
     private final static String USER_INFO_PATH = "UserResources" + File.separator + "USER_INFO.dat";
     private final static String PRIVATE_KEY_PATH = "UserResources" + File.separator + "PRIVATE.dat";
@@ -43,13 +45,13 @@ public class User implements Serializable{
     private final String ID;
     private final int requestPort;
     private final int receiveUpdatePort;
+    private HashMap<RSAPublicKey, User> knownBlockChainUsers;
     private BlockChain blockChain;
     private Double netWorth;
-    private BigInteger lastUpdatedBlockNumber;
-    private List<User> knownBlockChainUsers = new ArrayList<>();
 
 
-    public User(String firstName, String lastName, Double initialNetWorth) throws NoSuchAlgorithmException, UnknownHostException {
+    public User(String firstName, String lastName, Double initialNetWorth) throws NoSuchAlgorithmException, IOException {
+        super("User: " + firstName + " " + lastName);
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(2048);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
@@ -60,23 +62,16 @@ public class User implements Serializable{
         this.firstName = firstName;
         this.lastName = lastName;
         this.ID = generateID();
-        this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
         this.requestPort = Ports.USER_REQUEST_PORT;
-        this.blockChain = null;
+        this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
+        this.knownBlockChainUsers = new HashMap<>(10);
+        this.blockChain = new BlockChain(BLOCKCHAIN_PATH);
         this.netWorth = initialNetWorth;
-        this.lastUpdatedBlockNumber = BigInteger.valueOf(0);
-        /*
-        * TODO ----- Replace "this.blockChain = null" with an attempt to load data from file.
-        * TODO ----- Note: - if no file is found, ask user if they changed the file location. If not/they can't find it,
-        * TODO -----         request to download the BlockChain.
-        * TODO -----       - if the file IS found, update the existing chain before leaving Constructor.
-        * */
-
-       updateBlockChain();
 
     }
 
-    private User(RSAPrivateKey privateKey, RSAPublicKey publicKey, String firstName, String lastName, String id, Double netWorth) throws UnknownHostException {
+    private User(RSAPrivateKey privateKey, RSAPublicKey publicKey, String firstName, String lastName, String id, Double netWorth) throws IOException {
+        super("User: " + firstName + " " + lastName);
         this.privateKey = privateKey;
         this.publicKey = publicKey;
         this.requestAddress = InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS);
@@ -84,12 +79,15 @@ public class User implements Serializable{
         this.firstName = firstName;
         this.lastName = lastName;
         this.ID = id;
-        this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
         this.requestPort = Ports.USER_REQUEST_PORT;
+        this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
+        this.knownBlockChainUsers = new HashMap<>(10);
+        this.blockChain = new BlockChain(BLOCKCHAIN_PATH);
         this.netWorth = netWorth;
     }
 
-    private User(RSAPublicKey publicKey, RSAPrivateKey privateKey, String id, Double netWorth, BigInteger lastUpdatedBlockNumber) throws UnknownHostException {
+    private User(RSAPublicKey publicKey, RSAPrivateKey privateKey, String id, Double netWorth) throws IOException {
+        super("User: " + id);
         //TO-DO: take RSAPublicKey and RSAPrivateKey here for loading file
         this.publicKey = publicKey;
         this.privateKey = privateKey;
@@ -98,10 +96,11 @@ public class User implements Serializable{
         this.firstName = null;
         this.lastName = null;
         this.ID = id;
-        this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
         this.requestPort = Ports.USER_REQUEST_PORT;
+        this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
+        this.knownBlockChainUsers = new HashMap<>(10);
+        this.blockChain = new BlockChain(BLOCKCHAIN_PATH);
         this.netWorth = netWorth;
-        this.lastUpdatedBlockNumber = lastUpdatedBlockNumber;
     }
 
 
@@ -150,11 +149,27 @@ public class User implements Serializable{
     protected User clone() {
         try {
             return new User(privateKey, publicKey, firstName, lastName, ID, netWorth);
-        } catch (UnknownHostException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
+
+
+    @Override
+    /**
+     * This will continuously receive blocks added to the chain
+     * */
+    public void run() {
+        adfawerfaw
+    }
+
+
+    public void updateBlockChain() {
+        sendUpdateRequest();
+        receiveUpdate();
+    }
+
 
     /** send out an updateRequest to get the most recent copy of block chain
      *  through multicast
@@ -162,15 +177,15 @@ public class User implements Serializable{
     private void sendUpdateRequest(){
         MulticastSocket multicastSocket = null;
         try {
-            multicastSocket = new MulticastSocket(requestPort);
-            multicastSocket.joinGroup(requestAddress);
+            multicastSocket = new MulticastSocket(receiveUpdatePort);
+            multicastSocket.joinGroup(receiveUpdateAddress);
             multicastSocket.setTimeToLive(TTL);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream outputStream = new ObjectOutputStream(baos);
 
             //   FIXME: USER PORT??? FIXME: USER PORT??? FIXME: USER PORT???
-            UpdateRequest updateRequestPacket = new UpdateRequest(this.lastUpdatedBlockNumber, this.receiveUpdateAddress, this.receiveUpdatePort);
+            UpdateRequest updateRequestPacket = new UpdateRequest(this.blockChain.getChainLength(), InetAddress.getLocalHost(), );
             outputStream.writeObject(updateRequestPacket);
             byte[] output = baos.toByteArray();
             DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
@@ -182,7 +197,7 @@ public class User implements Serializable{
             baos.close();
 
             //leaving the group ...
-            multicastSocket.leaveGroup(requestAddress);
+            multicastSocket.leaveGroup(receiveUpdateAddress);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -191,7 +206,7 @@ public class User implements Serializable{
     /**
      * receiving newly updated blockchain object?
      */
-  /*  private BlockChain receiveUpdate(){
+    private void receiveUpdate(){
 
         try {
 
@@ -209,127 +224,37 @@ public class User implements Serializable{
             ObjectInputStream inputStream = new ObjectInputStream(bais);
 
             Object object = inputStream.readObject();
-            BlockChain newBlockChain = null;
-            if ((object != null) && (object instanceof BlockChain)) {
-                newBlockChain = (BlockChain) object;
+            if ((object != null) && (object instanceof AcceptedUpdatePacket)) {
+                AcceptedUpdatePacket acceptedUpdatePacket = (AcceptedUpdatePacket) object;
+                Block[] blocksToAdd = acceptedUpdatePacket.getBlocksToUpdate();
+                blockChain.update(blocksToAdd);
+
             }
             inputStream.close();
             bais.close();
-            return newBlockChain;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }*/
-
-    public void updateBlockChain() {
-        //TODO: generalized path?
-        String filePath = BLOCKCHAIN_PATH + File.separator + "CHAIN.dat";
-        File file = new File(filePath);
-        if(file.exists()){
-            // if file/a copy of the block chain (possibly an old version) already exists on user's machine
-            //TODO:
-            readAndUpdateBlockChainFrom(filePath);
-
-        }else{
-            // no copy of the blockchain exist
-            File blockchainDirectory = new File(BLOCKCHAIN_PATH);
-            if (!file.exists() || !blockchainDirectory.isDirectory()) {
-                blockchainDirectory.mkdirs();
-            }
-            downloadBlockChainTo(filePath);
-
-        }
-
-    }
-
-    private void downloadBlockChainTo(String path){
-        //send out a UPDATEREQUEST TO ALL
-        //TODO:
-        //sendUpdateRequest();
-        //whatever returned
-        //this.blockChain = receiveUpdate();
-        //save own copy in local
-        File f = new File(path);
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(f);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-
-            //writing older blocks first
-            for(int i = blockChain.getChainLength().intValueExact()-1; i >=0; i --){
-                oos.writeObject(blockChain.getBlocks().get(i));
-                oos.flush();
-            }
-
-            //write an null object to indicate EOF
-            //had to do this because readObject doesn't return null or it will throw an EOP exception
-            Object eof = null;
-            oos.writeObject(eof);
-            oos.flush();
-
-            fos.close();
-            oos.close();
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void readAndUpdateBlockChainFrom(String path){
-        BlockChain bc = new BlockChain(path,true); //for loggined user who already has a copy of the block chain
-        File f = new File(path);
-        FileInputStream fis = null;
-
-        try {
-
-            fis = new FileInputStream(f);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            boolean eof = false;
-            while(!eof) {
-                Object readObj = ois.readObject();
-                Block readBlock = null;
-                if (readObj != null && readObj instanceof Block) {
-                    readBlock = (Block) readObj;
-
-                    //TODO: add block without verification？ since it is older version of the blockchain?
-                    bc.addBlock(readBlock);
-
-                }else{
-                    //either null or is not an Block object
-                    //terminate while loop
-                    eof = true;
-                }
-            } //end while loop
-
-
+            multicastSocket.leaveGroup(receiveUpdateAddress);
 
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-
     }
+
 
     public void populateKnownUsersList(){
         for(Block block : blockChain.getBlocks()){
             for(Transaction transaction : block.getTransactions()){
                 if(transaction.getBuyerID().equals(transaction.getSellerID()) && transaction.getTransactionAmount() == 0){
                     // this must be a registration transaction, me -(0.0)-> me
-                    knownBlockChainUsers.add(transaction.getSeller());
+                    knownBlockChainUsers.putIfAbsent(transaction.getSeller().getPublicKey(), transaction.getSeller());
                 }
             }
         }
     }
 
     public String commitUser() throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException, IOException {
-        String response = makeTransaction(this, 0.0);
-        if(response != null){
+        String response = null;
+        while (response != null) {
+            response = makeTransaction(this, 0.0);
             writeUser();
         }
         return response;
@@ -349,31 +274,6 @@ public class User implements Serializable{
         userFileInput.close();
 
         return loadedUser;
-//        JSONParser parser = new JSONParser();
-//
-//        try {
-//            JSONObject userJson = (JSONObject) parser.parse(new FileReader(USER_INFO_PATH));
-//
-//            String loadedID = (String) userJson.get("ID");
-//            Double loadedNetWorth = (Double) userJson.get("netWorth");
-//            BigInteger loadedLastUpdatedBlockNumber = BigInteger.valueOf((long) userJson.get("lastUpdatedBlockNumber"));
-//
-//            InetAddress loadedRequestAddress = InetAddress.getByName((String) userJson.get("requestAddress"));
-//            Long loadedRequestPortLong = (Long) userJson.get("requestPort");
-//            int loadedRequestPort = loadedRequestPortLong.intValue();
-//
-//            InetAddress loadedReceiveUpdateAddress = InetAddress.getByName((String) userJson.get("receiveUpdateAddress"));
-//            Long loadedReceiveUpdatePortLong = (Long) userJson.get("receiveUpdatePort");
-//            int loadedReceiveUpdatePort = loadedReceiveUpdatePortLong.intValue();
-//
-//            RSAPublicKey loadedPublicKey = User.loadPublicKeyFromFile();
-//            RSAPrivateKey loadedPrivateKey = User.loadPrivateKeyFromFile();
-//
-//            return new User(loadedPublicKey, loadedPrivateKey, loadedID, loadedNetWorth, loadedLastUpdatedBlockNumber);
-//        }catch(IOException | ParseException | ClassNotFoundException ex){
-//            ex.printStackTrace();
-//            return null;
-//        }
     }
 
 
@@ -395,20 +295,6 @@ public class User implements Serializable{
         userFileObjectOutput.writeObject(this);
         userFileObjectOutput.close();
         userFileOutput.close();
-
-
-//        JSONObject userJson = new JSONObject();
-//        userJson.put("ID", this.ID);
-//        userJson.put("netWorth", this.netWorth);
-//        userJson.put("lastUpdatedBlockNumber", this.lastUpdatedBlockNumber);
-//        userJson.put("requestAddress", this.requestAddress.getHostAddress());
-//        userJson.put("requestPort", this.requestPort);
-//        userJson.put("receiveUpdateAddress", this.receiveUpdateAddress.getHostAddress());
-//        userJson.put("receiveUpdatePort", this.receiveUpdatePort);
-//
-//        FileWriter userFile = new FileWriter(USER_INFO_PATH);
-//        userFile.write(userJson.toJSONString());
-//        userFile.close();
     }
 
 
@@ -448,35 +334,35 @@ public class User implements Serializable{
         try {
             Transaction transaction = new Transaction(this, seller, transactionAmount, privateKey);
 
-            TransactionRequest transactionRequest = new TransactionRequest(transaction, InetAddress.getLocalHost(), Ports.USER_REQUEST_PORT);
-            MulticastSocket multicastSocket = new MulticastSocket(Ports.USER_REQUEST_PORT);
+            /*
+            * FIXME: This will very likely need rework. The InetAddress and Port provided should be the the way that TCP
+            * FIXME: responses are sent to the Users. Here, the same port was used that the Multicast is happening on.
+            * FIXME: That will, very likely, not work as we scale up.
+            * FIXME: Furthermore, the Multicast group is not joined here.
+            * */
+            TransactionRequest transactionRequest = new TransactionRequest(transaction, InetAddress.getLocalHost(), requestPort);
+            MulticastSocket multicastSocket = new MulticastSocket(requestPort);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream outputStream = new ObjectOutputStream(baos);
             outputStream.writeObject(transactionRequest);
             byte[] output = baos.toByteArray();
 
-            DatagramPacket datagramPacket = new DatagramPacket(output, output.length, InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS), Ports.USER_REQUEST_PORT);
+            DatagramPacket datagramPacket = new DatagramPacket(output, output.length, requestAddress, requestPort);
 
-            System.out.print("Sending TR... ");
+            System.out.print("Sending TransactionRequest... ");
 
             multicastSocket.send(datagramPacket);
 
-            System.out.println("sent.");
+            System.out.println("TransactionRequest sent.");
 
             outputStream.close();
             baos.close();
             multicastSocket.close();
 
-        }catch(IOException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException e){
-            e.printStackTrace();
-            return null;
-        }
 
-        String message = null;
-
-        try {
-            ServerSocket serverSocket = new ServerSocket(Ports.USER_REQUEST_PORT);
+            String message = null;
+            ServerSocket serverSocket = new ServerSocket(requestPort);
             Socket socket = serverSocket.accept();
 
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
@@ -505,12 +391,12 @@ public class User implements Serializable{
                 }
             }
 
-        } catch (IOException | ClassNotFoundException e) {
+            return message;
+
+        } catch (IOException | ClassNotFoundException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             e.printStackTrace();
             return null;
         }
-
-        return message;
     }
 
 
@@ -542,15 +428,8 @@ public class User implements Serializable{
         return blockChain;
     }
 
-    public List<User> getKnownBlockChainUsers(){
+    public HashMap<RSAPublicKey, User> getKnownBlockChainUsers(){
         return this.knownBlockChainUsers;
     }
 
-  //  public InetAddress getReceiveUpdateAddress() {
-  //      return receiveUpdateAddress;
-  //  }
-
-   /* public int getReceiveUpdatePort() {
-        return receiveUpdatePort;
-    }*/
 }
