@@ -4,6 +4,7 @@ import common.Addresses;
 import common.Ports;
 import javafx.util.Pair;
 import packets.Packet;
+import packets.acceptances.AcceptedUpdatePacket;
 import packets.proposals.UpdateUsersPacket;
 import packets.requests.UpdateRequest;
 import packets.responses.GeneralResponse;
@@ -23,14 +24,14 @@ public class UpdateManager extends Thread {
     private final static int TTL = 12;
     private final InetAddress listenAddress; //this is for listening to clients/users
     private final InetAddress requestAddress;
-    private final InetAddress listenForAcceptorAddress;
+    private final InetAddress listenForLearnerAddress;
 
     private HashMap<InetAddress, Integer> usersAddressBook; //just one ...
 
     //TODO: another address and port for receiving from acceptors
     private final int listenPort;
     private final int requestPort;
-    private final int listenForAcceptorPort;
+    private final int listenForLearnerPort; //listens for leaners response
     private ConcurrentLinkedQueue<Pair<BigInteger, InetAddress>> pendingRequest;
     private ConcurrentLinkedQueue<Pair<InetAddress, Integer>> pendingAddresses;
 
@@ -38,12 +39,12 @@ public class UpdateManager extends Thread {
     // TODO: clear out the ports and address arguments
     public UpdateManager() throws UnknownHostException {
         this.listenPort = Ports.USER_REQUEST_PORT;
-        this.requestPort = Ports.UPDATE_MANAGER_REQUEST_PORT;
-        this.listenForAcceptorPort = Ports.UPDATE_MANAGER_ACCEPT_PORT;
+        this.requestPort = Ports.HOLDER_UPDATING_PORT;
+        this.listenForLearnerPort = Ports.HOLDER_UPDATING_PORT; //?
 
         this.listenAddress = InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS);
-        this.requestAddress = InetAddress.getByName(Addresses.UPDATE_MANAGER_REQUEST_ADDRESS);
-        this.listenForAcceptorAddress = InetAddress.getByName(Addresses.UPDATE_MANAGER_ACCEPT_ADDRESS);
+        this.requestAddress = InetAddress.getByName(Addresses.HOLDER_UPDATING_ADDRESS);
+        this.listenForLearnerAddress = InetAddress.getByName(Addresses.HOLDER_UPDATING_ADDRESS); //?
 
         this.usersAddressBook = new HashMap<>();
         this.pendingRequest = new ConcurrentLinkedQueue<>();
@@ -60,12 +61,12 @@ public class UpdateManager extends Thread {
                 sendUpdateRequestsToAcceptors();
             });
             Thread listenForAcceptorUpdateThread = new Thread(() -> {
-                receiveResponseFromAcceptor();
+                receiveResponseFromLearner();
             });
 
             listenThread.start();
             sendUpdateRequestThread.start();
-            receiveResponseFromAcceptor();
+            receiveResponseFromLearner();
 
             while (!listenThread.getState().equals(State.TERMINATED) && !sendUpdateRequestThread.getState().equals(State.TERMINATED)
                     && !listenForAcceptorUpdateThread.getState().equals(State.TERMINATED)) {
@@ -166,12 +167,12 @@ public class UpdateManager extends Thread {
         }
     }
 
-    public void receiveResponseFromAcceptor() {
+    public void receiveResponseFromLearner() {
         MulticastSocket multicastSocket = null;
         try {
-            multicastSocket = new MulticastSocket(listenForAcceptorPort);
+            multicastSocket = new MulticastSocket(listenForLearnerPort);
 
-            multicastSocket.joinGroup(listenForAcceptorAddress);
+            multicastSocket.joinGroup(listenForLearnerAddress);
             multicastSocket.setTimeToLive(TTL);
             multicastSocket.setSoTimeout(TIMEOUT_MILLISECONDS);
 
@@ -183,18 +184,18 @@ public class UpdateManager extends Thread {
             ObjectInputStream inputStream = new ObjectInputStream(bais);
 
             Object object = inputStream.readObject();
-            if ((object != null) && (object instanceof SuccessfulUpdate)) {
-                SuccessfulUpdate successPacket = (SuccessfulUpdate)object;
+            if ((object != null) && (object instanceof AcceptedUpdatePacket)) {
+                AcceptedUpdatePacket updatePacket = (AcceptedUpdatePacket)object;
 
                 //simply sending back a message to user that he/she is successfully updated
                 //actual update occurs at learners side
-                InetAddress userAddress = successPacket.getUserAddress();
-                int userPort = successPacket.getUserPort();
+                InetAddress userAddress = updatePacket.getUserAddress();
+                int userPort = updatePacket.getUserPort();
                 //filter
                 if(usersAddressBook.keySet().contains(userAddress)&&usersAddressBook.values().contains(userPort)){
                     System.out.println("UPDATE MANAGER: Received a update for a user that exist in the address book...");
-                    GeneralResponse messageToUser = new GeneralResponse("Update successful!");
-                    respondToUserUpdateRequest(userAddress, userPort, messageToUser);
+                   // GeneralResponse messageToUser = new GeneralResponse("Update successful!");
+                    respondToUserUpdateRequest(userAddress, userPort, updatePacket);
                     //remove from the address book
                     usersAddressBook.remove(userAddress,userPort);
                 }

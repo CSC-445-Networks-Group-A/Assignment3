@@ -2,9 +2,6 @@ package chain;
 
 import common.Addresses;
 import common.Ports;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import packets.requests.TransactionRequest;
 import packets.requests.UpdateRequest;
 import packets.responses.TransactionAccepted;
@@ -173,7 +170,7 @@ public class User implements Serializable{
             ObjectOutputStream outputStream = new ObjectOutputStream(baos);
 
             //   FIXME: USER PORT??? FIXME: USER PORT??? FIXME: USER PORT???
-            UpdateRequest updateRequestPacket = new UpdateRequest(this.lastUpdatedBlockNumber, InetAddress.getLocalHost(), );
+            UpdateRequest updateRequestPacket = new UpdateRequest(this.lastUpdatedBlockNumber, this.receiveUpdateAddress, this.receiveUpdatePort);
             outputStream.writeObject(updateRequestPacket);
             byte[] output = baos.toByteArray();
             DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
