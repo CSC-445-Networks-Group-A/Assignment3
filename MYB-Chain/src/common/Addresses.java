@@ -14,4 +14,6 @@ public class Addresses {
     public static final String HOLDER_CHECKING_ADDRESS = "225.0.0.7";
     public static final String HOLDER_ACCEPTANCE_ADDRESS = "225.0.0.8";
     public static final String UPDATE_MANAGER_PROPOSAL_ADDRESS = "225.0.0.9";
+    public static final String UPDATE_MANAGER_REQUEST_ADDRESS= "225.0.0.10";
+    public static final String UPDATE_MANAGER_ACCEPT_ADDRESS = "225.0.0.11";
 }

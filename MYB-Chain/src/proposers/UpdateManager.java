@@ -40,7 +40,7 @@ public class UpdateManager extends Thread {
         this.listenPort = Ports.USER_REQUEST_PORT;
         this.requestPort = Ports.UPDATE_MANAGER_REQUEST_PORT;
         this.listenForAcceptorPort = Ports.UPDATE_MANAGER_ACCEPT_PORT;
-        
+
         this.listenAddress = InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS);
         this.requestAddress = InetAddress.getByName(Addresses.UPDATE_MANAGER_REQUEST_ADDRESS);
         this.listenForAcceptorAddress = InetAddress.getByName(Addresses.UPDATE_MANAGER_ACCEPT_ADDRESS);
