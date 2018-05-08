@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9cab0336-60ab-49cc-9c8c-4bce677818b9" name="Default" comment="">
+    <list default="true" id="9cab0336-60ab-49cc-9c8c-4bce677818b9" name="Default" comment="Numerous, large changes in several classes.">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/chain/BlockChain.java" afterPath="$PROJECT_DIR$/src/chain/BlockChain.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/chain/User.java" afterPath="$PROJECT_DIR$/src/chain/User.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/common/Addresses.java" afterPath="$PROJECT_DIR$/src/common/Addresses.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/common/Ports.java" afterPath="$PROJECT_DIR$/src/common/Ports.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/proposers/UpdateManager.java" afterPath="$PROJECT_DIR$/src/proposers/UpdateManager.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/packets/acceptances/AcceptedUpdatePacket.java" afterPath="$PROJECT_DIR$/src/packets/acceptances/AcceptedUpdatePacket.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -58,27 +54,28 @@
       <file leaf-file-name="User.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/chain/User.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="352">
-              <caret line="163" column="63" lean-forward="false" selection-start-line="163" selection-start-column="63" selection-end-line="163" selection-end-column="63" />
+            <state relative-caret-position="528">
+              <caret line="182" column="0" lean-forward="true" selection-start-line="182" selection-start-column="0" selection-end-line="182" selection-end-column="0" />
               <folding>
-                <element signature="e#6951#6952#0" expanded="true" />
-                <element signature="e#6976#6977#0" expanded="true" />
-                <element signature="e#16810#16811#0" expanded="true" />
-                <element signature="e#16842#16843#0" expanded="true" />
-                <element signature="e#16878#16879#0" expanded="true" />
-                <element signature="e#16910#16911#0" expanded="true" />
-                <element signature="e#16945#16946#0" expanded="true" />
-                <element signature="e#16976#16977#0" expanded="true" />
-                <element signature="e#17011#17012#0" expanded="true" />
-                <element signature="e#17060#17061#0" expanded="true" />
-                <element signature="e#17089#17090#0" expanded="true" />
-                <element signature="e#17114#17115#0" expanded="true" />
-                <element signature="e#17149#17150#0" expanded="true" />
-                <element signature="e#17180#17181#0" expanded="true" />
-                <element signature="e#17221#17222#0" expanded="true" />
-                <element signature="e#17254#17255#0" expanded="true" />
-                <element signature="e#17321#17322#0" expanded="true" />
-                <element signature="e#17369#17370#0" expanded="true" />
+                <element signature="imports" expanded="true" />
+                <element signature="e#6828#6829#0" expanded="true" />
+                <element signature="e#6853#6854#0" expanded="true" />
+                <element signature="e#16687#16688#0" expanded="true" />
+                <element signature="e#16719#16720#0" expanded="true" />
+                <element signature="e#16755#16756#0" expanded="true" />
+                <element signature="e#16787#16788#0" expanded="true" />
+                <element signature="e#16822#16823#0" expanded="true" />
+                <element signature="e#16853#16854#0" expanded="true" />
+                <element signature="e#16888#16889#0" expanded="true" />
+                <element signature="e#16937#16938#0" expanded="true" />
+                <element signature="e#16966#16967#0" expanded="true" />
+                <element signature="e#16991#16992#0" expanded="true" />
+                <element signature="e#17026#17027#0" expanded="true" />
+                <element signature="e#17057#17058#0" expanded="true" />
+                <element signature="e#17098#17099#0" expanded="true" />
+                <element signature="e#17131#17132#0" expanded="true" />
+                <element signature="e#17198#17199#0" expanded="true" />
+                <element signature="e#17246#17247#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -117,11 +114,11 @@
       <file leaf-file-name="UpdateManager.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/proposers/UpdateManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="658">
-              <caret line="209" column="9" lean-forward="true" selection-start-line="209" selection-start-column="9" selection-end-line="209" selection-end-column="9" />
+            <state relative-caret-position="4224">
+              <caret line="192" column="55" lean-forward="true" selection-start-line="192" selection-start-column="55" selection-end-line="192" selection-end-column="55" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <marker date="1525761300871" expanded="true" signature="9695:9781" ph="{...}" />
+                <marker date="1525762243188" expanded="true" signature="9695:9781" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -159,8 +156,8 @@
       <find>sendUpdates</find>
       <find>this.blockChain</find>
       <find>sendUpdate</find>
-      <find>USER_REQUEST_PORT</find>
       <find>updateB</find>
+      <find>USER_REQUEST_PORT</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -223,7 +220,6 @@
         <option value="$PROJECT_DIR$/src/packets/learnings/SubChainPacket.java" />
         <option value="$PROJECT_DIR$/src/packets/PacketTypes.java" />
         <option value="$PROJECT_DIR$/src/learners/ChainHolderInitializer.java" />
-        <option value="$PROJECT_DIR$/src/packets/acceptances/AcceptedUpdatePacket.java" />
         <option value="$PROJECT_DIR$/src/packets/proposals/UpdateUsersPacket.java" />
         <option value="$PROJECT_DIR$/src/common/Ports.java" />
         <option value="$PROJECT_DIR$/src/common/Addresses.java" />
@@ -231,6 +227,7 @@
         <option value="$PROJECT_DIR$/src/chain/BlockChain.java" />
         <option value="$PROJECT_DIR$/src/learners/ChainHolder.java" />
         <option value="$PROJECT_DIR$/src/chain/User.java" />
+        <option value="$PROJECT_DIR$/src/packets/acceptances/AcceptedUpdatePacket.java" />
       </list>
     </option>
   </component>
@@ -494,15 +491,8 @@
           <option name="mySupportsDeletion" value="false" />
           <option name="myCanBeAbsent" value="false" />
           <option name="myId" value="UPDATED" />
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/out/production/Assignment3/chain/Block.class</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/out/production/Assignment3/chain/BlockChain.class</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/chain/Transaction.java</PATH>
           <PATH vcs="Git" revision="">$PROJECT_DIR$/src/chain/User.java</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/client/ClientUI.java</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/common/Addresses.java</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/common/Ports.java</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/proposers/Miner.java</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/proposers/MinerInitializer.java</PATH>
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/src/packets/acceptances/AcceptedUpdatePacket.java</PATH>
           <PATH vcs="Git" revision="">$PROJECT_DIR$/src/proposers/UpdateManager.java</PATH>
         </FILE-GROUP>
         <FILE-GROUP>
@@ -1230,7 +1220,14 @@
       <option name="project" value="LOCAL" />
       <updated>1525748420998</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="Numerous, large changes in several classes.">
+      <created>1525761819887</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1525761819887</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1287,7 +1284,8 @@
     <MESSAGE value="Completed the initial implementation of ChainHolder" />
     <MESSAGE value="Completed the initial implementation of ChainHolder&#10;&#10;Restructured the AcceptedUpdatePacket" />
     <MESSAGE value="Adjusted available ports and addresses" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adjusted available ports and addresses" />
+    <MESSAGE value="Numerous, large changes in several classes." />
+    <option name="LAST_COMMIT_MESSAGE" value="Numerous, large changes in several classes." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1575,17 +1573,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/packets/acceptances/AcceptedUpdatePacket.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="550">
-          <caret line="36" column="20" lean-forward="false" selection-start-line="36" selection-start-column="20" selection-end-line="36" selection-end-column="20" />
-          <folding>
-            <element signature="e#859#860#0" expanded="false" />
-            <element signature="e#886#887#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/packets/proposals/UpdateUsersPacket.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="506">
@@ -1620,30 +1607,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/common/Ports.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="15" column="53" lean-forward="false" selection-start-line="15" selection-start-column="53" selection-end-line="15" selection-end-column="53" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/common/Addresses.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="330">
           <caret line="15" column="67" lean-forward="true" selection-start-line="15" selection-start-column="67" selection-end-line="15" selection-end-column="67" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/proposers/UpdateManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="658">
-          <caret line="209" column="9" lean-forward="true" selection-start-line="209" selection-start-column="9" selection-end-line="209" selection-end-column="9" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <marker date="1525761300871" expanded="true" signature="9695:9781" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1673,29 +1641,60 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/packets/acceptances/AcceptedUpdatePacket.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="528">
+          <caret line="35" column="22" lean-forward="false" selection-start-line="35" selection-start-column="22" selection-end-line="35" selection-end-column="22" />
+          <folding>
+            <element signature="e#859#860#0" expanded="true" />
+            <element signature="e#886#887#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/common/Ports.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="15" column="53" lean-forward="false" selection-start-line="15" selection-start-column="53" selection-end-line="15" selection-end-column="53" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/proposers/UpdateManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4224">
+          <caret line="192" column="55" lean-forward="true" selection-start-line="192" selection-start-column="55" selection-end-line="192" selection-end-column="55" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <marker date="1525762243188" expanded="true" signature="9695:9781" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/chain/User.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="352">
-          <caret line="163" column="63" lean-forward="false" selection-start-line="163" selection-start-column="63" selection-end-line="163" selection-end-column="63" />
+        <state relative-caret-position="528">
+          <caret line="182" column="0" lean-forward="true" selection-start-line="182" selection-start-column="0" selection-end-line="182" selection-end-column="0" />
           <folding>
-            <element signature="e#6951#6952#0" expanded="true" />
-            <element signature="e#6976#6977#0" expanded="true" />
-            <element signature="e#16810#16811#0" expanded="true" />
-            <element signature="e#16842#16843#0" expanded="true" />
-            <element signature="e#16878#16879#0" expanded="true" />
-            <element signature="e#16910#16911#0" expanded="true" />
-            <element signature="e#16945#16946#0" expanded="true" />
-            <element signature="e#16976#16977#0" expanded="true" />
-            <element signature="e#17011#17012#0" expanded="true" />
-            <element signature="e#17060#17061#0" expanded="true" />
-            <element signature="e#17089#17090#0" expanded="true" />
-            <element signature="e#17114#17115#0" expanded="true" />
-            <element signature="e#17149#17150#0" expanded="true" />
-            <element signature="e#17180#17181#0" expanded="true" />
-            <element signature="e#17221#17222#0" expanded="true" />
-            <element signature="e#17254#17255#0" expanded="true" />
-            <element signature="e#17321#17322#0" expanded="true" />
-            <element signature="e#17369#17370#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#6828#6829#0" expanded="true" />
+            <element signature="e#6853#6854#0" expanded="true" />
+            <element signature="e#16687#16688#0" expanded="true" />
+            <element signature="e#16719#16720#0" expanded="true" />
+            <element signature="e#16755#16756#0" expanded="true" />
+            <element signature="e#16787#16788#0" expanded="true" />
+            <element signature="e#16822#16823#0" expanded="true" />
+            <element signature="e#16853#16854#0" expanded="true" />
+            <element signature="e#16888#16889#0" expanded="true" />
+            <element signature="e#16937#16938#0" expanded="true" />
+            <element signature="e#16966#16967#0" expanded="true" />
+            <element signature="e#16991#16992#0" expanded="true" />
+            <element signature="e#17026#17027#0" expanded="true" />
+            <element signature="e#17057#17058#0" expanded="true" />
+            <element signature="e#17098#17099#0" expanded="true" />
+            <element signature="e#17131#17132#0" expanded="true" />
+            <element signature="e#17198#17199#0" expanded="true" />
+            <element signature="e#17246#17247#0" expanded="true" />
           </folding>
         </state>
       </provider>
