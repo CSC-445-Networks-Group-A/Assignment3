@@ -212,7 +212,7 @@ public class ChainHolder extends Thread{
     }
 
 
-    private void updateIfNecessary() {
+    private void updateIfNecessary() throws IOException {
         HashMap<BigInteger, Integer> chainLengthFrequencies = sendAndReceiveChainLengths();
         BigInteger longestChain = filter(chainLengthFrequencies);
         if (longestChain.compareTo(holder.getBlockChain().getChainLength()) == 1) {
@@ -227,7 +227,7 @@ public class ChainHolder extends Thread{
 
         for (RSAPublicKey publicKey : acceptedPackets.keySet()) {
             if (newestPacket == null) {
-                acceptedPackets.get(publicKey);
+                newestPacket = acceptedPackets.get(publicKey);
             }else if (acceptedPackets.get(publicKey).getChainLength().compareTo(newestPacket.getChainLength()) > 0) {
                 newestPacket = acceptedPackets.get(publicKey);
             }

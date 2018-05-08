@@ -133,6 +133,10 @@ public class Block implements Serializable{
     }
 
 
+    public byte[] getPreviousHash() {
+        return previousHash;
+    }
+
     public byte[] getProofOfWork() {
         return proofOfWork;
     }

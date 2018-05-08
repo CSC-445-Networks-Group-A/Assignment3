@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class Client {
 
-    public static void main(String args[]) throws IOException, ClassNotFoundException {
+    public static void main(String args[]) throws IOException, ClassNotFoundException, InterruptedException {
 
         if(User.userFileExists()){
             User myUser = User.loadUser();

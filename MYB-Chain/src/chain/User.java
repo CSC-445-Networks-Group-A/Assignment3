@@ -3,6 +3,7 @@ package chain;
 import common.Addresses;
 import common.Ports;
 import packets.acceptances.AcceptedUpdatePacket;
+import packets.learnings.LearnedPacket;
 import packets.requests.TransactionRequest;
 import packets.requests.UpdateRequest;
 import packets.responses.TransactionAccepted;
@@ -13,15 +14,11 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.*;
-import java.math.BigInteger;
 import java.net.*;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -34,7 +31,6 @@ public class User extends Thread implements Serializable{
     private final static String PRIVATE_KEY_PATH = "UserResources" + File.separator + "PRIVATE.dat";
     private final static String PUBLIC_KEY_PATH = "UserResources" + File.separator + "PUBLIC.dat";
     private final static int DESIRED_CHARS_FROM_NAMES = 3;
-    private final static int TIMEOUT_MILLISECONDS = 20000;
     private final static int TTL = 12;
     private final RSAPublicKey publicKey;
     private final RSAPrivateKey privateKey;
@@ -67,7 +63,6 @@ public class User extends Thread implements Serializable{
         this.knownBlockChainUsers = new HashMap<>(10);
         this.blockChain = new BlockChain(BLOCKCHAIN_PATH);
         this.netWorth = initialNetWorth;
-
     }
 
     private User(RSAPrivateKey privateKey, RSAPublicKey publicKey, String firstName, String lastName, String id, Double netWorth) throws IOException {
@@ -78,23 +73,6 @@ public class User extends Thread implements Serializable{
         this.receiveUpdateAddress = InetAddress.getByName(Addresses.USER_RECEIVE_UPDATE_ADDRESS);
         this.firstName = firstName;
         this.lastName = lastName;
-        this.ID = id;
-        this.requestPort = Ports.USER_REQUEST_PORT;
-        this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
-        this.knownBlockChainUsers = new HashMap<>(10);
-        this.blockChain = new BlockChain(BLOCKCHAIN_PATH);
-        this.netWorth = netWorth;
-    }
-
-    private User(RSAPublicKey publicKey, RSAPrivateKey privateKey, String id, Double netWorth) throws IOException {
-        super("User: " + id);
-        //TO-DO: take RSAPublicKey and RSAPrivateKey here for loading file
-        this.publicKey = publicKey;
-        this.privateKey = privateKey;
-        this.requestAddress = InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS);
-        this.receiveUpdateAddress = InetAddress.getByName(Addresses.USER_RECEIVE_UPDATE_ADDRESS);
-        this.firstName = null;
-        this.lastName = null;
         this.ID = id;
         this.requestPort = Ports.USER_REQUEST_PORT;
         this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
@@ -161,20 +139,80 @@ public class User extends Thread implements Serializable{
      * This will continuously receive blocks added to the chain
      * */
     public void run() {
-        adfawerfaw
+        boolean running = true;
+
+        System.out.println("Receiving Update Packets:\t" + Thread.currentThread().getName() + "\n" +
+                "Receive Port:\t" + receiveUpdatePort);
+        try {
+            MulticastSocket multicastSocket = new MulticastSocket(receiveUpdatePort);
+            multicastSocket.joinGroup(receiveUpdateAddress);
+            multicastSocket.setTimeToLive(TTL);
+
+            while (running) {
+                try {
+                    byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
+                    DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
+                    multicastSocket.receive(datagramPacket);
+                    ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
+                    ObjectInputStream inputStream = new ObjectInputStream(bais);
+
+                    Object object = inputStream.readObject();
+                    LearnedPacket learnedPacket = null;
+                    if ((object != null) && (object instanceof LearnedPacket)) {
+                        learnedPacket = ((LearnedPacket) object);
+                        Block nextBlock = learnedPacket.getBlock();
+                        boolean upToDate = compareProofOfWork(blockChain.getMostRecentBlock().getProofOfWork(), nextBlock.getPreviousHash());
+                        if (!upToDate) {
+                            updateBlockChain();
+                        }else {
+                            blockChain.addBlock(nextBlock);
+                        }
+                        blockChain.persist();
+                    }
+                    inputStream.close();
+                    bais.close();
+                } catch (SocketTimeoutException ste) {
+                    ste.printStackTrace();
+                }
+            }
+
+            multicastSocket.leaveGroup(receiveUpdateAddress);
+            System.out.println("FINISHING LEARNING:\t" + Thread.currentThread().getName() + "\n" +
+                    "Learning Port:\t" + receiveUpdatePort);
+
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private boolean compareProofOfWork(byte[] lastKnownProofOfWork, byte[] previousProofOfWork) {
+        if (lastKnownProofOfWork.length != previousProofOfWork.length) {
+            return false;
+        }
+
+        for (int i = 0; i < lastKnownProofOfWork.length; i++) {
+            if (lastKnownProofOfWork[i] != previousProofOfWork[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
-    public void updateBlockChain() {
-        sendUpdateRequest();
-        receiveUpdate();
+    public void updateBlockChain() throws IOException {
+        ServerSocket serverSocket = new ServerSocket(0);
+        InetAddress address = serverSocket.getInetAddress();
+        int receivePort = serverSocket.getLocalPort();
+        sendUpdateRequest(address, receivePort);
+        receiveUpdate(serverSocket);
     }
 
 
     /** send out an updateRequest to get the most recent copy of block chain
      *  through multicast
      * */
-    private void sendUpdateRequest(){
+    private void sendUpdateRequest(InetAddress address, int receivePort){
         MulticastSocket multicastSocket = null;
         try {
             multicastSocket = new MulticastSocket(receiveUpdatePort);
@@ -185,7 +223,7 @@ public class User extends Thread implements Serializable{
             ObjectOutputStream outputStream = new ObjectOutputStream(baos);
 
             //   FIXME: USER PORT??? FIXME: USER PORT??? FIXME: USER PORT???
-            UpdateRequest updateRequestPacket = new UpdateRequest(this.blockChain.getChainLength(), InetAddress.getLocalHost(), );
+            UpdateRequest updateRequestPacket = new UpdateRequest(this.blockChain.getChainLength(), address, receivePort);
             outputStream.writeObject(updateRequestPacket);
             byte[] output = baos.toByteArray();
             DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
@@ -206,33 +244,22 @@ public class User extends Thread implements Serializable{
     /**
      * receiving newly updated blockchain object?
      */
-    private void receiveUpdate(){
+    private void receiveUpdate(ServerSocket serverSocket){
 
         try {
-
-            MulticastSocket multicastSocket = null;
-            multicastSocket = new MulticastSocket(receiveUpdatePort);
-            multicastSocket.joinGroup(receiveUpdateAddress);
-            multicastSocket.setTimeToLive(TTL);
-            multicastSocket.setSoTimeout(TIMEOUT_MILLISECONDS);
-
-            byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
-            DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
-            multicastSocket.receive(datagramPacket);
-
-            ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
-            ObjectInputStream inputStream = new ObjectInputStream(bais);
-
+            Socket socket = serverSocket.accept();
+            ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
             Object object = inputStream.readObject();
+            inputStream.close();
+            socket.close();
+            serverSocket.close();
+
             if ((object != null) && (object instanceof AcceptedUpdatePacket)) {
                 AcceptedUpdatePacket acceptedUpdatePacket = (AcceptedUpdatePacket) object;
                 Block[] blocksToAdd = acceptedUpdatePacket.getBlocksToUpdate();
                 blockChain.update(blocksToAdd);
 
             }
-            inputStream.close();
-            bais.close();
-            multicastSocket.leaveGroup(receiveUpdateAddress);
 
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -332,39 +359,31 @@ public class User extends Thread implements Serializable{
     public String makeTransaction(User seller, Double transactionAmount) {
 
         try {
+            ServerSocket serverSocket = new ServerSocket(0);
+            InetAddress address = serverSocket.getInetAddress();
+            int receivePort = serverSocket.getLocalPort();
             Transaction transaction = new Transaction(this, seller, transactionAmount, privateKey);
-
-            /*
-            * FIXME: This will very likely need rework. The InetAddress and Port provided should be the the way that TCP
-            * FIXME: responses are sent to the Users. Here, the same port was used that the Multicast is happening on.
-            * FIXME: That will, very likely, not work as we scale up.
-            * FIXME: Furthermore, the Multicast group is not joined here.
-            * */
-            TransactionRequest transactionRequest = new TransactionRequest(transaction, InetAddress.getLocalHost(), requestPort);
+            TransactionRequest transactionRequest = new TransactionRequest(transaction, address, receivePort);
             MulticastSocket multicastSocket = new MulticastSocket(requestPort);
+            multicastSocket.joinGroup(requestAddress);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream outputStream = new ObjectOutputStream(baos);
             outputStream.writeObject(transactionRequest);
             byte[] output = baos.toByteArray();
-
             DatagramPacket datagramPacket = new DatagramPacket(output, output.length, requestAddress, requestPort);
 
             System.out.print("Sending TransactionRequest... ");
-
             multicastSocket.send(datagramPacket);
-
             System.out.println("TransactionRequest sent.");
 
             outputStream.close();
             baos.close();
-            multicastSocket.close();
+            multicastSocket.leaveGroup(requestAddress);
 
 
             String message = null;
-            ServerSocket serverSocket = new ServerSocket(requestPort);
             Socket socket = serverSocket.accept();
-
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
             Object object = inputStream.readObject();
             inputStream.close();
@@ -374,16 +393,14 @@ public class User extends Thread implements Serializable{
             if (object != null) {
 
                 if ((object instanceof TransactionPending)) {
-                    TransactionPending transationPending = (TransactionPending) object;
-                    message = transationPending.getPendingMessage();
-                }
-                if ((object instanceof TransactionDenied)) {
-                    TransactionDenied transationDenied = (TransactionDenied) object;
-                    message = transationDenied.getDenialMessage();
-                }
-                if ((object instanceof TransactionAccepted)) {
-                    TransactionAccepted transationAccepted = (TransactionAccepted) object;
-                    message = transationAccepted.getAcceptanceMessage();
+                    TransactionPending transactionPending = (TransactionPending) object;
+                    message = transactionPending.getPendingMessage();
+                }else if ((object instanceof TransactionDenied)) {
+                    TransactionDenied transactionDenied = (TransactionDenied) object;
+                    message = transactionDenied.getDenialMessage();
+                }else if ((object instanceof TransactionAccepted)) {
+                    TransactionAccepted transactionAccepted = (TransactionAccepted) object;
+                    message = transactionAccepted.getAcceptanceMessage();
                 }
 
                 if(message != null){

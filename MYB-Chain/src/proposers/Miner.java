@@ -233,6 +233,7 @@ public class Miner extends Thread{
             }
             inputStream.close();
             bais.close();
+            multicastSocket.leaveGroup(learnAddress);
             return acceptedBlock;
 
         } catch (SocketTimeoutException ste) {
