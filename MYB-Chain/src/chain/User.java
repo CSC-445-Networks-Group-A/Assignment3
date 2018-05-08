@@ -21,6 +21,8 @@ import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -47,6 +49,7 @@ public class User implements Serializable{
     private BlockChain blockChain;
     private Double netWorth;
     private BigInteger lastUpdatedBlockNumber;
+    private List<User> knownBlockChainUsers = new ArrayList<>();
 
 
     public User(String firstName, String lastName, Double initialNetWorth) throws NoSuchAlgorithmException, UnknownHostException {
@@ -75,7 +78,6 @@ public class User implements Serializable{
        updateBlockChain();
 
     }
-
 
     private User(RSAPrivateKey privateKey, RSAPublicKey publicKey, String firstName, String lastName, String id, Double netWorth) throws UnknownHostException {
         this.privateKey = privateKey;
@@ -317,10 +319,20 @@ public class User implements Serializable{
 
     }
 
-    public boolean commitUser() throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException, IOException {
-        boolean response = makeTransaction(this, 0.0);
-        getTransationResponseMessage();
-        if(response){
+    public void populateKnownUsersList(){
+        for(Block block : blockChain.getBlocks()){
+            for(Transaction transaction : block.getTransactions()){
+                if(transaction.getBuyerID().equals(transaction.getSellerID()) && transaction.getTransactionAmount() == 0){
+                    // this must be a registration transaction, me -(0.0)-> me
+                    knownBlockChainUsers.add(transaction.getSeller());
+                }
+            }
+        }
+    }
+
+    public String commitUser() throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException, IOException {
+        String response = makeTransaction(this, 0.0);
+        if(response != null){
             writeUser();
         }
         return response;
@@ -434,7 +446,7 @@ public class User implements Serializable{
      * USER_REQUEST_ADDRESS and USER_REQUEST_PORT in the Addresses and Ports classes respectively. The User will then
      * wait to hear back from the Miner via TCP over the provided InetAddress and port specified in the TransactionRequest.
      * */
-    public boolean makeTransaction(User seller, Double transactionAmount) {
+    public String makeTransaction(User seller, Double transactionAmount) {
 
         try {
             Transaction transaction = new Transaction(this, seller, transactionAmount, privateKey);
@@ -459,18 +471,11 @@ public class User implements Serializable{
             baos.close();
             multicastSocket.close();
 
-            return true;
         }catch(IOException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException e){
             e.printStackTrace();
+            return null;
         }
 
-        return false;
-    }
-
-
-
-
-    public String getTransationResponseMessage(){
         String message = null;
 
         try {
@@ -505,10 +510,10 @@ public class User implements Serializable{
 
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
+            return null;
         }
 
         return message;
-
     }
 
 
@@ -538,6 +543,10 @@ public class User implements Serializable{
 
     public BlockChain getBlockChain() {
         return blockChain;
+    }
+
+    public List<User> getKnownBlockChainUsers(){
+        return this.knownBlockChainUsers;
     }
 
   //  public InetAddress getReceiveUpdateAddress() {
