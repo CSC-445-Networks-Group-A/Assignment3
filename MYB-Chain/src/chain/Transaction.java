@@ -220,6 +220,8 @@ public class Transaction implements Serializable{
         return seller.getFullName();
     }
 
+    public User getSeller(){ return this.seller; }
+
     public double getTransactionAmount() {
         return amount;
     }

@@ -1,5 +1,7 @@
 package proposers;
 
+import common.Addresses;
+import common.Ports;
 import javafx.util.Pair;
 import packets.Packet;
 import packets.proposals.UpdateUsersPacket;
@@ -22,25 +24,27 @@ public class UpdateManager extends Thread {
     private final InetAddress listenAddress; //this is for listening to clients/users
     private final InetAddress requestAddress;
     private final InetAddress listenForAcceptorAddress;
-    private final int listenForAcceptorPort;
+
     private HashMap<InetAddress, Integer> usersAddressBook; //just one ...
 
     //TODO: another address and port for receiving from acceptors
     private final int listenPort;
     private final int requestPort;
+    private final int listenForAcceptorPort;
     private ConcurrentLinkedQueue<Pair<BigInteger, InetAddress>> pendingRequest;
     private ConcurrentLinkedQueue<Pair<InetAddress, Integer>> pendingAddresses;
 
 
     // TODO: clear out the ports and address arguments
-    public UpdateManager(int listenPort, String listenAddress, int requestPort, String requestAddress, int listenAcceptorPort,
-                         String listenAcceptorAddress) throws UnknownHostException {
-        this.listenPort = listenPort;
-        this.requestPort = requestPort;
-        this.listenAddress = InetAddress.getByName(listenAddress);
-        this.requestAddress = InetAddress.getByName(requestAddress);
-        this.listenForAcceptorAddress = InetAddress.getByName(listenAcceptorAddress);
-        this.listenForAcceptorPort = listenAcceptorPort;
+    public UpdateManager() throws UnknownHostException {
+        this.listenPort = Ports.USER_REQUEST_PORT;
+        this.requestPort = Ports.UPDATE_MANAGER_REQUEST_PORT;
+        this.listenForAcceptorPort = Ports.UPDATE_MANAGER_ACCEPT_PORT;
+
+        this.listenAddress = InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS);
+        this.requestAddress = InetAddress.getByName(Addresses.UPDATE_MANAGER_REQUEST_ADDRESS);
+        this.listenForAcceptorAddress = InetAddress.getByName(Addresses.UPDATE_MANAGER_ACCEPT_ADDRESS);
+
         this.usersAddressBook = new HashMap<>();
         this.pendingRequest = new ConcurrentLinkedQueue<>();
         this.pendingAddresses = new ConcurrentLinkedQueue<>();

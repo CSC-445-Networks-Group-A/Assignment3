@@ -104,6 +104,12 @@ public class Miner extends Thread{
                     Transaction transaction = transactionRequest.getTransaction();
                     InetAddress userAddress = transactionRequest.getReturnAddress();
                     int userPort = transactionRequest.getReturnPort();
+
+                    System.out.println(
+                            "TR from: " + userAddress.getHostAddress() + "  " +
+                                    transaction.getBuyerName() + " ---(" + transaction.getTransactionAmount() + ")---> " + transaction.getSellerName()
+                    );
+
                     if (transaction.isVerified()) {
                         pendingTransactions.add(transaction);
                         pendingAddresses.add(new Pair<>(userAddress, userPort));
@@ -264,13 +270,22 @@ public class Miner extends Thread{
     }
 
     private void respondToUserRequest(InetAddress address, int port, Packet response) {
+
+        System.out.println(
+                "Resp to: " + address.getHostAddress() + "  with msg: " + response.getPacketType()
+        );
+
         try {
+            Thread.sleep(100);
+
             Socket socket = new Socket(address, port);
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
             outputStream.writeObject(response);
             outputStream.close();
             socket.close();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
