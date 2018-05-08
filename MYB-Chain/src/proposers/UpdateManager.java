@@ -25,7 +25,6 @@ public class UpdateManager extends Thread {
     private final InetAddress listenAddress; //this is for listening to clients/users
     private final InetAddress requestAddress;
     private final InetAddress listenForLearnersAddress;
-
     private HashMap<InetAddress, Integer> usersAddressBook; //just one ...
 
     //TODO: another address and port for receiving from acceptors
@@ -168,6 +167,7 @@ public class UpdateManager extends Thread {
             e.printStackTrace();
         }
     }
+
 
     public void receiveResponseFromLearners() {
         MulticastSocket multicastSocket = null;

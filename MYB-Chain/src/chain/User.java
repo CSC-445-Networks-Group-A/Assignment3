@@ -2,9 +2,6 @@ package chain;
 
 import common.Addresses;
 import common.Ports;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import packets.acceptances.AcceptedUpdatePacket;
 import packets.requests.TransactionRequest;
 import packets.requests.UpdateRequest;
