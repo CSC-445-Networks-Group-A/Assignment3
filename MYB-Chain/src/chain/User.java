@@ -171,7 +171,7 @@ public class User implements Serializable{
             ObjectOutputStream outputStream = new ObjectOutputStream(baos);
 
             //   FIXME: USER PORT??? FIXME: USER PORT??? FIXME: USER PORT???
-            UpdateRequest updateRequestPacket = new UpdateRequest(this.lastUpdatedBlockNumber, InetAddress.getLocalHost(), 0);
+            UpdateRequest updateRequestPacket = new UpdateRequest(this.lastUpdatedBlockNumber, InetAddress.getLocalHost(), );
             outputStream.writeObject(updateRequestPacket);
             byte[] output = baos.toByteArray();
             DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
