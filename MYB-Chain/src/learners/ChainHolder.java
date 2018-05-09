@@ -5,7 +5,7 @@ import chain.Transaction;
 import chain.User;
 import common.Addresses;
 import common.Ports;
-import javafx.util.Pair;
+import common.Pair;
 import packets.acceptances.AcceptedPacket;
 
 import packets.acceptances.AcceptedUpdatePacket;
