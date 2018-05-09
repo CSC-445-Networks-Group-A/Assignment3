@@ -11,7 +11,7 @@ public class Client {
 
         if(User.userFileExists()){
             User myUser = User.loadUser();
-//            myUser.updateBlockChain();
+            myUser.updateBlockChain();
 
             ClientUI client = new ClientUI(myUser);
             client.setVisible(true);

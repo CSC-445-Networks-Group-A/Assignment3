@@ -11,7 +11,7 @@ import java.util.HashMap;
 /**
  * Created by Michael on 4/14/2018.
  */
-public class BlockChain {
+public class BlockChain implements Serializable {
     private final static double INITIAL_WORTH = 2000000000.00;
     private final static String BLOCKCHAIN_FILE_NAME = "BLOCKCHAIN.dat";
     private final String STORAGE_LOCATION;
