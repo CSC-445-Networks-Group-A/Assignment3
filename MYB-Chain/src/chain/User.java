@@ -333,14 +333,14 @@ public class User extends Thread implements Serializable{
         return response;
     }
 
-    public static boolean userFileExists(){
-        File tmpDir = new File(USER_INFO_PATH);
+    public static boolean userFileExists(String fileName){
+        File tmpDir = new File(fileName);
         return tmpDir.exists();
     }
 
-    public static User loadUser(String userTypeAndFileName) throws IOException, ClassNotFoundException {
+    public static User loadUser(String fileName) throws IOException, ClassNotFoundException {
 
-        FileInputStream userFileInput = new FileInputStream(USER_INFO_PATH + File.separator + userTypeAndFileName);
+        FileInputStream userFileInput = new FileInputStream(fileName);
         ObjectInputStream userFileObjectInput = new ObjectInputStream(userFileInput);
         User loadedUser = (User) userFileObjectInput.readObject();
         userFileObjectInput.close();

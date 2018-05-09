@@ -10,9 +10,10 @@ import java.io.IOException;
 public class Client {
 
     public static void main(String args[]) throws IOException, ClassNotFoundException, InterruptedException {
-
-        if(User.userFileExists()){
-            User myUser = User.loadUser(NodeType.CLIENT + File.separator + "UserInfo.dat");
+        String userFileName = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" +
+                File.separator +"UserResources" + File.separator + "USER_INFO" + File.separator + NodeType.CLIENT + "UserInfo.dat";
+        if(User.userFileExists(userFileName)){
+            User myUser = User.loadUser(userFileName);
             myUser.updateBlockChain();
 
             ClientUI client = new ClientUI(myUser);
