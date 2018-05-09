@@ -60,7 +60,7 @@ public class ChainHolder extends Thread{
     public ChainHolder(User mybHolder) throws IOException, ClassNotFoundException {
         super("ChainHolder: " + mybHolder.getID());
         this.holder = mybHolder;
-        this.holderPrivateKey = holder.loadPrivateKeyFromFile();
+        this.holderPrivateKey = holder.loadPrivateKeyFromFile(holder.getPrivateKeyPath());
         this.learningAddress = InetAddress.getByName(Addresses.HOLDER_LEARNING_ADDRESS);
         this.updatingAddress = InetAddress.getByName(Addresses.HOLDER_UPDATING_ADDRESS);
         this.checkingAddress = InetAddress.getByName(Addresses.HOLDER_CHECKING_ADDRESS);

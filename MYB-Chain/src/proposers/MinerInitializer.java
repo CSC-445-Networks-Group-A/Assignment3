@@ -1,7 +1,9 @@
 package proposers;
 
 import chain.User;
+import common.NodeType;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
@@ -18,7 +20,7 @@ public class MinerInitializer {
         }else {
             Random random = new Random();
             Long randomNumber = random.nextLong();
-            user = new User("Miner", randomNumber.toString(), 100.0);
+            user = new User(NodeType.PROPOSER,"Miner", randomNumber.toString(), 100.0);
         }
 
         Thread miner = new Miner(user);

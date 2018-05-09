@@ -1,6 +1,7 @@
 package learners;
 
 import chain.User;
+import common.NodeType;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -18,7 +19,7 @@ public class ChainHolderInitializer {
         }else {
             Random random = new Random();
             Long randomNumber = random.nextLong();
-            user = new User("ChainHolder", randomNumber.toString(), 100.0);
+            user = new User(NodeType.LEARNER,"ChainHolder", randomNumber.toString(), 100.0);
         }
 
         Thread chainHolder = new ChainHolder(user);
