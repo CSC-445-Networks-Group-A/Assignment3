@@ -57,25 +57,30 @@ public class BlockChain implements Serializable {
 
         try {
 
-            fis = new FileInputStream(f);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            boolean eof = false;
-            while(!eof) {
-                Object readObj = ois.readObject();
-                Block readBlock = null;
-                if (readObj != null && readObj instanceof Block) {
-                    readBlock = (Block) readObj;
+            //TODO: do another of layer here
+            if(f.length()!=0) {
+                fis = new FileInputStream(f);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                boolean eof = false;
+                while (!eof) {
+                    Object readObj = ois.readObject();
+                    Block readBlock = null;
+                    if (readObj != null && readObj instanceof Block) {
+                        readBlock = (Block) readObj;
 
-                    //TODO: add block without verification？ since it is older version of the blockchain?
-                    this.addBlock(readBlock);
+                        //TODO: add block without verification？ since it is older version of the blockchain?
+                        this.addBlock(readBlock);
 
-                }else{
-                    //either null or is not an Block object
-                    //terminate while loop
-                    eof = true;
-                }
-            } //end while loop
+                    } else {
+                        //either null or is not an Block object
+                        //terminate while loop
+                        eof = true;
+                    }
+                } //end while loop
 
+            }else{
+                System.out.println("File empty...");
+            }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -86,6 +91,7 @@ public class BlockChain implements Serializable {
     public void persist(){
         File f = new File(STORAGE_LOCATION);
         FileOutputStream fos = null;
+
         try {
             fos = new FileOutputStream(f);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
@@ -98,6 +104,7 @@ public class BlockChain implements Serializable {
 
             //write an null object to indicate EOF
             //had to do this because readObject doesn't return null or it will throw an EOP exception
+
             Object eof = null;
             oos.writeObject(eof);
             oos.flush();
