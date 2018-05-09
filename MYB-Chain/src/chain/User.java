@@ -72,6 +72,10 @@ public class User extends Thread implements Serializable{
         this.netWorth = initialNetWorth;
 
         makeDirectories();
+
+        this.USER_INFO_PATH += File.separator + "UserInfo.dat";
+        this.PRIVATE_KEY_PATH += File.separator + "P_____KeyPath.dat";
+        this.PUBLIC_KEY_PATH += File.separator + "PublicKeyPath.dat";
     }
 
     private User(NodeType nodeType, RSAPrivateKey privateKey, RSAPublicKey publicKey, String firstName, String lastName, String id, Double netWorth) throws IOException {
