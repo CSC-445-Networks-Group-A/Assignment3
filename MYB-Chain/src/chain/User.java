@@ -338,9 +338,9 @@ public class User extends Thread implements Serializable{
         return tmpDir.exists();
     }
 
-    public static User loadUser() throws IOException, ClassNotFoundException {
+    public static User loadUser(String userTypeAndFileName) throws IOException, ClassNotFoundException {
 
-        FileInputStream userFileInput = new FileInputStream(USER_INFO_PATH);
+        FileInputStream userFileInput = new FileInputStream(USER_INFO_PATH + File.separator + userTypeAndFileName);
         ObjectInputStream userFileObjectInput = new ObjectInputStream(userFileInput);
         User loadedUser = (User) userFileObjectInput.readObject();
         userFileObjectInput.close();

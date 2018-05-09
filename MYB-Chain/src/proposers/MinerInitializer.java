@@ -16,7 +16,7 @@ public class MinerInitializer {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InterruptedException, ClassNotFoundException {
         User user;
         if(User.userFileExists()){
-            user = User.loadUser();
+            user = User.loadUser(NodeType.PROPOSER + File.separator + "UserInfo.dat");
         }else {
             Random random = new Random();
             Long randomNumber = random.nextLong();
