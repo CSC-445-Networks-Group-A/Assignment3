@@ -6,6 +6,7 @@
 package client;
 
 import chain.User;
+import common.NodeType;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -165,7 +166,7 @@ public class RegistrationView extends javax.swing.JFrame {
 
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
         try {
-            myUser = new User(this.getFirstname(), this.getLastname(), 0.0);
+            myUser = new User(NodeType.CLIENT, this.getFirstname(), this.getLastname(), 0.0);
             try {
                 myUser.commitUser();
                 lblMessage.setText("Registration Successful.");
