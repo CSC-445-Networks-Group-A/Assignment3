@@ -1,6 +1,6 @@
 package chain;
 
-import javafx.util.Pair;
+import common.Pair;
 import org.omg.PortableInterceptor.InvalidSlot;
 
 import java.io.*;
