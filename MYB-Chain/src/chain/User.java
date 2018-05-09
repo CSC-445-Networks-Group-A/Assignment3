@@ -214,9 +214,14 @@ public class User extends Thread implements Serializable{
 
 
     public void updateBlockChain() throws IOException {
+        /*InetAddress address = InetAddress.getLocalHost();
+        address.getHostAddress();
+        address.getHostName();*/
+
         ServerSocket serverSocket = new ServerSocket(0);
-        InetAddress address = serverSocket.getInetAddress();
+        InetAddress address = InetAddress.getLocalHost();
         int receivePort = serverSocket.getLocalPort();
+        //InetAddress address = serverSocket.getInetAddress();
         sendUpdateRequest(address, receivePort);
         receiveUpdate(serverSocket);
     }
@@ -371,7 +376,7 @@ public class User extends Thread implements Serializable{
     public String makeTransaction(User seller, Double transactionAmount) {
         try {
             ServerSocket serverSocket = new ServerSocket(0);
-            InetAddress address = serverSocket.getInetAddress();
+            InetAddress address = InetAddress.getLocalHost();
             int receivePort = serverSocket.getLocalPort();
             Transaction transaction = new Transaction(this, seller, transactionAmount, privateKey);
             TransactionRequest transactionRequest = new TransactionRequest(transaction, address, receivePort);
