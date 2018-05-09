@@ -36,7 +36,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by Michael on 4/18/2018.
  */
 public class ChainHolder extends Thread{
-    private static final String PRIVATE_KEY_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" +
+    private static final String PRIVATE_KEY_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" +
             File.separator +"UserResources" + File.separator + "PRIVATE" + File.separator + NodeType.LEARNER + File.separator + "PK.dat";
     private final static int TIMEOUT_MILLISECONDS = 20000;
     private final static int COLLISION_PREVENTING_TIMEOUT_TIME = 5000;
