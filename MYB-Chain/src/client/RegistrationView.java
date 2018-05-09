@@ -22,13 +22,17 @@ import java.security.NoSuchAlgorithmException;
  * @author admin
  */
 public class RegistrationView extends javax.swing.JFrame {
-
+    private final String userFileName, privateFileName, publicFileName, blockChainFileName;
     private User myUser;
 
     /**
      * Creates new form RegistrationView
      */
-    public RegistrationView() {
+    public RegistrationView(String userFileName, String privateFileName, String publicFileName, String blockChainFileName) {
+        this.userFileName = userFileName;
+        this.privateFileName = privateFileName;
+        this.publicFileName = publicFileName;
+        this.blockChainFileName = blockChainFileName;
         initComponents();
         this.btnDone.setEnabled(false);
     }
@@ -166,7 +170,7 @@ public class RegistrationView extends javax.swing.JFrame {
 
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
         try {
-            myUser = new User(NodeType.CLIENT, this.getFirstname(), this.getLastname(), 0.0);
+            myUser = new User(userFileName, privateFileName, publicFileName, blockChainFileName, this.getFirstname(), this.getLastname(), 10000.0);
             try {
                 myUser.commitUser();
                 lblMessage.setText("Registration Successful.");

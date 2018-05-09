@@ -4,6 +4,7 @@ import chain.Block;
 import chain.Transaction;
 import chain.User;
 import common.Addresses;
+import common.NodeType;
 import common.Ports;
 import common.Pair;
 import packets.acceptances.AcceptedPacket;
@@ -35,6 +36,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by Michael on 4/18/2018.
  */
 public class ChainHolder extends Thread{
+    private static final String PRIVATE_KEY_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" +
+            File.separator +"UserResources" + File.separator + "PRIVATE" + File.separator + NodeType.LEARNER + File.separator + "PK.dat";
     private final static int TIMEOUT_MILLISECONDS = 20000;
     private final static int COLLISION_PREVENTING_TIMEOUT_TIME = 5000;
     private final static int MIN_COLLISION_PREVENTING_TIMEOUT_TIME = 500;
@@ -60,7 +63,8 @@ public class ChainHolder extends Thread{
     public ChainHolder(User mybHolder) throws IOException, ClassNotFoundException {
         super("ChainHolder: " + mybHolder.getID());
         this.holder = mybHolder;
-        this.holderPrivateKey = holder.loadPrivateKeyFromFile(holder.getPrivateKeyPath());
+        //fixme
+        this.holderPrivateKey = holder.loadPrivateKeyFromFile(PRIVATE_KEY_PATH);
         this.learningAddress = InetAddress.getByName(Addresses.HOLDER_LEARNING_ADDRESS);
         this.updatingAddress = InetAddress.getByName(Addresses.HOLDER_UPDATING_ADDRESS);
         this.checkingAddress = InetAddress.getByName(Addresses.HOLDER_CHECKING_ADDRESS);
@@ -111,7 +115,7 @@ public class ChainHolder extends Thread{
 
             while (running) {
                 try {
-                    updateIfNecessary();
+                    //updateIfNecessary();
                     pruneAcceptedPackets();
 
                     byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
