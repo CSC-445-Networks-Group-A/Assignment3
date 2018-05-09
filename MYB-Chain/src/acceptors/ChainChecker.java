@@ -4,6 +4,7 @@ import chain.Block;
 import chain.Transaction;
 import chain.User;
 import common.Addresses;
+import common.NodeType;
 import common.Ports;
 import common.Pair;
 import packets.acceptances.AcceptedPacket;
@@ -29,6 +30,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by Michael on 4/18/2018.
  */
 public class ChainChecker extends Thread{
+    private static final String PRIVATE_KEY_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" +
+            File.separator +"UserResources" + File.separator + "PRIVATE" + File.separator + NodeType.ACCEPTOR + File.separator + "PK.dat";
     private final static int TIMEOUT_MILLISECONDS = 20000;
     private final static int COLLISION_PREVENTING_TIMEOUT_TIME = 5000;
     private final static int MIN_COLLISION_PREVENTING_TIMEOUT_TIME = 500;
@@ -57,7 +60,8 @@ public class ChainChecker extends Thread{
     public ChainChecker(User mybChainChecker) throws IOException, ClassNotFoundException {
         super("ChainChecker: " + mybChainChecker.getID());
         this.checker = mybChainChecker;
-        this.checkerPrivateKey = User.loadPrivateKeyFromFile(checker.getPrivateKeyPath());
+        //fixme
+        this.checkerPrivateKey = User.loadPrivateKeyFromFile(PRIVATE_KEY_PATH);
         this.proposalAddress = InetAddress.getByName(Addresses.MINER_PROPOSAL_ADDRESS);
         this.acceptanceAddress = InetAddress.getByName(Addresses.CHECKER_ACCEPTANCE_ADDRESS);
         this.minerLearningAddress = InetAddress.getByName(Addresses.MINER_LEARNING_ADDRESS);

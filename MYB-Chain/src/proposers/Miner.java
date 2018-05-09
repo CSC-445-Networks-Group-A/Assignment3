@@ -4,6 +4,7 @@ import chain.Block;
 import chain.Transaction;
 import chain.User;
 import common.Addresses;
+import common.NodeType;
 import common.Ports;
 import common.Pair;
 import packets.Packet;
@@ -138,6 +139,9 @@ public class Miner extends Thread{
      * */
     private void mine() throws IOException, NoSuchAlgorithmException {
         Block block = miner.getBlockChain().getMostRecentBlock();
+        if (block == null) {
+            block = new Block(miner.getBlockChain().getMostRecentHash());
+        }
         while (true) {
             if (block.isFull()) {
                 boolean hashFound = false;

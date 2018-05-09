@@ -13,46 +13,36 @@ import java.util.HashMap;
  */
 public class BlockChain implements Serializable {
     private final static double INITIAL_WORTH = 2000000000.00;
-    private final static String BLOCKCHAIN_FILE_NAME = "BLOCKCHAIN.dat";
-    private final String STORAGE_LOCATION;
+    private final String BLOCK_CHAIN_FILE_NAME;
     private ArrayList<Block> chain;
     private double totalWorth;
 
     /**
      * Constructor for usage by a Client
      * */
-    public BlockChain(String directoryToStoreBlockChain) throws IOException {
-        File chainDirectory = new File(directoryToStoreBlockChain);
-        this.STORAGE_LOCATION = directoryToStoreBlockChain + File.separator + BLOCKCHAIN_FILE_NAME;
-        if (!chainDirectory.exists() || !chainDirectory.isDirectory()) {
+    public BlockChain(String blockChainFileName) throws IOException {
+        File blockChainFile = new File(blockChainFileName);
+        this.BLOCK_CHAIN_FILE_NAME = blockChainFileName;
+        if (!blockChainFile.exists()) {
             /*
             * First time access by user
             * */
-            chainDirectory.mkdirs();
-            File blockchainFile = new File(STORAGE_LOCATION);
-            blockchainFile.createNewFile();
+            blockChainFile.createNewFile();
             this.chain = new ArrayList<>();
             this.totalWorth = INITIAL_WORTH;
 
         }else {
-            File blockchainFile = new File(STORAGE_LOCATION);
-            if (!blockchainFile.exists()) {
-                blockchainFile.createNewFile();
-                this.chain = new ArrayList<>();
-                this.totalWorth = INITIAL_WORTH;
-            }else {
-                blockchainFile.delete();
-                blockchainFile.createNewFile();
-                this.chain = new ArrayList<>();
-                readBlockChainFromFile();
-                this.totalWorth = computeTotalChainWorth();
-            }
+            blockChainFile.delete();
+            blockChainFile.createNewFile();
+            this.chain = new ArrayList<>();
+            readBlockChainFromFile();
+            this.totalWorth = computeTotalChainWorth();
         }
     }
 
 
     private void readBlockChainFromFile(){
-        File f = new File(STORAGE_LOCATION);
+        File f = new File(BLOCK_CHAIN_FILE_NAME);
         FileInputStream fis = null;
 
         try {
@@ -89,7 +79,7 @@ public class BlockChain implements Serializable {
 
 
     public void persist(){
-        File f = new File(STORAGE_LOCATION);
+        File f = new File(BLOCK_CHAIN_FILE_NAME);
         FileOutputStream fos = null;
 
         try {
@@ -166,8 +156,16 @@ public class BlockChain implements Serializable {
         return minerAward;
     }
 
+    private byte[] getInitialHash() {
+        return new byte[256];
+    }
+
     public byte[] getMostRecentHash() {
-        return chain.get(chain.size()).getProofOfWork();
+        if (!chain.isEmpty()) {
+            return chain.get(0).getProofOfWork();
+        }else {
+            return getInitialHash();
+        }
     }
 
     public BigInteger getChainLength() {
@@ -175,21 +173,29 @@ public class BlockChain implements Serializable {
     }
 
     public Block getMostRecentBlock() {
-        return chain.get(chain.size());
+        if (!chain.isEmpty()) {
+            return chain.get(chain.size());
+        }else {
+            return null;
+        }
     }
 
     public Block[] getSubChain(BigInteger origin) {
-        Integer startIndex = origin.intValue();
-        Integer endIndex = getChainLength().intValue();
-        Integer length = (1+endIndex) - startIndex;
+        if (chain.isEmpty()) {
+            return null;
+        }else {
+            Integer startIndex = origin.intValue();
+            Integer endIndex = chain.size();
+            Integer length = (1+endIndex) - startIndex;
 
-        Block[] subChain = new Block[length];
+            Block[] subChain = new Block[length];
 
-        for (int chainIndex = startIndex, arrayIndex = 0; chainIndex <= endIndex; chainIndex++, arrayIndex++) {
-            subChain[arrayIndex] = chain.get(chainIndex);
+            for (int chainIndex = startIndex, arrayIndex = 0; chainIndex <= endIndex; chainIndex++, arrayIndex++) {
+                subChain[arrayIndex] = chain.get(chainIndex);
+            }
+
+            return subChain;
         }
-
-        return subChain; 
 
     }
     protected ArrayList<Block> getBlocks(){
