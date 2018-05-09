@@ -29,10 +29,22 @@ import java.util.concurrent.ThreadLocalRandom;
 public class User extends Thread implements Serializable{
     private final static int DESIRED_CHARS_FROM_NAMES = 3;
     private final static int TTL = 12;
-    private static String BLOCKCHAIN_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator + "UserResources" + File.separator + "BLOCKCHAIN" + File.separator;
-    private static String USER_INFO_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "USER_INFO" + File.separator;
-    private static String PRIVATE_KEY_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "PRIVATE" + File.separator;
-    private static String PUBLIC_KEY_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "PUBLIC" + File.separator ;
+    private static String BLOCKCHAIN_DIR = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator + "UserResources" + File.separator + "BLOCKCHAIN" + File.separator;
+    private static String USER_INFO_DIR = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "USER_INFO" + File.separator;
+    private static String PRIVATE_KEY_DIR = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "PRIVATE" + File.separator;
+    private static String PUBLIC_KEY_DIR = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "PUBLIC" + File.separator ;
+
+
+    private static String BLOCKCHAIN_FILE_NAME = "BLOCKCHAIN.dat";
+    private static String USER_INFO_FILE_NAME = "UserInfo.dat";
+    private static String PRIVATE_KEY_FILE_NAME = "P_____KeyPath.dat";
+    private static String PUBLIC_KEY_FILE_NAME = "PublicKeyPath.dat";
+
+    private static String BLOCKCHAIN_FILE_PATH;
+    private static String USER_INFO_PATH;
+    private static String PRIVATE_KEY_PATH;
+    private static String PUBLIC_KEY_PATH;
+
     private final NodeType NODE_TYPE;
     private final RSAPublicKey publicKey;
     private final RSAPrivateKey privateKey;
@@ -48,6 +60,7 @@ public class User extends Thread implements Serializable{
     private Double netWorth;
 
 
+
     public User(NodeType nodeType, String firstName, String lastName, Double initialNetWorth) throws NoSuchAlgorithmException, IOException {
         super("User: " + firstName + " " + lastName);
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
@@ -56,10 +69,10 @@ public class User extends Thread implements Serializable{
         this.publicKey = (RSAPublicKey) keyPair.getPublic();
         this.privateKey = (RSAPrivateKey) keyPair.getPrivate();
         this.NODE_TYPE = nodeType;
-        this.BLOCKCHAIN_PATH += nodeType.toString();
-        this.USER_INFO_PATH += nodeType.toString();
-        this.PRIVATE_KEY_PATH += nodeType.toString();
-        this.PUBLIC_KEY_PATH += nodeType.toString();
+        this.BLOCKCHAIN_DIR += nodeType.toString();
+        this.USER_INFO_DIR += nodeType.toString();
+        this.PRIVATE_KEY_DIR += nodeType.toString();
+        this.PUBLIC_KEY_DIR += nodeType.toString();
         this.requestAddress = InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS);
         this.receiveUpdateAddress = InetAddress.getByName(Addresses.USER_RECEIVE_UPDATE_ADDRESS);
         this.firstName = firstName;
@@ -68,14 +81,16 @@ public class User extends Thread implements Serializable{
         this.requestPort = Ports.USER_REQUEST_PORT;
         this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
         this.knownBlockChainUsers = new HashMap<>(10);
-        this.blockChain = new BlockChain(BLOCKCHAIN_PATH);
+        this.blockChain = new BlockChain(BLOCKCHAIN_DIR);
         this.netWorth = initialNetWorth;
+
 
         makeDirectories();
 
-        this.USER_INFO_PATH += File.separator + "UserInfo.dat";
-        this.PRIVATE_KEY_PATH += File.separator + "P_____KeyPath.dat";
-        this.PUBLIC_KEY_PATH += File.separator + "PublicKeyPath.dat";
+        this.BLOCKCHAIN_FILE_PATH = this.BLOCKCHAIN_DIR+ File.separator + this.BLOCKCHAIN_FILE_NAME;
+        this.USER_INFO_PATH = this.USER_INFO_DIR + File.separator + this.USER_INFO_FILE_NAME;
+        this.PRIVATE_KEY_PATH = this.PRIVATE_KEY_DIR + File.separator + this.PRIVATE_KEY_FILE_NAME;
+        this.PUBLIC_KEY_PATH += this.PUBLIC_KEY_DIR + File.separator + this.PUBLIC_KEY_FILE_NAME;
     }
 
     private User(NodeType nodeType, RSAPrivateKey privateKey, RSAPublicKey publicKey, String firstName, String lastName, String id, Double netWorth) throws IOException {
@@ -83,10 +98,10 @@ public class User extends Thread implements Serializable{
         this.privateKey = privateKey;
         this.publicKey = publicKey;
         this.NODE_TYPE = nodeType;
-        this.BLOCKCHAIN_PATH += nodeType.toString();
-        this.USER_INFO_PATH += nodeType.toString();
-        this.PRIVATE_KEY_PATH += nodeType.toString();
-        this.PUBLIC_KEY_PATH += nodeType.toString();
+        this.BLOCKCHAIN_DIR += nodeType.toString();
+        this.USER_INFO_DIR += nodeType.toString();
+        this.PRIVATE_KEY_DIR += nodeType.toString();
+        this.PUBLIC_KEY_DIR += nodeType.toString();
         this.requestAddress = InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS);
         this.receiveUpdateAddress = InetAddress.getByName(Addresses.USER_RECEIVE_UPDATE_ADDRESS);
         this.firstName = firstName;
@@ -95,14 +110,15 @@ public class User extends Thread implements Serializable{
         this.requestPort = Ports.USER_REQUEST_PORT;
         this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
         this.knownBlockChainUsers = new HashMap<>(10);
-        this.blockChain = new BlockChain(BLOCKCHAIN_PATH);
+        this.blockChain = new BlockChain(BLOCKCHAIN_DIR);
         this.netWorth = netWorth;
 
         makeDirectories();
 
-        this.USER_INFO_PATH += File.separator + "UserInfo.dat";
-        this.PRIVATE_KEY_PATH += File.separator + "P_____KeyPath.dat";
-        this.PUBLIC_KEY_PATH += File.separator + "PublicKeyPath.dat";
+        this.BLOCKCHAIN_FILE_PATH = this.BLOCKCHAIN_DIR+ File.separator + this.BLOCKCHAIN_FILE_NAME;
+        this.USER_INFO_PATH = this.USER_INFO_DIR + File.separator + this.USER_INFO_FILE_NAME;
+        this.PRIVATE_KEY_PATH = this.PRIVATE_KEY_DIR + File.separator + this.PRIVATE_KEY_FILE_NAME;
+        this.PUBLIC_KEY_PATH += this.PUBLIC_KEY_DIR + File.separator + this.PUBLIC_KEY_FILE_NAME;
     }
 
 
@@ -148,24 +164,62 @@ public class User extends Thread implements Serializable{
     }
 
 
-    private void makeDirectories() {
-        File file = new File(BLOCKCHAIN_PATH);
-        if (!file.exists() || !file.isDirectory()) {
-            file.mkdirs();
+  /*  private void makeDirectories() {
+        try {
+            File file = new File(BLOCKCHAIN_PATH);
+            if (!file.exists() || !file.isDirectory()) {
+                //file.mkdirs();
+                file.createNewFile();
+            }
+            file = new File(USER_INFO_PATH);
+            if (!file.exists() || !file.isDirectory()) {
+                //file.mkdirs();
+                file.createNewFile();
+            }
+            file = new File(PRIVATE_KEY_PATH);
+            if (!file.exists() || !file.isDirectory()) {
+                //file.mkdirs();
+                file.createNewFile();
+            }
+            file = new File(PUBLIC_KEY_PATH);
+            if (!file.exists() || !file.isDirectory()) {
+                //file.mkdirs();
+                file.createNewFile();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        file = new File(USER_INFO_PATH);
-        if (!file.exists() || !file.isDirectory()) {
-            file.mkdirs();
-        }
-        file = new File(PRIVATE_KEY_PATH);
-        if (!file.exists() || !file.isDirectory()) {
-            file.mkdirs();
-        }
-        file = new File(PUBLIC_KEY_PATH);
-        if (!file.exists() || !file.isDirectory()) {
-            file.mkdirs();
-        }
-    }
+    }*/
+  private void makeDirectories() {
+      try {
+          File file = new File(this.BLOCKCHAIN_FILE_PATH);
+          if (!file.exists() || !file.isDirectory()) {
+              file.mkdirs();
+              File newFile = new File(file,this.BLOCKCHAIN_FILE_NAME );
+              newFile.createNewFile();
+          }
+          file = new File(USER_INFO_PATH);
+          if (!file.exists() || !file.isDirectory()) {
+              file.mkdirs();
+              File newFile = new File(file,this.USER_INFO_FILE_NAME );
+              newFile.createNewFile();
+          }
+          file = new File(PRIVATE_KEY_PATH);
+          if (!file.exists() || !file.isDirectory()) {
+              file.mkdirs();
+              File newFile = new File(file,this.PRIVATE_KEY_FILE_NAME );
+              newFile.createNewFile();
+          }
+          file = new File(PUBLIC_KEY_PATH);
+          if (!file.exists() || !file.isDirectory()) {
+              file.mkdirs();
+              File newFile = new File(file,this.PUBLIC_KEY_FILE_NAME );
+              newFile.createNewFile();
+          }
+      } catch (IOException e) {
+          e.printStackTrace();
+      }
+  }
 
 
     protected User clone() {
