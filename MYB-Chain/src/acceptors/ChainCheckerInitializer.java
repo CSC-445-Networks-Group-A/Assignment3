@@ -1,6 +1,7 @@
 package acceptors;
 
 import chain.User;
+import common.NodeType;
 import proposers.Miner;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ public class ChainCheckerInitializer {
         }else {
             Random random = new Random();
             Long randomNumber = random.nextLong();
-            user = new User("ChainChecker", randomNumber.toString(), 100.0);
+            user = new User(NodeType.ACCEPTOR,"ChainChecker", randomNumber.toString(), 100.0);
         }
 
         Thread chainChecker = new ChainChecker(user);

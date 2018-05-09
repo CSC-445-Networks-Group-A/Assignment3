@@ -57,7 +57,7 @@ public class ChainChecker extends Thread{
     public ChainChecker(User mybChainChecker) throws IOException, ClassNotFoundException {
         super("ChainChecker: " + mybChainChecker.getID());
         this.checker = mybChainChecker;
-        this.checkerPrivateKey = User.loadPrivateKeyFromFile();
+        this.checkerPrivateKey = User.loadPrivateKeyFromFile(checker.getPrivateKeyPath());
         this.proposalAddress = InetAddress.getByName(Addresses.MINER_PROPOSAL_ADDRESS);
         this.acceptanceAddress = InetAddress.getByName(Addresses.CHECKER_ACCEPTANCE_ADDRESS);
         this.minerLearningAddress = InetAddress.getByName(Addresses.MINER_LEARNING_ADDRESS);

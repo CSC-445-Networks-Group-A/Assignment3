@@ -1,6 +1,7 @@
 package chain;
 
 import common.Addresses;
+import common.NodeType;
 import common.Ports;
 import packets.acceptances.AcceptedUpdatePacket;
 import packets.learnings.LearnedPacket;
@@ -26,12 +27,13 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by Michael on 4/14/2018.
  */
 public class User extends Thread implements Serializable{
-    private final static String BLOCKCHAIN_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator + "UserResources" + File.separator + "BLOCKCHAIN";
-    private final static String USER_INFO_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "USER_INFO.dat";
-    private final static String PRIVATE_KEY_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "PRIVATE.dat";
-    private final static String PUBLIC_KEY_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "PUBLIC.dat";
     private final static int DESIRED_CHARS_FROM_NAMES = 3;
     private final static int TTL = 12;
+    private static String BLOCKCHAIN_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator + "UserResources" + File.separator + "BLOCKCHAIN" + File.separator;
+    private static String USER_INFO_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "USER_INFO" + File.separator;
+    private static String PRIVATE_KEY_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "PRIVATE" + File.separator;
+    private static String PUBLIC_KEY_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "PUBLIC" + File.separator ;
+    private final NodeType NODE_TYPE;
     private final RSAPublicKey publicKey;
     private final RSAPrivateKey privateKey;
     private final InetAddress requestAddress;
@@ -46,13 +48,18 @@ public class User extends Thread implements Serializable{
     private Double netWorth;
 
 
-    public User(String firstName, String lastName, Double initialNetWorth) throws NoSuchAlgorithmException, IOException {
+    public User(NodeType nodeType, String firstName, String lastName, Double initialNetWorth) throws NoSuchAlgorithmException, IOException {
         super("User: " + firstName + " " + lastName);
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(2048);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
         this.publicKey = (RSAPublicKey) keyPair.getPublic();
         this.privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        this.NODE_TYPE = nodeType;
+        this.BLOCKCHAIN_PATH += nodeType.toString();
+        this.USER_INFO_PATH += nodeType.toString();
+        this.PRIVATE_KEY_PATH += nodeType.toString();
+        this.PUBLIC_KEY_PATH += nodeType.toString();
         this.requestAddress = InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS);
         this.receiveUpdateAddress = InetAddress.getByName(Addresses.USER_RECEIVE_UPDATE_ADDRESS);
         this.firstName = firstName;
@@ -63,12 +70,19 @@ public class User extends Thread implements Serializable{
         this.knownBlockChainUsers = new HashMap<>(10);
         this.blockChain = new BlockChain(BLOCKCHAIN_PATH);
         this.netWorth = initialNetWorth;
+
+        makeDirectories();
     }
 
-    private User(RSAPrivateKey privateKey, RSAPublicKey publicKey, String firstName, String lastName, String id, Double netWorth) throws IOException {
+    private User(NodeType nodeType, RSAPrivateKey privateKey, RSAPublicKey publicKey, String firstName, String lastName, String id, Double netWorth) throws IOException {
         super("User: " + firstName + " " + lastName);
         this.privateKey = privateKey;
         this.publicKey = publicKey;
+        this.NODE_TYPE = nodeType;
+        this.BLOCKCHAIN_PATH += nodeType.toString();
+        this.USER_INFO_PATH += nodeType.toString();
+        this.PRIVATE_KEY_PATH += nodeType.toString();
+        this.PUBLIC_KEY_PATH += nodeType.toString();
         this.requestAddress = InetAddress.getByName(Addresses.USER_REQUEST_ADDRESS);
         this.receiveUpdateAddress = InetAddress.getByName(Addresses.USER_RECEIVE_UPDATE_ADDRESS);
         this.firstName = firstName;
@@ -79,6 +93,12 @@ public class User extends Thread implements Serializable{
         this.knownBlockChainUsers = new HashMap<>(10);
         this.blockChain = new BlockChain(BLOCKCHAIN_PATH);
         this.netWorth = netWorth;
+
+        makeDirectories();
+
+        this.USER_INFO_PATH += File.separator + "UserInfo.dat";
+        this.PRIVATE_KEY_PATH += File.separator + "P_____KeyPath.dat";
+        this.PUBLIC_KEY_PATH += File.separator + "PublicKeyPath.dat";
     }
 
 
@@ -124,9 +144,29 @@ public class User extends Thread implements Serializable{
     }
 
 
+    private void makeDirectories() {
+        File file = new File(BLOCKCHAIN_PATH);
+        if (!file.exists() || !file.isDirectory()) {
+            file.mkdirs();
+        }
+        file = new File(USER_INFO_PATH);
+        if (!file.exists() || !file.isDirectory()) {
+            file.mkdirs();
+        }
+        file = new File(PRIVATE_KEY_PATH);
+        if (!file.exists() || !file.isDirectory()) {
+            file.mkdirs();
+        }
+        file = new File(PUBLIC_KEY_PATH);
+        if (!file.exists() || !file.isDirectory()) {
+            file.mkdirs();
+        }
+    }
+
+
     protected User clone() {
         try {
-            return new User(privateKey, publicKey, firstName, lastName, ID, netWorth);
+            return new User(NODE_TYPE, privateKey, publicKey, firstName, lastName, ID, netWorth);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -327,8 +367,8 @@ public class User extends Thread implements Serializable{
     }
 
 
-    private static RSAPublicKey loadPublicKeyFromFile() throws IOException, ClassNotFoundException {
-        FileInputStream publicFileInput = new FileInputStream(PUBLIC_KEY_PATH);
+    private static RSAPublicKey loadPublicKeyFromFile(String path) throws IOException, ClassNotFoundException {
+        FileInputStream publicFileInput = new FileInputStream(path);
         ObjectInputStream publicObjectInput = new ObjectInputStream(publicFileInput);
         RSAPublicKey loadedPublicKey = (RSAPublicKey) publicObjectInput.readObject();
         publicObjectInput.close();
@@ -338,8 +378,8 @@ public class User extends Thread implements Serializable{
     }
 
 
-    public static RSAPrivateKey loadPrivateKeyFromFile() throws IOException, ClassNotFoundException {
-        FileInputStream privateFileInput = new FileInputStream(PRIVATE_KEY_PATH);
+    public static RSAPrivateKey loadPrivateKeyFromFile(String path) throws IOException, ClassNotFoundException {
+        FileInputStream privateFileInput = new FileInputStream(path);
         ObjectInputStream privateObjectInput = new ObjectInputStream(privateFileInput);
         RSAPrivateKey loadedPrivateKey = (RSAPrivateKey) privateObjectInput.readObject();
         privateObjectInput.close();
@@ -417,6 +457,9 @@ public class User extends Thread implements Serializable{
         }
     }
 
+    public String getPrivateKeyPath() {
+        return PRIVATE_KEY_PATH;
+    }
 
     public RSAPublicKey getPublicKey() {
         return publicKey;
