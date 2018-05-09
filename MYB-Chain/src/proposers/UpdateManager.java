@@ -2,13 +2,11 @@ package proposers;
 
 import common.Addresses;
 import common.Ports;
-import javafx.util.Pair;
 import packets.Packet;
 import packets.acceptances.AcceptedUpdatePacket;
 import packets.proposals.UpdateUsersPacket;
 import packets.requests.UpdateRequest;
 import packets.responses.GeneralResponse;
-import packets.responses.SuccessfulUpdate;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -31,8 +29,7 @@ public class UpdateManager extends Thread {
     private final int listenPort;
     private final int requestPort;
     private final int listenForLearnersPort;
-    private ConcurrentLinkedQueue<Pair<BigInteger, InetAddress>> pendingRequest;
-    private ConcurrentLinkedQueue<Pair<InetAddress, Integer>> pendingAddresses;
+    private ConcurrentLinkedQueue<UpdateRequest> pendingRequests;
 
 
     // TODO: clear out the ports and address arguments
@@ -46,8 +43,7 @@ public class UpdateManager extends Thread {
         this.listenForLearnersAddress = InetAddress.getByName(Addresses.HOLDER_UPDATING_ADDRESS);
 
         this.usersAddressBook = new HashMap<>();
-        this.pendingRequest = new ConcurrentLinkedQueue<>();
-        this.pendingAddresses = new ConcurrentLinkedQueue<>();
+        this.pendingRequests = new ConcurrentLinkedQueue<>();
 
     }
 
@@ -55,12 +51,12 @@ public class UpdateManager extends Thread {
     @Override
     public void run() {
         try {
-            Thread listenThread = new Thread(() -> listenForClientUpdateRequest());
+            Thread listenThread = new Thread(() -> listenForClientUpdateRequests());
             Thread sendUpdateRequestThread = new Thread(() -> {
                 sendUpdateRequestsToLearners();
             });
             Thread listenForAcceptorUpdateThread = new Thread(() -> {
-                receiveResponseFromLearners();
+                receiveResponsesFromLearners();
             });
 
             listenThread.start();
@@ -86,48 +82,43 @@ public class UpdateManager extends Thread {
 
 
     // adds to the pending requests, and hand to the sendUpdateRequest
-    public void listenForClientUpdateRequest() {
-        try {
-            System.out.println("UPDATE MANAGER: Starting " + Thread.currentThread().getName() +
-                    " to listen for clients update requests");
-            MulticastSocket multicastSocket = null;
-            multicastSocket = new MulticastSocket(listenPort);
-            multicastSocket.joinGroup(listenAddress);
-            multicastSocket.setTimeToLive(TTL);
-            multicastSocket.setSoTimeout(TIMEOUT_MILLISECONDS);
+    public void listenForClientUpdateRequests() {
+        while (true) {
+            try {
+                System.out.println("UPDATE MANAGER: Starting " + Thread.currentThread().getName() +
+                        " to listen for clients update requests");
+                MulticastSocket multicastSocket = null;
+                multicastSocket = new MulticastSocket(listenPort);
+                multicastSocket.joinGroup(listenAddress);
+                multicastSocket.setTimeToLive(TTL);
+                multicastSocket.setSoTimeout(TIMEOUT_MILLISECONDS);
 
-            byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
-            DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
-            multicastSocket.receive(datagramPacket);
+                byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
+                DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
+                multicastSocket.receive(datagramPacket);
 
-            ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
-            ObjectInputStream inputStream = new ObjectInputStream(bais);
+                ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
+                ObjectInputStream inputStream = new ObjectInputStream(bais);
 
-            Object object = inputStream.readObject();
-            if ((object != null) && (object instanceof UpdateRequest)) {
+                Object object = inputStream.readObject();
+                if ((object != null) && (object instanceof UpdateRequest)) {
 
-                UpdateRequest updateRequest = (UpdateRequest) object;
-                Pair <BigInteger, InetAddress> pair = new Pair<>(updateRequest.getLastRecordedBlock(), updateRequest.getUserAddress());
-                pendingRequest.add(pair);
-                //TODO:sending back a simple message to user indicating that it is updating...
-                InetAddress userAddress = updateRequest.getUserAddress();
-                int userPort = updateRequest.getUserPort();
-                Pair<InetAddress, Integer> addressPortPair = new Pair<>(userAddress,userPort);
-                pendingAddresses.add(addressPortPair);
-                usersAddressBook.putIfAbsent(userAddress,userPort);
-                GeneralResponse messageToUser = new GeneralResponse("Updating in progress......");
-                respondToUserUpdateRequest(userAddress,userPort,messageToUser);
+                    UpdateRequest updateRequest = (UpdateRequest) object;
+                    pendingRequests.add(updateRequest);
+                    usersAddressBook.putIfAbsent(updateRequest.getUserAddress(), updateRequest.getUserPort());
+                    GeneralResponse messageToUser = new GeneralResponse("Updating in progress......");
+                    respondToUserUpdateRequest(updateRequest.getUserAddress(),updateRequest.getUserPort(),messageToUser);
+                }
+                inputStream.close();
+                bais.close();
+                //TODO
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
             }
-            inputStream.close();
-            bais.close();
-            //TODO
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
-
     }
 
 
@@ -136,32 +127,36 @@ public class UpdateManager extends Thread {
         //no agreement
         //take whoever accepts first
         try {
-
             MulticastSocket multicastSocket = new MulticastSocket(requestPort);
             multicastSocket.joinGroup(this.requestAddress);
             multicastSocket.setTimeToLive(TTL);
+            boolean running = true;
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream outputStream = new ObjectOutputStream(baos);
+            while (running) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ObjectOutputStream outputStream = new ObjectOutputStream(baos);
 
 
-            //TODO: check when queue is empty? when pendingRequest.poll() == null?
-            //get from the queue
-            Pair<BigInteger, InetAddress> pair = pendingRequest.poll();
-            Pair<InetAddress, Integer> userAddressPortPair = pendingAddresses.poll();
-            BigInteger lastBlockRecorded = pair.getKey();
-            InetAddress userAddress = pair.getValue();
-            // this SHOULD BE the same as looping through the addressPort pairs and find by InetAddress
-            int userPort = userAddressPortPair.getValue();
-            UpdateUsersPacket updateRequestPacket = new UpdateUsersPacket(lastBlockRecorded,userAddress,userPort);
-            outputStream.writeObject(updateRequestPacket);
-            byte[] output = baos.toByteArray();
-            DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
-            multicastSocket.send(datagramPacket);
-            outputStream.close();
-            baos.close();
+                //TODO: check when queue is empty? when pendingRequest.poll() == null?
+                //get from the queue
+                UpdateRequest updateRequest = pendingRequests.poll();
+                if (updateRequest != null) {
+                    BigInteger lastBlockRecorded = updateRequest.getLastRecordedBlock();
+                    InetAddress userAddress = updateRequest.getUserAddress();
+                    // this SHOULD BE the same as looping through the addressPort pairs and find by InetAddress
+                    int userPort = updateRequest.getUserPort();
+                    UpdateUsersPacket updateRequestPacket = new UpdateUsersPacket(lastBlockRecorded,userAddress,userPort);
+                    outputStream.writeObject(updateRequestPacket);
+                    byte[] output = baos.toByteArray();
+                    DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
+                    multicastSocket.send(datagramPacket);
+                    outputStream.close();
+                    baos.close();
+                }
+            }
+
             multicastSocket.leaveGroup(requestAddress);
-            System.out.println("FINISHING PROPOSAL:\t" + Thread.currentThread().getName());
+            System.out.println("FINISHING PROPOSING:\t" + Thread.currentThread().getName());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -169,7 +164,7 @@ public class UpdateManager extends Thread {
     }
 
 
-    public void receiveResponseFromLearners() {
+    public void receiveResponsesFromLearners() {
         MulticastSocket multicastSocket = null;
         try {
             multicastSocket = new MulticastSocket(listenForLearnersPort);
@@ -177,34 +172,40 @@ public class UpdateManager extends Thread {
             multicastSocket.joinGroup(listenForLearnersAddress);
             multicastSocket.setTimeToLive(TTL);
             multicastSocket.setSoTimeout(TIMEOUT_MILLISECONDS);
+            boolean running = true;
 
-            byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
-            DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
-            multicastSocket.receive(datagramPacket);
+            while (running) {
+                byte[] buf = new byte[multicastSocket.getReceiveBufferSize()];
+                DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
+                multicastSocket.receive(datagramPacket);
 
-            ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
-            ObjectInputStream inputStream = new ObjectInputStream(bais);
+                ByteArrayInputStream bais = new ByteArrayInputStream(datagramPacket.getData(), 0, datagramPacket.getLength());
+                ObjectInputStream inputStream = new ObjectInputStream(bais);
 
-            Object object = inputStream.readObject();
-            if ((object != null) && (object instanceof AcceptedUpdatePacket)) {
-                AcceptedUpdatePacket acceptedUpdatePacket = (AcceptedUpdatePacket)object;
+                Object object = inputStream.readObject();
+                if ((object != null) && (object instanceof AcceptedUpdatePacket)) {
+                    AcceptedUpdatePacket acceptedUpdatePacket = (AcceptedUpdatePacket)object;
 
-                //simply sending back a message to user that he/she is successfully updated
-                //actual update occurs at learners side
-                InetAddress userAddress = acceptedUpdatePacket.getAddress();
-                int userPort = acceptedUpdatePacket.getPort();
-                //filter
-                if(usersAddressBook.keySet().contains(userAddress)&&usersAddressBook.values().contains(userPort)){
-                    System.out.println("UPDATE MANAGER: Received a update for a user that exist in the address book...");
-                    respondToUserUpdateRequest(userAddress, userPort, acceptedUpdatePacket);
-                    //remove from the address book
-                    usersAddressBook.remove(userAddress,userPort);
+                    //simply sending back a message to user that he/she is successfully updated
+                    //actual update occurs at learners side
+                    InetAddress userAddress = acceptedUpdatePacket.getAddress();
+                    int userPort = acceptedUpdatePacket.getPort();
+                    //filter
+                    if(usersAddressBook.keySet().contains(userAddress)&&usersAddressBook.values().contains(userPort)){
+                        System.out.println("UPDATE MANAGER: Received a update for a user that exist in the address book...");
+                        respondToUserUpdateRequest(userAddress, userPort, acceptedUpdatePacket);
+                        //remove from the address book
+                        usersAddressBook.remove(userAddress,userPort);
+                    }
+                    //otherwise ignore the rest (because they are the same updates from learners)
+
                 }
-                //otherwise ignore the rest (because they are the same updates from learners)
-
+                inputStream.close();
+                bais.close();
             }
-            inputStream.close();
-            bais.close();
+
+            multicastSocket.leaveGroup(listenForLearnersAddress);
+
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
