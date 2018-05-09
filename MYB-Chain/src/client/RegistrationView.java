@@ -174,7 +174,7 @@ public class RegistrationView extends javax.swing.JFrame {
                 btnRegister.setEnabled(false);
                 tbxFirstname.setEnabled(false);
                 tbxLastname.setEnabled(false);
-            } catch (InvalidKeyException | BadPaddingException | NoSuchPaddingException | IllegalBlockSizeException | IOException e) {
+            } catch (IOException e) {
                 lblMessage.setText("Registration Failed!");
                 e.printStackTrace();
             }

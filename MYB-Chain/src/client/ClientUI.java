@@ -10,6 +10,7 @@ import chain.User;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  *
@@ -19,22 +20,21 @@ public class ClientUI extends javax.swing.JFrame {
 
     private User myUser;
     private Thread userThread;
+    private ArrayList<String> knownUsers = new ArrayList<>();
     /**
      * Creates new form ClientUI
      */
     public ClientUI(User user) throws IOException, InterruptedException {
         initComponents();
         this.myUser = user;
-        myUser.updateBlockChain();
-        myUser.start();
         this.tbxUsername.setText(user.getID());
         this.tbxUsername.setEditable(false);
         this.lblAccountValue.setText(String.valueOf(user.getNetWorth()) + " MYB");
-        this.cmbxSentToAccount.addItem(user.getID());
+        knownUsers.add(user.getID());
+        this.cmbxSentToAccount.addItem(knownUsers.get(0));
         cmbxSentToAccount.setPreferredSize(new Dimension(10, 30));
         cmbxSentToAccount.setMaximumSize(new Dimension(10, 30));
         pack();
-        myUser.join();
     }
 
     /**

@@ -26,10 +26,10 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by Michael on 4/14/2018.
  */
 public class User extends Thread implements Serializable{
-    private final static String BLOCKCHAIN_PATH = "UserResources" + File.separator + "BLOCKCHAIN";
-    private final static String USER_INFO_PATH = "UserResources" + File.separator + "USER_INFO.dat";
-    private final static String PRIVATE_KEY_PATH = "UserResources" + File.separator + "PRIVATE.dat";
-    private final static String PUBLIC_KEY_PATH = "UserResources" + File.separator + "PUBLIC.dat";
+    private final static String BLOCKCHAIN_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator + "UserResources" + File.separator + "BLOCKCHAIN";
+    private final static String USER_INFO_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "USER_INFO.dat";
+    private final static String PRIVATE_KEY_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "PRIVATE.dat";
+    private final static String PUBLIC_KEY_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +"UserResources" + File.separator + "PUBLIC.dat";
     private final static int DESIRED_CHARS_FROM_NAMES = 3;
     private final static int TTL = 12;
     private final RSAPublicKey publicKey;
@@ -278,12 +278,14 @@ public class User extends Thread implements Serializable{
         }
     }
 
-    public String commitUser() throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException, IOException {
-        String response = null;
-        while (response != null) {
+    public String commitUser() throws IOException {
+        String response = makeTransaction(this, 0.0);
+        while(response == null){
             response = makeTransaction(this, 0.0);
-            writeUser();
         }
+
+        writeUser();
+
         return response;
     }
 
@@ -357,7 +359,6 @@ public class User extends Thread implements Serializable{
      * wait to hear back from the Miner via TCP over the provided InetAddress and port specified in the TransactionRequest.
      * */
     public String makeTransaction(User seller, Double transactionAmount) {
-
         try {
             ServerSocket serverSocket = new ServerSocket(0);
             InetAddress address = serverSocket.getInetAddress();
