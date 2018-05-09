@@ -21,6 +21,7 @@ public class MinerInitializer {
             Random random = new Random();
             Long randomNumber = random.nextLong();
             user = new User(NodeType.PROPOSER,"Miner", randomNumber.toString(), 100.0);
+            user.commitUser();
         }
 
         Thread miner = new Miner(user);
