@@ -61,7 +61,7 @@ public class User extends Thread implements Serializable{
         this.requestPort = Ports.USER_REQUEST_PORT;
         this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
         this.knownBlockChainUsers = new HashMap<>(10);
-        this.blockChain = new BlockChain(BLOCKCHAIN_PATH);
+//        this.blockChain = new BlockChain(BLOCKCHAIN_PATH);
         this.netWorth = initialNetWorth;
     }
 
@@ -278,12 +278,14 @@ public class User extends Thread implements Serializable{
         }
     }
 
-    public String commitUser() throws InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException, IOException {
-        String response = null;
-        while (response != null) {
+    public String commitUser() throws IOException {
+        String response = makeTransaction(this, 0.0);
+        while(response == null){
             response = makeTransaction(this, 0.0);
-            writeUser();
         }
+
+        writeUser();
+
         return response;
     }
 
@@ -357,7 +359,6 @@ public class User extends Thread implements Serializable{
      * wait to hear back from the Miner via TCP over the provided InetAddress and port specified in the TransactionRequest.
      * */
     public String makeTransaction(User seller, Double transactionAmount) {
-
         try {
             ServerSocket serverSocket = new ServerSocket(0);
             InetAddress address = serverSocket.getInetAddress();
