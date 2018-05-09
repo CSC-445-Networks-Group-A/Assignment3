@@ -91,7 +91,7 @@ public class BlockChain implements Serializable {
             ObjectOutputStream oos = new ObjectOutputStream(fos);
 
             //writing older blocks first
-            for(int i = this.getChainLength().intValueExact()-1; i >=0; i --){
+            for(int i = chain.size() - 1; i >=0; i --){
                 oos.writeObject(this.getBlocks().get(i));
                 oos.flush();
             }
