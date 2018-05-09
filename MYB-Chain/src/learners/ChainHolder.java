@@ -39,7 +39,7 @@ public class ChainHolder extends Thread{
     private final static int COLLISION_PREVENTING_TIMEOUT_TIME = 5000;
     private final static int MIN_COLLISION_PREVENTING_TIMEOUT_TIME = 500;
     private final static int TTL = 12;
-    private final static int N = 10;
+    private final static int N = 4;
     private final static int f = (N-1)/3;
     private final User holder;
     private final RSAPrivateKey holderPrivateKey;
