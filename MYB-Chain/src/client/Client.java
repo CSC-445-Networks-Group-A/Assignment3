@@ -12,14 +12,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 public class Client {
-
-    private static final String BLOCKCHAIN_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" +
+    private static final String BLOCKCHAIN_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" +
             File.separator + "UserResources" + File.separator + "BLOCKCHAIN" + File.separator + NodeType.CLIENT;
-    private static final String USER_INFO_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" +
+    private static final String USER_INFO_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" +
             File.separator +"UserResources" + File.separator + "USER_INFO" + File.separator + NodeType.CLIENT;
-    private static final String PRIVATE_KEY_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" +
+    private static final String PRIVATE_KEY_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" +
             File.separator +"UserResources" + File.separator + "PRIVATE" + File.separator + NodeType.CLIENT;
-    private static final String PUBLIC_KEY_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" +
+    private static final String PUBLIC_KEY_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" +
             File.separator +"UserResources" + File.separator + "PUBLIC" + File.separator + NodeType.CLIENT;
 
     public static void main(String args[]) throws IOException, ClassNotFoundException, InterruptedException, NoSuchAlgorithmException {
