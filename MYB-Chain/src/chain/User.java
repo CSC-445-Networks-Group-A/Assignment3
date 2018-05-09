@@ -61,7 +61,7 @@ public class User extends Thread implements Serializable{
         this.requestPort = Ports.USER_REQUEST_PORT;
         this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
         this.knownBlockChainUsers = new HashMap<>(10);
-//        this.blockChain = new BlockChain(BLOCKCHAIN_PATH);
+        this.blockChain = new BlockChain(BLOCKCHAIN_PATH);
         this.netWorth = initialNetWorth;
     }
 
