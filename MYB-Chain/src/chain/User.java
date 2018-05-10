@@ -1,7 +1,6 @@
 package chain;
 
 import common.Addresses;
-import common.NodeType;
 import common.Ports;
 import packets.acceptances.AcceptedUpdatePacket;
 import packets.learnings.LearnedPacket;
