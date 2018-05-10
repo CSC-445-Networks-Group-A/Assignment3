@@ -20,7 +20,7 @@ public class ClientUI extends javax.swing.JFrame {
 
     private User myUser;
     private Thread userThread;
-    private ArrayList<String> knownUsers = new ArrayList<>();
+//    private ArrayList<String> knownUsers = new ArrayList<>();
     /**
      * Creates new form ClientUI
      */
@@ -32,10 +32,9 @@ public class ClientUI extends javax.swing.JFrame {
         this.lblAccountValue.setText(String.valueOf(user.getNetWorth()) + " MYB");
 
         for(User u : user.getKnownBlockChainUsers().values()){
-            knownUsers.add(u.getID());
+            this.cmbxSentToAccount.addItem(u.getID());
         }
 
-        this.cmbxSentToAccount.addItem(knownUsers.get(0));
         cmbxSentToAccount.setPreferredSize(new Dimension(10, 30));
         cmbxSentToAccount.setMaximumSize(new Dimension(10, 30));
         pack();
