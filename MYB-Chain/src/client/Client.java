@@ -1,6 +1,7 @@
 package client;
 
 import chain.User;
+import com.sun.tools.doclets.formats.html.SourceToHTMLConverter;
 import common.NodeType;
 
 import javax.swing.*;
@@ -20,6 +21,7 @@ public class Client {
             File.separator +"UserResources" + File.separator + "PRIVATE" + File.separator + NodeType.CLIENT;
     private static final String PUBLIC_KEY_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" +
             File.separator +"UserResources" + File.separator + "PUBLIC" + File.separator + NodeType.CLIENT;
+
 
     public static void main(String args[]) throws IOException, ClassNotFoundException, InterruptedException, NoSuchAlgorithmException {
         makeDirectories();

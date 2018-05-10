@@ -224,6 +224,8 @@ public class User extends Thread implements Serializable{
         //InetAddress address = serverSocket.getInetAddress();
         sendUpdateRequest(address, receivePort);
         receiveUpdate(serverSocket);
+
+        populateKnownUsersList();
     }
 
 
