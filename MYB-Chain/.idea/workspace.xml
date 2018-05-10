@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="9cab0336-60ab-49cc-9c8c-4bce677818b9" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/packets/PacketTypes.java" afterPath="$PROJECT_DIR$/src/packets/PacketTypes.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/packets/proposals/ProposalPacket.java" afterPath="$PROJECT_DIR$/src/packets/proposals/ProposalPacket.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/packets/proposals/UpdateUsersPacket.java" afterPath="$PROJECT_DIR$/src/packets/proposals/UpdateUsersPacket.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/proposers/Miner.java" afterPath="$PROJECT_DIR$/src/proposers/Miner.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -23,11 +21,11 @@
       <content type="file-editors">
         <state>
           <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-            <file leaf-file-name="Miner.java" pinned="false" current-in-tab="true">
+            <file leaf-file-name="Miner.java" pinned="false" current-in-tab="false">
               <entry file="file://$PROJECT_DIR$/src/proposers/Miner.java">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="576">
-                    <caret line="151" column="64" lean-forward="false" selection-start-line="151" selection-start-column="64" selection-end-line="151" selection-end-column="64" />
+                  <state relative-caret-position="792">
+                    <caret line="42" column="87" lean-forward="false" selection-start-line="42" selection-start-column="8" selection-end-line="42" selection-end-column="87" />
                     <folding>
                       <element signature="imports" expanded="true" />
                     </folding>
@@ -35,11 +33,11 @@
                 </provider>
               </entry>
             </file>
-            <file leaf-file-name="ChainChecker.java" pinned="false" current-in-tab="false">
+            <file leaf-file-name="ChainChecker.java" pinned="false" current-in-tab="true">
               <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="-11436">
-                    <caret line="32" column="68" lean-forward="false" selection-start-line="32" selection-start-column="68" selection-end-line="32" selection-end-column="68" />
+                  <state relative-caret-position="4004">
+                    <caret line="184" column="88" lean-forward="false" selection-start-line="184" selection-start-column="63" selection-end-line="184" selection-end-column="88" />
                     <folding>
                       <element signature="imports" expanded="true" />
                     </folding>
@@ -90,8 +88,8 @@
       <file leaf-file-name="Block.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/chain/Block.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="212">
-              <caret line="127" column="29" lean-forward="false" selection-start-line="127" selection-start-column="29" selection-end-line="127" selection-end-column="29" />
+            <state relative-caret-position="58">
+              <caret line="120" column="34" lean-forward="true" selection-start-line="120" selection-start-column="34" selection-end-line="120" selection-end-column="34" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -144,7 +142,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>attemptToAchieveConsensus</find>
       <find>final</find>
       <find>private</find>
       <find>InetAddress</find>
@@ -174,6 +171,7 @@
       <find>loadPrivateKeyFromFile</find>
       <find>new User</find>
       <find>Proposer</find>
+      <find>attemptToAchieveConsensus</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -239,11 +237,11 @@
         <option value="$PROJECT_DIR$/src/acceptors/ChainChecker.java" />
         <option value="$PROJECT_DIR$/src/learners/ChainHolder.java" />
         <option value="$PROJECT_DIR$/src/chain/User.java" />
-        <option value="$PROJECT_DIR$/src/proposers/Miner.java" />
         <option value="$PROJECT_DIR$/src/packets/proposals/ProposalPacket.java" />
         <option value="$PROJECT_DIR$/src/packets/PacketTypes.java" />
         <option value="$PROJECT_DIR$/src/packets/proposals/UpdateUsersPacket.java" />
         <option value="$PROJECT_DIR$/src/chain/Block.java" />
+        <option value="$PROJECT_DIR$/src/proposers/Miner.java" />
       </list>
     </option>
   </component>
@@ -1231,7 +1229,14 @@
       <option name="project" value="LOCAL" />
       <updated>1525917283765</updated>
     </task>
-    <option name="localTasksCounter" value="46" />
+    <task id="LOCAL-00046" summary="ProposalPacket not serializable fix">
+      <created>1525918338042</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1525918338042</updated>
+    </task>
+    <option name="localTasksCounter" value="47" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1297,7 +1302,8 @@
     <MESSAGE value="Directories set up for servers" />
     <MESSAGE value="Null port fix" />
     <MESSAGE value="Edit of computed hash constraints" />
-    <option name="LAST_COMMIT_MESSAGE" value="Edit of computed hash constraints" />
+    <MESSAGE value="ProposalPacket not serializable fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="ProposalPacket not serializable fix" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1475,26 +1481,6 @@
         <state relative-caret-position="374">
           <caret line="23" column="39" lean-forward="true" selection-start-line="23" selection-start-column="39" selection-end-line="23" selection-end-column="39" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-11436">
-          <caret line="32" column="68" lean-forward="false" selection-start-line="32" selection-start-column="68" selection-end-line="32" selection-end-column="68" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/proposers/Miner.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="576">
-          <caret line="151" column="64" lean-forward="false" selection-start-line="151" selection-start-column="64" selection-end-line="151" selection-end-column="64" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1690,10 +1676,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/proposers/Miner.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="792">
+          <caret line="42" column="87" lean-forward="false" selection-start-line="42" selection-start-column="8" selection-end-line="42" selection-end-column="87" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4004">
+          <caret line="184" column="88" lean-forward="false" selection-start-line="184" selection-start-column="63" selection-end-line="184" selection-end-column="88" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/chain/Block.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="212">
-          <caret line="127" column="29" lean-forward="false" selection-start-line="127" selection-start-column="29" selection-end-line="127" selection-end-column="29" />
+        <state relative-caret-position="58">
+          <caret line="120" column="34" lean-forward="true" selection-start-line="120" selection-start-column="34" selection-end-line="120" selection-end-column="34" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

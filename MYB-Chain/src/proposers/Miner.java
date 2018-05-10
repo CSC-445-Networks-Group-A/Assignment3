@@ -202,7 +202,7 @@ public class Miner extends Thread{
 
             outputStream.close();
             baos.close();
-            multicastSocket.leaveGroup(requestAddress);
+            multicastSocket.leaveGroup(proposalAddress);
             System.out.println("FINISHING PROPOSAL:\t" + Thread.currentThread().getName());
 
         } catch (IOException e) {
