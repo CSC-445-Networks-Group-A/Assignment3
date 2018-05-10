@@ -20,7 +20,6 @@ public class ClientUI extends javax.swing.JFrame {
 
     private User myUser;
     private Thread userThread;
-    private ArrayList<String> knownUsers = new ArrayList<>();
     /**
      * Creates new form ClientUI
      */
@@ -30,8 +29,13 @@ public class ClientUI extends javax.swing.JFrame {
         this.tbxUsername.setText(user.getID());
         this.tbxUsername.setEditable(false);
         this.lblAccountValue.setText(String.valueOf(user.getNetWorth()) + " MYB");
-        knownUsers.add(user.getID());
-        this.cmbxSentToAccount.addItem(knownUsers.get(0));
+
+        if (!user.getKnownBlockChainUsers().isEmpty()) {
+            for (User u : user.getKnownBlockChainUsers().values()) {
+                this.cmbxSentToAccount.addItem(u.getID());
+            }
+        }
+
         cmbxSentToAccount.setPreferredSize(new Dimension(10, 30));
         cmbxSentToAccount.setMaximumSize(new Dimension(10, 30));
         pack();
@@ -191,7 +195,9 @@ public class ClientUI extends javax.swing.JFrame {
         try {
             Double transactionAmount = Double.parseDouble(tbxSendValue.getText());
 
-            String transactionResponse = myUser.makeTransaction(myUser, transactionAmount); // To-Do: NULL USER, NEED TO FIGURE HOW TO SEND USER OBJECT ONLY KNOWING USERNAME
+            User sendToUser = myUser.getKnownBlockChainUsers().get(cmbxSentToAccount.getSelectedItem());
+
+            String transactionResponse = myUser.makeTransaction(sendToUser, transactionAmount); // To-Do: NULL USER, NEED TO FIGURE HOW TO SEND USER OBJECT ONLY KNOWING USERNAME
             lblMessage.setText("Transaction Sent.");
             if(transactionResponse != null){
                 lblMessage.setText(transactionResponse);

@@ -28,7 +28,7 @@ public class UpdateUsersPacket extends Packet {
         return this.lastBlockRecorded;
     }
     public InetAddress getUserAddress(){
-        return this.getUserAddress();
+        return this.userAddress;
     }
 
     public int getUserPort(){

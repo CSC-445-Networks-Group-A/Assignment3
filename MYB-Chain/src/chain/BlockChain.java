@@ -113,11 +113,15 @@ public class BlockChain implements Serializable {
 
 
     public void update(Block[] blocks) {
-        for (Block block : blocks) {
-            this.addBlock(block);
-        }
 
-        persist();
+        if(blocks!=null) {
+            for (Block block : blocks) {
+                this.addBlock(block);
+            }
+
+
+            persist();
+        }
     }
 
 

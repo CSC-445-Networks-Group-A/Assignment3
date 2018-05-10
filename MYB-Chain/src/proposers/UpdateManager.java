@@ -35,11 +35,11 @@ public class UpdateManager extends Thread {
     // TODO: clear out the ports and address arguments
     public UpdateManager() throws UnknownHostException {
         this.listenPort = Ports.USER_RECEIVE_UPDATE_PORT;
-        this.requestPort = Ports.HOLDER_UPDATING_PORT;
+        this.requestPort = Ports.HOLDER_LEARNING_PORT;
         this.listenForLearnersPort = Ports.HOLDER_UPDATING_PORT;
 
         this.listenAddress = InetAddress.getByName(Addresses.USER_RECEIVE_UPDATE_ADDRESS);
-        this.requestAddress = InetAddress.getByName(Addresses.HOLDER_UPDATING_ADDRESS);
+        this.requestAddress = InetAddress.getByName(Addresses.HOLDER_LEARNING_ADDRESS);
         this.listenForLearnersAddress = InetAddress.getByName(Addresses.HOLDER_UPDATING_ADDRESS);
 
         this.usersAddressBook = new HashMap<>();
