@@ -12,7 +12,7 @@ import java.util.HashMap;
  * Created by Michael on 4/14/2018.
  */
 public class BlockChain implements Serializable {
-    private final static double INITIAL_WORTH = 2000000000.00;
+    private static final double INITIAL_WORTH = 2000000000.00;
     private final String BLOCK_CHAIN_FILE_NAME;
     private ArrayList<Block> chain;
     private double totalWorth;
@@ -37,6 +37,7 @@ public class BlockChain implements Serializable {
         }else {
             /*blockChainFile.delete();
             blockChainFile.createNewFile();*/
+            System.out.println(blockChainFileName);
             this.chain = new ArrayList<>();
             readBlockChainFromFile();
             this.totalWorth = computeTotalChainWorth();

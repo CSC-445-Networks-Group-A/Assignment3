@@ -20,6 +20,7 @@ import java.util.Arrays;
  * Created by Michael on 4/21/2018.
  */
 public class AcceptedPacket extends Packet implements Comparable<AcceptedPacket>{
+    private static final int MAX_MESSAGE_LENGTH = 245;
     private final RSAPublicKey publicKey;
     private final BigInteger chainLength;
     private final Block block;
@@ -46,7 +47,7 @@ public class AcceptedPacket extends Packet implements Comparable<AcceptedPacket>
         for (int i = 0; i < blockData.length; i++) {
             packetData[offset + i] = blockData[i];
         }
-        return packetData;
+        return Arrays.copyOfRange(packetData, 0, MAX_MESSAGE_LENGTH);
     }
 
 
