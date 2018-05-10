@@ -124,7 +124,8 @@ public class Block implements Serializable{
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             incrementCounter();
             byte[] hash = digest.digest(getBlockBytes());
-            if (hash[0] == 0 && hash[1] == 0) {
+            //if (hash[0] == 0 && hash[1] == 0) {
+            if (hash[0] < 127) {
                 proofOfWork = hash;
                 return true;
             }

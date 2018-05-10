@@ -144,10 +144,12 @@ public class Miner extends Thread{
         }
         while (true) {
             if (block.isFull()) {
+                System.out.println("BLOCK IS FULL ---- COMPUTING NEW HASH");
                 boolean hashFound = false;
                 while (!hashFound) {
                     hashFound = block.computeNewHash();
                 }
+                System.out.println("HASH COMPUTED ---- PROPOSING");
                 propose(block);
                 Block acceptedBlock = learn();
                 if (acceptedBlock == null) {
