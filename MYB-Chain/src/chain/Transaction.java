@@ -4,6 +4,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
@@ -68,12 +69,12 @@ public class Transaction implements Serializable{
 
     }
 
-    public Transaction(User miner, Double transactionAmount) {
+    public Transaction(User miner, Double transactionAmount) throws IOException, NoSuchAlgorithmException {
         /*
         * TODO -- Finish transaction constructor for miners
         * */
 
-        this.buyer = null;
+        this.buyer = new User("", "", "", "", "Block", "Chain", miner.getBlockChain().computeTotalChainWorth());
         this.seller = miner;
         this.amount = transactionAmount;
         this.signature = getMessage();
