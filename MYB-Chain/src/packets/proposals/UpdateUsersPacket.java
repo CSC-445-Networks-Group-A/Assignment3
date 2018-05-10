@@ -5,6 +5,7 @@ package packets.proposals;
  */
 
 import packets.Packet;
+import packets.PacketTypes;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -17,6 +18,7 @@ public class UpdateUsersPacket extends Packet {
     private final InetAddress userAddress;
     private final int userPort;
     public UpdateUsersPacket(BigInteger lastBlockRecorded, InetAddress userAddress, int userPort) {
+        super(PacketTypes.UPDATE_REQUEST);
         this.lastBlockRecorded = lastBlockRecorded;
         this.userAddress = userAddress;
         this.userPort = userPort;
