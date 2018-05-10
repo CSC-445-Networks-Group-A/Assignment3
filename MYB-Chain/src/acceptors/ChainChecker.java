@@ -181,7 +181,7 @@ public class ChainChecker extends Thread{
             VerifyPacket verifyPacket = new VerifyPacket(checker.getPublicKey(), chainLength, verifiedBlock, encryptedData);
             HashMap<RSAPublicKey, VerifyPacket> packetsToValidate = sendAndReceivePackets(verifyPacket);
             HashMap<RSAPublicKey, VerifyPacket> validatedPackets = validatePackets(packetsToValidate);
-            //VerifyPacket bestPacket = determineBestPacket(validatedPackets);
+            VerifyPacket bestPacket = determineBestPacket(validatedPackets);
             Pair<VerifyPacket, Integer> agreedUponPacketInfo = attemptToAchieveConsensus(validatedPackets);
 
             if (agreedUponPacketInfo != null) {
