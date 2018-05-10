@@ -244,7 +244,7 @@ public class User extends Thread implements Serializable{
             UpdateRequest updateRequestPacket = new UpdateRequest(this.blockChain.getChainLength(), address, receivePort);
             outputStream.writeObject(updateRequestPacket);
             byte[] output = baos.toByteArray();
-            DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
+            DatagramPacket datagramPacket = new DatagramPacket(output, output.length, receiveUpdateAddress, receiveUpdatePort);
 
             //send updateRequest packet
             multicastSocket.send(datagramPacket);

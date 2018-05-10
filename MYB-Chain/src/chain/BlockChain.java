@@ -21,9 +21,9 @@ public class BlockChain implements Serializable {
      * Constructor for usage by a Client
      * */
     public BlockChain(String blockChainFileName) throws IOException {
-        File blockChainFile = new File(blockChainFileName);
         this.BLOCK_CHAIN_FILE_NAME = blockChainFileName;
-        if (!blockChainFile.exists()) {
+        File blockChainFile = new File(blockChainFileName);
+        if (!blockChainFile.exists() && !blockChainFileName.equalsIgnoreCase("")) {
             /*
             * First time access by user
             * */
@@ -31,9 +31,12 @@ public class BlockChain implements Serializable {
             this.chain = new ArrayList<>();
             this.totalWorth = INITIAL_WORTH;
 
+        }else if (blockChainFileName.equalsIgnoreCase("")) {
+            this.chain = new ArrayList<>();
+            this.totalWorth = INITIAL_WORTH;
         }else {
-            blockChainFile.delete();
-            blockChainFile.createNewFile();
+            /*blockChainFile.delete();
+            blockChainFile.createNewFile();*/
             this.chain = new ArrayList<>();
             readBlockChainFromFile();
             this.totalWorth = computeTotalChainWorth();

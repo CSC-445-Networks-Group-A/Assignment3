@@ -141,6 +141,8 @@ public class Miner extends Thread{
         Block block = miner.getBlockChain().getMostRecentBlock();
         if (block == null) {
             block = new Block(miner.getBlockChain().getMostRecentHash());
+            Transaction payment = new Transaction(miner, miner.getBlockChain().computeMinerAward(miner.getBlockChain().getChainLength()));
+            block.addVerifiedTransaction(payment);
         }
         while (true) {
             if (block.isFull()) {
