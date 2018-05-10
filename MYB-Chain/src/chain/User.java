@@ -27,23 +27,23 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by Michael on 4/14/2018.
  */
 public class User extends Thread implements Serializable{
-    private final static int DESIRED_CHARS_FROM_NAMES = 3;
-    private final static int TTL = 12;
-    private final RSAPublicKey publicKey;
-    private final RSAPrivateKey privateKey;
-    private final InetAddress requestAddress;
-    private final InetAddress receiveUpdateAddress;
-    private final String userInfoFileName;
-    private final String privateKeyFileName;
-    private final String publicKeyFileName;
-    private final String blockChainFileName;
+    private transient final static int DESIRED_CHARS_FROM_NAMES = 3;
+    private transient final static int TTL = 12;
+    private transient final RSAPublicKey publicKey;
+    private transient final RSAPrivateKey privateKey;
+    private transient final InetAddress requestAddress;
+    private transient final InetAddress receiveUpdateAddress;
+    private transient final String userInfoFileName;
+    private transient final String privateKeyFileName;
+    private transient final String publicKeyFileName;
+    private transient final String blockChainFileName;
     private final String firstName;
     private final String lastName;
     private final String ID;
-    private final int requestPort;
-    private final int receiveUpdatePort;
-    private HashMap<RSAPublicKey, User> knownBlockChainUsers;
-    private BlockChain blockChain;
+    private transient final int requestPort;
+    private transient final int receiveUpdatePort;
+    private transient HashMap<String, User> knownBlockChainUsers;
+    private transient BlockChain blockChain;
     private Double netWorth;
 
 
@@ -136,10 +136,33 @@ public class User extends Thread implements Serializable{
     }
 
 
+    /*private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        out.writeUTF(firstName);
+        out.writeUTF(lastName);
+        out.writeUTF(ID);
+        out.writeDouble(netWorth);
+    }
+
+
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        firstName = in.readUTF();
+        lastName = in.readUTF();
+        ID = in.readUTF();
+        netWorth = in.readDouble();
+    }
+
+
+    private void readObjectNoData() throws ObjectStreamException {
+        System.out.println("No Data Retrieved");
+    }*/
+
+
     protected User clone() {
         try {
             //fixme --- Is blockChainFileName needed?..
-            return new User("", "","", blockChainFileName, privateKey, publicKey, firstName, lastName, ID, netWorth);
+            return new User("", "","", "", privateKey, publicKey, firstName, lastName, ID, netWorth);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -290,7 +313,7 @@ public class User extends Thread implements Serializable{
             for(Transaction transaction : block.getTransactions()){
                 if(transaction.getBuyerID().equals(transaction.getSellerID()) && transaction.getTransactionAmount() == 0){
                     // this must be a registration transaction, me -(0.0)-> me
-                    knownBlockChainUsers.putIfAbsent(transaction.getSeller().getPublicKey(), transaction.getSeller());
+                    knownBlockChainUsers.putIfAbsent(transaction.getSeller().getID(), transaction.getSeller());
                 }
             }
         }
@@ -461,7 +484,7 @@ public class User extends Thread implements Serializable{
         return blockChain;
     }
 
-    public HashMap<RSAPublicKey, User> getKnownBlockChainUsers(){
+    public HashMap<String, User> getKnownBlockChainUsers(){
         return this.knownBlockChainUsers;
     }
 
