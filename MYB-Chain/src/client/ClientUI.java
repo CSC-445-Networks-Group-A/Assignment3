@@ -195,7 +195,9 @@ public class ClientUI extends javax.swing.JFrame {
         try {
             Double transactionAmount = Double.parseDouble(tbxSendValue.getText());
 
-            String transactionResponse = myUser.makeTransaction(myUser, transactionAmount); // To-Do: NULL USER, NEED TO FIGURE HOW TO SEND USER OBJECT ONLY KNOWING USERNAME
+            User sendToUser = myUser.getKnownBlockChainUsers().get(cmbxSentToAccount.getSelectedItem());
+
+            String transactionResponse = myUser.makeTransaction(sendToUser, transactionAmount); // To-Do: NULL USER, NEED TO FIGURE HOW TO SEND USER OBJECT ONLY KNOWING USERNAME
             lblMessage.setText("Transaction Sent.");
             if(transactionResponse != null){
                 lblMessage.setText(transactionResponse);
