@@ -20,7 +20,6 @@ public class ClientUI extends javax.swing.JFrame {
 
     private User myUser;
     private Thread userThread;
-//    private ArrayList<String> knownUsers = new ArrayList<>();
     /**
      * Creates new form ClientUI
      */

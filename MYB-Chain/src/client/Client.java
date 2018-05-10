@@ -1,16 +1,12 @@
 package client;
 
 import chain.User;
-import com.sun.tools.doclets.formats.html.SourceToHTMLConverter;
 import common.NodeType;
 
 import javax.swing.*;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.Random;
 
 public class Client {
     private static final String BLOCKCHAIN_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" +
