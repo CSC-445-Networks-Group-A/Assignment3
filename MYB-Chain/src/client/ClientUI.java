@@ -30,8 +30,10 @@ public class ClientUI extends javax.swing.JFrame {
         this.tbxUsername.setEditable(false);
         this.lblAccountValue.setText(String.valueOf(user.getNetWorth()) + " MYB");
 
-        for(User u : user.getKnownBlockChainUsers().values()){
-            this.cmbxSentToAccount.addItem(u.getID());
+        if (!user.getKnownBlockChainUsers().isEmpty()) {
+            for (User u : user.getKnownBlockChainUsers().values()) {
+                this.cmbxSentToAccount.addItem(u.getID());
+            }
         }
 
         cmbxSentToAccount.setPreferredSize(new Dimension(10, 30));
