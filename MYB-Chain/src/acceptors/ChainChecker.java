@@ -220,7 +220,7 @@ public class ChainChecker extends Thread{
             while (receivedProposals.size() < N) {
                 outputStream.writeObject(packetToSend);
                 byte[] buf = baos.toByteArray();
-                DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
+                DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length, acceptanceAddress, acceptancePort);
                 multicastSocket.send(datagramPacket);
 
                 buf = new byte[multicastSocket.getReceiveBufferSize()];
@@ -332,7 +332,7 @@ public class ChainChecker extends Thread{
             while (knowledgeOfAllAcceptors.size() < N) {
                 outputStream.writeObject(verifyAllPacket);
                 byte[] buf = baos.toByteArray();
-                DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
+                DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length, acceptanceAddress, acceptancePort);
                 multicastSocket.send(datagramPacket);
 
                 buf = new byte[multicastSocket.getReceiveBufferSize()];
@@ -536,7 +536,7 @@ public class ChainChecker extends Thread{
 
             outputStream.writeObject(acceptedPacket);
             byte[] output = baos.toByteArray();
-            DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
+            DatagramPacket datagramPacket = new DatagramPacket(output, output.length, address, port);
             multicastSocket.send(datagramPacket);
 
             outputStream.close();

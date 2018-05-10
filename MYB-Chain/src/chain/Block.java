@@ -15,7 +15,7 @@ import java.util.Arrays;
  * Created by Michael on 4/11/2018.
  */
 public class Block implements Serializable{
-    private static final int TRANSACTIONS_PER_BLOCK = 20;
+    private static final int TRANSACTIONS_PER_BLOCK = 10;
     private final byte[] previousHash;
     private Transaction[] transactions;
     private BigInteger hashManipulator;

@@ -3,7 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="9cab0336-60ab-49cc-9c8c-4bce677818b9" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/acceptors/ChainChecker.java" afterPath="$PROJECT_DIR$/src/acceptors/ChainChecker.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/chain/Block.java" afterPath="$PROJECT_DIR$/src/chain/Block.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/learners/ChainHolder.java" afterPath="$PROJECT_DIR$/src/learners/ChainHolder.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/proposers/Miner.java" afterPath="$PROJECT_DIR$/src/proposers/Miner.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/proposers/UpdateManager.java" afterPath="$PROJECT_DIR$/src/proposers/UpdateManager.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -24,20 +28,18 @@
             <file leaf-file-name="Miner.java" pinned="false" current-in-tab="false">
               <entry file="file://$PROJECT_DIR$/src/proposers/Miner.java">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="792">
-                    <caret line="42" column="87" lean-forward="false" selection-start-line="42" selection-start-column="8" selection-end-line="42" selection-end-column="87" />
-                    <folding>
-                      <element signature="imports" expanded="true" />
-                    </folding>
+                  <state relative-caret-position="352">
+                    <caret line="16" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+                    <folding />
                   </state>
                 </provider>
               </entry>
             </file>
-            <file leaf-file-name="ChainChecker.java" pinned="false" current-in-tab="true">
+            <file leaf-file-name="ChainChecker.java" pinned="false" current-in-tab="false">
               <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="4004">
-                    <caret line="184" column="88" lean-forward="false" selection-start-line="184" selection-start-column="63" selection-end-line="184" selection-end-column="88" />
+                  <state relative-caret-position="-8240">
+                    <caret line="181" column="72" lean-forward="false" selection-start-line="181" selection-start-column="68" selection-end-line="181" selection-end-column="72" />
                     <folding>
                       <element signature="imports" expanded="true" />
                     </folding>
@@ -48,8 +50,20 @@
             <file leaf-file-name="ChainHolder.java" pinned="false" current-in-tab="false">
               <entry file="file://$PROJECT_DIR$/src/learners/ChainHolder.java">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="374">
-                    <caret line="23" column="39" lean-forward="true" selection-start-line="23" selection-start-column="39" selection-end-line="23" selection-end-column="39" />
+                  <state relative-caret-position="516">
+                    <caret line="640" column="123" lean-forward="false" selection-start-line="640" selection-start-column="123" selection-end-line="640" selection-end-column="123" />
+                    <folding>
+                      <element signature="imports" expanded="true" />
+                    </folding>
+                  </state>
+                </provider>
+              </entry>
+            </file>
+            <file leaf-file-name="UpdateManager.java" pinned="false" current-in-tab="true">
+              <entry file="file://$PROJECT_DIR$/src/proposers/UpdateManager.java">
+                <provider selected="true" editor-type-id="text-editor">
+                  <state relative-caret-position="1562">
+                    <caret line="83" column="70" lean-forward="true" selection-start-line="83" selection-start-column="70" selection-end-line="83" selection-end-column="70" />
                     <folding />
                   </state>
                 </provider>
@@ -63,7 +77,7 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="Client.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Client.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/client/Client.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="22">
@@ -85,11 +99,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Block.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Block.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/chain/Block.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="58">
-              <caret line="120" column="34" lean-forward="true" selection-start-line="120" selection-start-column="34" selection-end-line="120" selection-end-column="34" />
+            <state relative-caret-position="374">
+              <caret line="17" column="56" lean-forward="false" selection-start-line="17" selection-start-column="56" selection-end-line="17" selection-end-column="56" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -142,7 +156,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>final</find>
       <find>private</find>
       <find>InetAddress</find>
       <find>miner</find>
@@ -172,6 +185,7 @@
       <find>new User</find>
       <find>Proposer</find>
       <find>attemptToAchieveConsensus</find>
+      <find>send</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -221,7 +235,6 @@
         <option value="$PROJECT_DIR$/src/client/ClientUI.java" />
         <option value="$PROJECT_DIR$/src/proposers/UpdateManagerInitializer.java" />
         <option value="$PROJECT_DIR$/src/packets/requests/LoginRequest.java" />
-        <option value="$PROJECT_DIR$/src/proposers/UpdateManager.java" />
         <option value="$PROJECT_DIR$/NucScripts/client-script.sh" />
         <option value="$PROJECT_DIR$/src/common/Pair.java" />
         <option value="$PROJECT_DIR$/src/packets/requests/TransactionRequest.java" />
@@ -234,14 +247,15 @@
         <option value="$PROJECT_DIR$/src/client/Client.java" />
         <option value="$PROJECT_DIR$/src/acceptors/ChainCheckerInitializer.java" />
         <option value="$PROJECT_DIR$/src/learners/ChainHolderInitializer.java" />
-        <option value="$PROJECT_DIR$/src/acceptors/ChainChecker.java" />
-        <option value="$PROJECT_DIR$/src/learners/ChainHolder.java" />
         <option value="$PROJECT_DIR$/src/chain/User.java" />
         <option value="$PROJECT_DIR$/src/packets/proposals/ProposalPacket.java" />
         <option value="$PROJECT_DIR$/src/packets/PacketTypes.java" />
         <option value="$PROJECT_DIR$/src/packets/proposals/UpdateUsersPacket.java" />
-        <option value="$PROJECT_DIR$/src/chain/Block.java" />
         <option value="$PROJECT_DIR$/src/proposers/Miner.java" />
+        <option value="$PROJECT_DIR$/src/chain/Block.java" />
+        <option value="$PROJECT_DIR$/src/acceptors/ChainChecker.java" />
+        <option value="$PROJECT_DIR$/src/learners/ChainHolder.java" />
+        <option value="$PROJECT_DIR$/src/proposers/UpdateManager.java" />
       </list>
     </option>
   </component>
@@ -1236,7 +1250,14 @@
       <option name="project" value="LOCAL" />
       <updated>1525918338042</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="DatagramSocket connection error fix">
+      <created>1525919997492</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1525919997492</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1258,7 +1279,7 @@
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1584318" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3279714" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32744405" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -1278,7 +1299,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Restructuring of packages" />
     <MESSAGE value="Initial implementation of &quot;Miner&quot;" />
     <MESSAGE value="Updated implementation of &quot;Miner&quot;.&#10;Initial Implementation of &quot;ChainChecker&quot;." />
     <MESSAGE value="Added to the implementation of ChainCheker&#10;Handled border cases when generating IDs for users to account for names with length less than 3" />
@@ -1303,7 +1323,8 @@
     <MESSAGE value="Null port fix" />
     <MESSAGE value="Edit of computed hash constraints" />
     <MESSAGE value="ProposalPacket not serializable fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="ProposalPacket not serializable fix" />
+    <MESSAGE value="DatagramSocket connection error fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="DatagramSocket connection error fix" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1394,13 +1415,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/proposers/UpdateManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="154">
-          <caret line="19" column="16" lean-forward="false" selection-start-line="19" selection-start-column="16" selection-end-line="19" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/common/Pair.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
@@ -1473,14 +1487,6 @@
             <element signature="e#10128#10129#0" expanded="false" />
             <element signature="e#10177#10178#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/learners/ChainHolder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="23" column="39" lean-forward="true" selection-start-line="23" selection-start-column="39" selection-end-line="23" selection-end-column="39" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1609,8 +1615,8 @@
         <state relative-caret-position="528">
           <caret line="35" column="22" lean-forward="false" selection-start-line="35" selection-start-column="22" selection-end-line="35" selection-end-column="22" />
           <folding>
-            <element signature="e#859#860#0" expanded="true" />
-            <element signature="e#886#887#0" expanded="true" />
+            <element signature="e#859#860#0" expanded="false" />
+            <element signature="e#886#887#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1628,16 +1634,6 @@
         <state relative-caret-position="330">
           <caret line="19" column="10" lean-forward="false" selection-start-line="19" selection-start-column="10" selection-end-line="19" selection-end-column="10" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/chain/User.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="308">
-          <caret line="389" column="101" lean-forward="false" selection-start-line="389" selection-start-column="101" selection-end-line="389" selection-end-column="101" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1668,28 +1664,38 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/Client.java">
+    <entry file="file://$PROJECT_DIR$/src/chain/User.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="22">
-          <caret line="8" column="27" lean-forward="false" selection-start-line="8" selection-start-column="27" selection-end-line="8" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/proposers/Miner.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="792">
-          <caret line="42" column="87" lean-forward="false" selection-start-line="42" selection-start-column="8" selection-end-line="42" selection-end-column="87" />
+        <state relative-caret-position="308">
+          <caret line="389" column="101" lean-forward="false" selection-start-line="389" selection-start-column="101" selection-end-line="389" selection-end-column="101" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/proposers/Miner.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="352">
+          <caret line="16" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4004">
-          <caret line="184" column="88" lean-forward="false" selection-start-line="184" selection-start-column="63" selection-end-line="184" selection-end-column="88" />
+        <state relative-caret-position="-8240">
+          <caret line="181" column="72" lean-forward="false" selection-start-line="181" selection-start-column="68" selection-end-line="181" selection-end-column="72" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/learners/ChainHolder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="516">
+          <caret line="640" column="123" lean-forward="false" selection-start-line="640" selection-start-column="123" selection-end-line="640" selection-end-column="123" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1698,11 +1704,27 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/chain/Block.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="58">
-          <caret line="120" column="34" lean-forward="true" selection-start-line="120" selection-start-column="34" selection-end-line="120" selection-end-column="34" />
+        <state relative-caret-position="374">
+          <caret line="17" column="56" lean-forward="false" selection-start-line="17" selection-start-column="56" selection-end-line="17" selection-end-column="56" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/proposers/UpdateManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1562">
+          <caret line="83" column="70" lean-forward="true" selection-start-line="83" selection-start-column="70" selection-end-line="83" selection-end-column="70" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/Client.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="8" column="27" lean-forward="false" selection-start-line="8" selection-start-column="27" selection-end-line="8" selection-end-column="27" />
+          <folding />
         </state>
       </provider>
     </entry>

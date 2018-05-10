@@ -148,7 +148,7 @@ public class UpdateManager extends Thread {
                     UpdateUsersPacket updateRequestPacket = new UpdateUsersPacket(lastBlockRecorded,userAddress,userPort);
                     outputStream.writeObject(updateRequestPacket);
                     byte[] output = baos.toByteArray();
-                    DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
+                    DatagramPacket datagramPacket = new DatagramPacket(output, output.length, requestAddress, requestPort);
                     multicastSocket.send(datagramPacket);
                     outputStream.close();
                     baos.close();

@@ -197,7 +197,7 @@ public class Miner extends Thread{
             ProposalPacket proposalPacket = new ProposalPacket(miner.getBlockChain().getChainLength(), miner.getID(), block);
             outputStream.writeObject(proposalPacket);
             byte[] output = baos.toByteArray();
-            DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
+            DatagramPacket datagramPacket = new DatagramPacket(output, output.length, proposalAddress, proposalPort);
             multicastSocket.send(datagramPacket);
 
             outputStream.close();

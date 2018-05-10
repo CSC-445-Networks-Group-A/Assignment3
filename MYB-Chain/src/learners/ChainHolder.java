@@ -271,7 +271,7 @@ public class ChainHolder extends Thread{
             while ((receivedChainLengths.size() < (2*f + 1)) && (timesReset < N)) {
                 outputStream.writeObject(sendValue);
                 byte[] buf = baos.toByteArray();
-                DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
+                DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length, checkingAddress, checkingPort);
                 multicastSocket.send(datagramPacket);
 
                 buf = new byte[multicastSocket.getReceiveBufferSize()];
@@ -427,7 +427,7 @@ public class ChainHolder extends Thread{
             while ((receivedPackets.size() < (2*f + 1)) && (timesReset < N)) {
                 outputStream.writeObject(packetToSend);
                 byte[] buf = baos.toByteArray();
-                DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
+                DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length, finalAcceptanceAddress, finalAcceptancePort);
                 multicastSocket.send(datagramPacket);
 
                 buf = new byte[multicastSocket.getReceiveBufferSize()];
@@ -566,7 +566,7 @@ public class ChainHolder extends Thread{
 
             outputStream.writeObject(acceptedPacket);
             byte[] output = baos.toByteArray();
-            DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
+            DatagramPacket datagramPacket = new DatagramPacket(output, output.length, address, port);
             socket.send(datagramPacket);
 
             outputStream.close();
@@ -604,7 +604,7 @@ public class ChainHolder extends Thread{
 
             outputStream.writeObject(acceptedUpdatePacket);
             byte[] output = baos.toByteArray();
-            DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
+            DatagramPacket datagramPacket = new DatagramPacket(output, output.length, address, port);
             multicastSocket.send(datagramPacket);
 
             outputStream.close();
@@ -638,7 +638,7 @@ public class ChainHolder extends Thread{
 
             outputStream.writeObject(learnedPacket);
             byte[] output = baos.toByteArray();
-            DatagramPacket datagramPacket = new DatagramPacket(output, output.length);
+            DatagramPacket datagramPacket = new DatagramPacket(output, output.length, clientUpdateAddress, clientUpdatePort);
             multicastSocket.send(datagramPacket);
 
             outputStream.close();
