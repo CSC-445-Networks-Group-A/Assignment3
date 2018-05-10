@@ -106,8 +106,8 @@ public class UpdateManager extends Thread {
                     UpdateRequest updateRequest = (UpdateRequest) object;
                     pendingRequests.add(updateRequest);
                     usersAddressBook.putIfAbsent(updateRequest.getUserAddress(), updateRequest.getUserPort());
-                    GeneralResponse messageToUser = new GeneralResponse("Updating in progress......");
-                    respondToUserUpdateRequest(updateRequest.getUserAddress(),updateRequest.getUserPort(),messageToUser);
+                    /*GeneralResponse messageToUser = new GeneralResponse("Updating in progress......");
+                    respondToUserUpdateRequest(updateRequest.getUserAddress(),updateRequest.getUserPort(),messageToUser);*/
                 }
                 inputStream.close();
                 bais.close();

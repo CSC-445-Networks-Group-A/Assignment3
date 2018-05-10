@@ -30,14 +30,13 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by Michael on 4/18/2018.
  */
 public class ChainChecker extends Thread{
-    private static final String PRIVATE_KEY_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" +
-            File.separator +"UserResources" + File.separator + "PRIVATE" + File.separator + NodeType.ACCEPTOR + File.separator + "PK.dat";
     private final static int TIMEOUT_MILLISECONDS = 20000;
     private final static int COLLISION_PREVENTING_TIMEOUT_TIME = 5000;
     private final static int MIN_COLLISION_PREVENTING_TIMEOUT_TIME = 500;
     private final static int TTL = 12;
     private final static int N = 4;
     private final static int f = (N-1)/3;
+    private final String PRIVATE_KEY_PATH;
     private final User checker;
     private final RSAPrivateKey checkerPrivateKey;
     private final InetAddress proposalAddress;
@@ -57,10 +56,11 @@ public class ChainChecker extends Thread{
      * The protocol requires consensus of 2f + 1 Acceptors.
      *
      * */
-    public ChainChecker(User mybChainChecker) throws IOException, ClassNotFoundException {
+    public ChainChecker(User mybChainChecker, int fileID) throws IOException, ClassNotFoundException {
         super("ChainChecker: " + mybChainChecker.getID());
+        this.PRIVATE_KEY_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" + File.separator +
+                "UserResources" + File.separator + "PRIVATE" + File.separator + NodeType.ACCEPTOR + File.separator + "PK_" + fileID + ".dat";
         this.checker = mybChainChecker;
-        //fixme
         this.checkerPrivateKey = User.loadPrivateKeyFromFile(PRIVATE_KEY_PATH);
         this.proposalAddress = InetAddress.getByName(Addresses.MINER_PROPOSAL_ADDRESS);
         this.acceptanceAddress = InetAddress.getByName(Addresses.CHECKER_ACCEPTANCE_ADDRESS);
@@ -210,8 +210,8 @@ public class ChainChecker extends Thread{
                     ThreadLocalRandom.current().nextInt(MIN_COLLISION_PREVENTING_TIMEOUT_TIME, COLLISION_PREVENTING_TIMEOUT_TIME));
             ByteArrayInputStream bais = null;
             ObjectInputStream inputStream = null;
-            ByteArrayOutputStream baos = null;
-            ObjectOutputStream outputStream = null;
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream outputStream = new ObjectOutputStream(baos);
             Thread.sleep(ThreadLocalRandom.current().nextLong(COLLISION_PREVENTING_TIMEOUT_TIME));
 
             /*
@@ -320,8 +320,8 @@ public class ChainChecker extends Thread{
                     ThreadLocalRandom.current().nextInt(MIN_COLLISION_PREVENTING_TIMEOUT_TIME, COLLISION_PREVENTING_TIMEOUT_TIME));
             ByteArrayInputStream bais = null;
             ObjectInputStream inputStream = null;
-            ByteArrayOutputStream baos = null;
-            ObjectOutputStream outputStream = null;
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream outputStream = new ObjectOutputStream(baos);
             Thread.sleep(ThreadLocalRandom.current().nextLong(COLLISION_PREVENTING_TIMEOUT_TIME));
 
             /*
@@ -329,7 +329,7 @@ public class ChainChecker extends Thread{
             *
             * FIXME Or perhaps <<<<<    validatedPackets.size()    >>>>>
             * */
-            while (knowledgeOfAllAcceptors.size() < N) {
+            while (knowledgeOfAllAcceptors.size() < (2*f + 1)) {
                 outputStream.writeObject(verifyAllPacket);
                 byte[] buf = baos.toByteArray();
                 DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length, acceptanceAddress, acceptancePort);
