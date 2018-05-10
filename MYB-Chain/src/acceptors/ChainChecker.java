@@ -181,7 +181,7 @@ public class ChainChecker extends Thread{
             VerifyPacket verifyPacket = new VerifyPacket(checker.getPublicKey(), chainLength, verifiedBlock, encryptedData);
             HashMap<RSAPublicKey, VerifyPacket> packetsToValidate = sendAndReceivePackets(verifyPacket);
             HashMap<RSAPublicKey, VerifyPacket> validatedPackets = validatePackets(packetsToValidate);
-            VerifyPacket bestPacket = determineBestPacket(validatedPackets);
+            //VerifyPacket bestPacket = determineBestPacket(validatedPackets);
             Pair<VerifyPacket, Integer> agreedUponPacketInfo = attemptToAchieveConsensus(validatedPackets);
 
             if (agreedUponPacketInfo != null) {
@@ -217,7 +217,7 @@ public class ChainChecker extends Thread{
             /*
             * FIXME It may be that N here should actually be 2f+1
             * */
-            while (receivedProposals.size() < N) {
+            while (receivedProposals.size() < (2*f + 1)) {
                 outputStream.writeObject(packetToSend);
                 byte[] buf = baos.toByteArray();
                 DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length, acceptanceAddress, acceptancePort);
@@ -402,6 +402,13 @@ public class ChainChecker extends Thread{
                 if (packetFrequencies.containsKey(publicKey)) {
                     HashMap<VerifyPacket, Integer> frequencies = packetFrequencies.get(publicKey);
                     VerifyPacket verifyPacket = acceptorKnowledge.get(publicKey);
+
+                    /*
+                    * TODO
+                    * FIXME make an iterated loop here too checking for equivalence
+                    * TODO
+                    * FIXME make an iterated loop here too checking for equivalence
+                    * */
 
                     if (frequencies.containsKey(verifyPacket)) {
                         Integer frequency = frequencies.get(verifyPacket);
