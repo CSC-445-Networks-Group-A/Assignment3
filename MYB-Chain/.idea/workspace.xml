@@ -3,12 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="9cab0336-60ab-49cc-9c8c-4bce677818b9" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/acceptors/ChainChecker.java" afterPath="$PROJECT_DIR$/src/acceptors/ChainChecker.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/acceptors/ChainCheckerInitializer.java" afterPath="$PROJECT_DIR$/src/acceptors/ChainCheckerInitializer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/chain/Block.java" afterPath="$PROJECT_DIR$/src/chain/Block.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/chain/User.java" afterPath="$PROJECT_DIR$/src/chain/User.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/learners/ChainHolder.java" afterPath="$PROJECT_DIR$/src/learners/ChainHolder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/learners/ChainHolderInitializer.java" afterPath="$PROJECT_DIR$/src/learners/ChainHolderInitializer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/proposers/Miner.java" afterPath="$PROJECT_DIR$/src/proposers/Miner.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -27,11 +21,11 @@
       <content type="file-editors">
         <state>
           <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-            <file leaf-file-name="Miner.java" pinned="false" current-in-tab="false">
+            <file leaf-file-name="Miner.java" pinned="false" current-in-tab="true">
               <entry file="file://$PROJECT_DIR$/src/proposers/Miner.java">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="492">
-                    <caret line="222" column="47" lean-forward="true" selection-start-line="222" selection-start-column="47" selection-end-line="222" selection-end-column="47" />
+                  <state relative-caret-position="162">
+                    <caret line="150" column="22" lean-forward="false" selection-start-line="150" selection-start-column="22" selection-end-line="150" selection-end-column="22" />
                     <folding>
                       <element signature="imports" expanded="true" />
                     </folding>
@@ -39,10 +33,10 @@
                 </provider>
               </entry>
             </file>
-            <file leaf-file-name="ChainChecker.java" pinned="false" current-in-tab="true">
+            <file leaf-file-name="ChainChecker.java" pinned="false" current-in-tab="false">
               <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="876">
+                  <state relative-caret-position="1474">
                     <caret line="67" column="99" lean-forward="false" selection-start-line="67" selection-start-column="42" selection-end-line="67" selection-end-column="99" />
                     <folding>
                       <element signature="imports" expanded="true" />
@@ -92,8 +86,8 @@
       <file leaf-file-name="User.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/chain/User.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="260">
-              <caret line="494" column="29" lean-forward="false" selection-start-line="494" selection-start-column="29" selection-end-line="494" selection-end-column="29" />
+            <state relative-caret-position="150">
+              <caret line="487" column="26" lean-forward="true" selection-start-line="487" selection-start-column="26" selection-end-line="487" selection-end-column="26" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#19965#19966#0" expanded="true" />
@@ -933,13 +927,6 @@
       <option name="presentableId" value="Default" />
       <updated>1523837048904</updated>
     </task>
-    <task id="LOCAL-00011" summary="Refinements of and additions to the implementation of ChainChecker">
-      <created>1525233630029</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1525233630029</updated>
-    </task>
     <task id="LOCAL-00012" summary="Refinements of and additions to the implementation of ChainChecker">
       <created>1525247425630</created>
       <option name="number" value="00012" />
@@ -1276,12 +1263,19 @@
       <option name="project" value="LOCAL" />
       <updated>1526004868285</updated>
     </task>
-    <option name="localTasksCounter" value="60" />
+    <task id="LOCAL-00060" summary="Edits for testing">
+      <created>1526011388841</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1526011388841</updated>
+    </task>
+    <option name="localTasksCounter" value="61" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -1337,7 +1331,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="LOCAL_CHANGES_DETAILS_PREVIEW_SHOWN" value="true" />
-    <MESSAGE value="Refinements of and additions to the implementation of ChainChecker" />
     <MESSAGE value="Several changes in the User class&#10;Addition of Initializer classes for Nodes. Currently empty, but implementation will essentially be:&#10;    Load/create User&#10;    Start new thread (of respective type)&#10;    Join thread&#10;Addition of Common classes for Ports and Addresses to avoid cumbersome and repetitive constructors." />
     <MESSAGE value="Several changes in the User class&#10;Addition of Initializer classes for Nodes. Currently implementation is essentially:&#10;    Load/create User&#10;    Start new thread (of respective type)&#10;    Join thread&#10;Addition of Common classes for Ports and Addresses to avoid cumbersome and repetitive constructors." />
     <MESSAGE value="Completed the (initial) implementation of the ChainChecker" />
@@ -1362,7 +1355,8 @@
     <MESSAGE value="Changes for easier testing" />
     <MESSAGE value="Serialization edits" />
     <MESSAGE value="Frequency checking edits (preliminary)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Frequency checking edits (preliminary)" />
+    <MESSAGE value="Edits for testing" />
+    <option name="LAST_COMMIT_MESSAGE" value="Edits for testing" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1805,8 +1799,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/acceptors/ChainChecker.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="876">
+        <state relative-caret-position="1474">
           <caret line="67" column="99" lean-forward="false" selection-start-line="67" selection-start-column="42" selection-end-line="67" selection-end-column="99" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/proposers/Miner.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="150" column="22" lean-forward="false" selection-start-line="150" selection-start-column="22" selection-end-line="150" selection-end-column="22" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1815,8 +1819,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/chain/User.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="494" column="29" lean-forward="false" selection-start-line="494" selection-start-column="29" selection-end-line="494" selection-end-column="29" />
+        <state relative-caret-position="150">
+          <caret line="487" column="26" lean-forward="true" selection-start-line="487" selection-start-column="26" selection-end-line="487" selection-end-column="26" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#19965#19966#0" expanded="true" />
@@ -1837,16 +1841,6 @@
             <marker date="1526010549766" expanded="false" signature="20481:20487" ph=" }" />
             <marker date="1526010549766" expanded="false" signature="20547:20557" ph=" { " />
             <marker date="1526010549766" expanded="false" signature="20590:20596" ph=" }" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/proposers/Miner.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="492">
-          <caret line="222" column="47" lean-forward="true" selection-start-line="222" selection-start-column="47" selection-end-line="222" selection-end-column="47" />
-          <folding>
-            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
