@@ -70,6 +70,8 @@ public class User extends Thread implements Serializable{
         this.knownBlockChainUsers = new HashMap<>(10);
         this.blockChain = new BlockChain(blockChainFileName);
         this.netWorth = initialNetWorth;
+
+        knownBlockChainUsers.putIfAbsent(ID, this);
     }
 
     private User(String userFileName, String privateFileName, String publicFileName, String blockChainFileName,
@@ -89,7 +91,6 @@ public class User extends Thread implements Serializable{
         this.requestPort = Ports.USER_REQUEST_PORT;
         this.receiveUpdatePort = Ports.USER_RECEIVE_UPDATE_PORT;
         this.knownBlockChainUsers = new HashMap<>(10);
-        //Fixme
         this.blockChain = new BlockChain(blockChainFileName);
         this.netWorth = netWorth;
     }
@@ -377,6 +378,8 @@ public class User extends Thread implements Serializable{
         loadedUser.privateKey = loadPrivateKeyFromFile(privateKeyFileName);
         loadedUser.publicKey = loadPublicKeyFromFile(publicKeyFileName);
         loadedUser.blockChain = new BlockChain(blockChainFileName);
+        loadedUser.knownBlockChainUsers = new HashMap<>(10);
+        loadedUser.knownBlockChainUsers.putIfAbsent(loadedUser.getID(), loadedUser);
         return loadedUser;
     }
 
