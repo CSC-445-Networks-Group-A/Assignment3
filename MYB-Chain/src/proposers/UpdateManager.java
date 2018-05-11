@@ -112,6 +112,8 @@ public class UpdateManager extends Thread {
                 inputStream.close();
                 bais.close();
                 //TODO
+            }  catch(SocketTimeoutException e){
+                    System.out.println("UPDATE MANAGER: Timtout... waiting...");
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -145,7 +147,7 @@ public class UpdateManager extends Thread {
                     InetAddress userAddress = updateRequest.getUserAddress();
                     // this SHOULD BE the same as looping through the addressPort pairs and find by InetAddress
                     int userPort = updateRequest.getUserPort();
-                    UpdateUsersPacket updateRequestPacket = new UpdateUsersPacket(lastBlockRecorded,userAddress,userPort);
+                    UpdateUsersPacket updateRequestPacket = new UpdateUsersPacket(lastBlockRecorded, userAddress, userPort);
                     outputStream.writeObject(updateRequestPacket);
                     byte[] output = baos.toByteArray();
                     DatagramPacket datagramPacket = new DatagramPacket(output, output.length, requestAddress, requestPort);
@@ -157,7 +159,8 @@ public class UpdateManager extends Thread {
 
             multicastSocket.leaveGroup(requestAddress);
             System.out.println("FINISHING PROPOSING:\t" + Thread.currentThread().getName());
-
+        } catch(SocketTimeoutException e){
+                System.out.println("UPDATE MANAGER: Timtout... waiting...");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -184,18 +187,18 @@ public class UpdateManager extends Thread {
 
                 Object object = inputStream.readObject();
                 if ((object != null) && (object instanceof AcceptedUpdatePacket)) {
-                    AcceptedUpdatePacket acceptedUpdatePacket = (AcceptedUpdatePacket)object;
+                    AcceptedUpdatePacket acceptedUpdatePacket = (AcceptedUpdatePacket) object;
 
                     //simply sending back a message to user that he/she is successfully updated
                     //actual update occurs at learners side
                     InetAddress userAddress = acceptedUpdatePacket.getAddress();
                     int userPort = acceptedUpdatePacket.getPort();
                     //filter
-                    if(usersAddressBook.keySet().contains(userAddress)&&usersAddressBook.values().contains(userPort)){
+                    if (usersAddressBook.keySet().contains(userAddress) && usersAddressBook.values().contains(userPort)) {
                         System.out.println("UPDATE MANAGER: Received a update for a user that exist in the address book...");
                         respondToUserUpdateRequest(userAddress, userPort, acceptedUpdatePacket);
                         //remove from the address book
-                        usersAddressBook.remove(userAddress,userPort);
+                        usersAddressBook.remove(userAddress, userPort);
                     }
                     //otherwise ignore the rest (because they are the same updates from learners)
 
@@ -205,7 +208,8 @@ public class UpdateManager extends Thread {
             }
 
             multicastSocket.leaveGroup(listenForLearnersAddress);
-
+        }   catch(SocketTimeoutException e){
+                System.out.println("UPDATE MANAGER: Timtout... waiting...");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
