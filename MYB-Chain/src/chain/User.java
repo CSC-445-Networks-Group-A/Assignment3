@@ -484,10 +484,6 @@ public class User extends Thread implements Serializable{
         return publicKey;
     }
 
-    public RSAPrivateKey getPrivateKey() {
-        return privateKey;
-    }
-
     public String getFirstName() {
         return firstName;
     }

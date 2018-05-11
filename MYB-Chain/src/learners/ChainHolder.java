@@ -265,9 +265,7 @@ public class ChainHolder extends Thread{
             ObjectOutputStream outputStream = new ObjectOutputStream(baos);
             Thread.sleep(ThreadLocalRandom.current().nextLong(COLLISION_PREVENTING_TIMEOUT_TIME));
 
-            /*
-            * FIXME It may be that N here should actually be 2f+1
-            * */
+
             while ((receivedChainLengths.size() < (2*f + 1)) && (timesReset < N)) {
                 outputStream.writeObject(sendValue);
                 byte[] buf = baos.toByteArray();
@@ -424,7 +422,7 @@ public class ChainHolder extends Thread{
             /*
             * FIXME It may be that N here should actually be 2f+1
             * */
-            while ((receivedPackets.size() < (2*f + 1)) && (timesReset < N)) {
+            while ((receivedPackets.size() < (2*f + 1)) && (timesReset <= N)) {
                 outputStream.writeObject(packetToSend);
                 byte[] buf = baos.toByteArray();
                 DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length, finalAcceptanceAddress, finalAcceptancePort);
@@ -463,6 +461,9 @@ public class ChainHolder extends Thread{
                         timesReset++;
                         receiveAttempts = 0;
                     }
+                    if (timesReset >= N) {
+                        break;
+                    }
                 }
             }
 
@@ -483,10 +484,9 @@ public class ChainHolder extends Thread{
 
         HashMap<Pair<Block, BigInteger>, Integer> validatedPackets = new HashMap<>(N);
         for (RSAPublicKey publicKey : packetsToValidate.keySet()) {
-
             LearnedPacket packet = packetsToValidate.get(publicKey);
-            if (validate(packet.getBlock(), packet.getChainLength()) && packet.isHonest()) {
 
+            if (validate(packet.getBlock(), packet.getChainLength()) && packet.isHonest()) {
                 Pair<Block, BigInteger> currentPair = new Pair<>(packet.getBlock(), packet.getChainLength());
 
                 for (Pair<Block, BigInteger> pair : validatedPackets.keySet()) {
