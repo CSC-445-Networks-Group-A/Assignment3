@@ -149,6 +149,10 @@ public class Miner extends Thread{
             block.addVerifiedTransaction(payment);
         }
         while (true) {
+            for (int i = 1; i < 10; i++) {
+                Transaction payment = new Transaction(miner, miner.getBlockChain().computeMinerAward(miner.getBlockChain().getChainLength()));
+                block.addVerifiedTransaction(payment);
+            }
             if (block.isFull()) {
                 System.out.println("BLOCK IS FULL ---- COMPUTING NEW HASH");
                 boolean hashFound = false;

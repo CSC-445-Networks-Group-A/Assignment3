@@ -381,7 +381,7 @@ public class ChainHolder extends Thread{
             byte[] encryptedData = LearnedPacket.encryptPacketData(holderPrivateKey, chainLength, verifiedBlock);
             LearnedPacket packetLearned = new LearnedPacket(holder.getPublicKey(), chainLength, verifiedBlock, encryptedData);
             HashMap<RSAPublicKey, LearnedPacket> packetsToValidate = sendAndReceivePackets(packetLearned);
-            HashMap<Pair<Block, BigInteger>, Integer> validatedPackets = validatePackets(packetsToValidate);
+            HashMap<LearnedPacket, Integer> validatedPackets = validatePackets(packetsToValidate);
             //Pair<LearnedPacket, Integer> bestPacket = determineBestBlock(validatedPackets);
             Pair<LearnedPacket, Integer> agreedUponPacketInfo = checkForConsensus(validatedPackets);
 
@@ -479,23 +479,23 @@ public class ChainHolder extends Thread{
     }
 
 
-    private HashMap<Pair<Block, BigInteger>, Integer> validatePackets(HashMap<RSAPublicKey, LearnedPacket> packetsToValidate)
+    private HashMap<LearnedPacket, Integer> validatePackets(HashMap<RSAPublicKey, LearnedPacket> packetsToValidate)
             throws IOException, NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
 
-        HashMap<Pair<Block, BigInteger>, Integer> validatedPackets = new HashMap<>(N);
+        HashMap<LearnedPacket, Integer> validatedPackets = new HashMap<>(N);
         for (RSAPublicKey publicKey : packetsToValidate.keySet()) {
             LearnedPacket packet = packetsToValidate.get(publicKey);
-
             if (validate(packet.getBlock(), packet.getChainLength()) && packet.isHonest()) {
-                Pair<Block, BigInteger> currentPair = new Pair<>(packet.getBlock(), packet.getChainLength());
-
-                for (Pair<Block, BigInteger> pair : validatedPackets.keySet()) {
-                    if (pair.getKey().equals(currentPair.getKey()) && pair.getValue().equals(currentPair.getValue())) {
-                        Integer currentValue = validatedPackets.get(currentPair);
-                        validatedPackets.put(currentPair, (currentValue + 1));
+                for (LearnedPacket learnedPacket : validatedPackets.keySet()) {
+                    if (learnedPacket.equals(packet)) {
+                        Integer currentValue = validatedPackets.get(learnedPacket);
+                        validatedPackets.put(learnedPacket, (currentValue + 1));
                     }else {
-                        validatedPackets.put(currentPair, 1);
+                        validatedPackets.put(packet, 1);
                     }
+                }
+                if (validatedPackets.isEmpty()) {
+                    validatedPackets.put(packet, 1);
                 }
                 /*if (validatedPackets.containsKey(currentPair)) {
                     Integer currentValue = validatedPackets.get(currentPair);
@@ -526,23 +526,29 @@ public class ChainHolder extends Thread{
     }
 
 
-    private Pair<LearnedPacket, Integer> checkForConsensus(HashMap<Pair<Block, BigInteger>, Integer> validatedPacketInfo)
+    private Pair<LearnedPacket, Integer> checkForConsensus(HashMap<LearnedPacket, Integer> validatedPacketInfo)
             throws BadPaddingException, NoSuchAlgorithmException, IOException, IllegalBlockSizeException, NoSuchPaddingException, InvalidKeyException {
+
         Pair<LearnedPacket, Integer> bestPair = null;
-        for (Pair<Block, BigInteger> pair : validatedPacketInfo.keySet()) {
+        for (LearnedPacket learnedPacket : validatedPacketInfo.keySet()) {
 
-            if ((validatedPacketInfo.get(pair) >= (2*f + 1)) && (bestPair == null)) {
-                byte[] encryptedData = LearnedPacket.encryptPacketData(holderPrivateKey, pair.getValue(), pair.getKey());
-                bestPair = new Pair<>(
-                        new LearnedPacket(holder.getPublicKey(), pair.getValue(), pair.getKey(), encryptedData), validatedPacketInfo.get(pair));
+            if ((validatedPacketInfo.get(learnedPacket) >= (2*f + 1)) && (bestPair == null)) {
 
-            }else if (validatedPacketInfo.get(pair) > bestPair.getValue()){
-                byte[] encryptedData = LearnedPacket.encryptPacketData(holderPrivateKey, pair.getValue(), pair.getKey());
-                bestPair = new Pair<>(
-                        new LearnedPacket(holder.getPublicKey(), pair.getValue(), pair.getKey(), encryptedData), validatedPacketInfo.get(pair));
+                byte[] encryptedData = LearnedPacket.encryptPacketData(holderPrivateKey, learnedPacket.getChainLength(),
+                        learnedPacket.getBlock());
+                bestPair = new Pair<>(new LearnedPacket(holder.getPublicKey(), learnedPacket.getChainLength(),
+                        learnedPacket.getBlock(), encryptedData), validatedPacketInfo.get(learnedPacket));
+
+            }else if (validatedPacketInfo.get(learnedPacket) > bestPair.getValue()){
+
+                byte[] encryptedData = LearnedPacket.encryptPacketData(holderPrivateKey, learnedPacket.getChainLength(),
+                        learnedPacket.getBlock());
+                bestPair = new Pair<>(new LearnedPacket(holder.getPublicKey(), learnedPacket.getChainLength(),
+                        learnedPacket.getBlock(), encryptedData), validatedPacketInfo.get(learnedPacket));
             }
 
         }
+
         return bestPair;
     }
 

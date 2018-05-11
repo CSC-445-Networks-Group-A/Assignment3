@@ -134,7 +134,8 @@ public class LearnedPacket extends Packet implements Comparable<LearnedPacket> {
         if (obj instanceof LearnedPacket) {
             LearnedPacket otherPacket = (LearnedPacket) obj;
             if (chainLength.equals(otherPacket.chainLength) && block.equals(otherPacket.block)) {
-                try {
+                return true;
+                /*try {
                     byte[] thisPacketsData = getUnencryptedData(chainLength, block);
                     byte[] otherPacketsData = getUnencryptedData(otherPacket.getChainLength(), otherPacket.getBlock());
 
@@ -153,7 +154,7 @@ public class LearnedPacket extends Packet implements Comparable<LearnedPacket> {
                 } catch (IOException e) {
                     e.printStackTrace();
                     return false;
-                }
+                }*/
             }else {
                 return false;
             }
