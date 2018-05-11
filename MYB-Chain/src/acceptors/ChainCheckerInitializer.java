@@ -12,15 +12,15 @@ import java.util.Random;
  * Created by Michael on 5/2/2018.
  */
 public class ChainCheckerInitializer {
-    private static final String BLOCKCHAIN_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" +
+    private static final String BLOCKCHAIN_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" +
             File.separator + "UserResources" + File.separator + "BLOCKCHAIN" + File.separator + NodeType.ACCEPTOR;
-    private static final String USER_INFO_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" +
+    private static final String USER_INFO_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" +
             File.separator +"UserResources" + File.separator + "USER_INFO" + File.separator + NodeType.ACCEPTOR;
-    private static final String PRIVATE_KEY_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" +
+    private static final String PRIVATE_KEY_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" +
             File.separator +"UserResources" + File.separator + "PRIVATE" + File.separator + NodeType.ACCEPTOR;
-    private static final String PUBLIC_KEY_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" +
+    private static final String PUBLIC_KEY_PATH = File.separator + "localhome" + File.separator + "csc445" + File.separator + "group-A" +
             File.separator +"UserResources" + File.separator + "PUBLIC" + File.separator + NodeType.ACCEPTOR;
-    private static final int NUMBER_OF_CHAIN_CHECKERS = 4;
+    private static final int NUMBER_OF_CHAIN_CHECKERS = 1;
 
     public static void main(String args[]) throws IOException, ClassNotFoundException, InterruptedException, NoSuchAlgorithmException {
         makeDirectories();
