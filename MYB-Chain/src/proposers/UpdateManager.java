@@ -160,7 +160,7 @@ public class UpdateManager extends Thread {
             multicastSocket.leaveGroup(requestAddress);
             System.out.println("FINISHING PROPOSING:\t" + Thread.currentThread().getName());
         } catch(SocketTimeoutException e){
-                System.out.println("UPDATE MANAGER: Timtout... waiting...");
+                System.out.println("UPDATE MANAGER: Timetout... waiting...");
         } catch (IOException e) {
             e.printStackTrace();
         }
