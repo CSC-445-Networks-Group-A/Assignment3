@@ -45,6 +45,9 @@ public class BlockChain implements Serializable {
     }
 
 
+    /**
+     * Reads the serialized blockchain from a file
+     * */
     private void readBlockChainFromFile(){
         File f = new File(BLOCK_CHAIN_FILE_NAME);
         FileInputStream fis = null;
@@ -81,7 +84,9 @@ public class BlockChain implements Serializable {
 
     }
 
-
+    /**
+     * Saves the blockchain to a file
+     * */
     public void persist(){
         File f = new File(BLOCK_CHAIN_FILE_NAME);
         FileOutputStream fos = null;
@@ -111,7 +116,9 @@ public class BlockChain implements Serializable {
         }
     }
 
-
+    /**
+     * Updates the blockchain with the given blocks.
+     * */
     public void update(Block[] blocks) {
 
         if(blocks!=null) {
@@ -133,7 +140,9 @@ public class BlockChain implements Serializable {
         totalWorth = computeTotalChainWorth();
     }
 
-
+    /**
+     * Runs through the chain and computes the total worth
+     * */
     public double computeTotalChainWorth() {
         double worth = INITIAL_WORTH;
         double awardAmount = 200.00;
@@ -151,6 +160,9 @@ public class BlockChain implements Serializable {
         return worth;
     }
 
+    /**
+     * computes the miner reward for hashing.
+     * */
     public double computeMinerAward(BigInteger chainLength) {
         double minerAward = 200.00;
         BigInteger checkpoint = new BigInteger("50000");
@@ -168,6 +180,9 @@ public class BlockChain implements Serializable {
         return new byte[256];
     }
 
+    /**
+     * Returns the most recent hash
+     * */
     public byte[] getMostRecentHash() {
         if (!chain.isEmpty()) {
             return chain.get(0).getProofOfWork();

@@ -46,7 +46,9 @@ public class User extends Thread implements Serializable{
     private transient BlockChain blockChain;
     private Double netWorth;
 
-
+    /**
+     * Constructor of User
+     * */
     public User(String userFileName, String privateFileName, String publicFileName, String blockChainFileName,
                 String firstName, String lastName, Double initialNetWorth) throws NoSuchAlgorithmException, IOException {
         super("User: " + firstName + " " + lastName);
@@ -309,7 +311,9 @@ public class User extends Thread implements Serializable{
         }
     }
 
-
+    /**
+     * Runs through the blockchain and finds all known users
+     * */
     public void populateKnownUsersList(){
         for(Block block : blockChain.getBlocks()){
             for(Transaction transaction : block.getTransactions()){
@@ -321,6 +325,9 @@ public class User extends Thread implements Serializable{
         }
     }
 
+    /**
+     * makes a blank transaction, thus adding user to the chain, and writes the users files
+     * */
     public String commitUser() throws IOException {
         String response = makeTransaction(this, 0.0);
         while(response == null){
@@ -333,7 +340,9 @@ public class User extends Thread implements Serializable{
     }
 
 
-    //fixme
+    /**
+     * Saves the user, public and private keys to a file
+     * */
     public void persist() throws IOException {
         FileOutputStream publicFileOutput = new FileOutputStream(publicKeyFileName);
         ObjectOutputStream publicObjectOutput = new ObjectOutputStream(publicFileOutput);
@@ -355,6 +364,9 @@ public class User extends Thread implements Serializable{
     }
 
 
+    /**
+     * Reads the serialized user object from a file
+     * */
     public static User loadUser(String userInfoFileName, String privateKeyFileName, String publicKeyFileName, String blockChainFileName) throws IOException, ClassNotFoundException {
 
         FileInputStream userFileInput = new FileInputStream(userInfoFileName);
@@ -369,7 +381,9 @@ public class User extends Thread implements Serializable{
         return loadedUser;
     }
 
-
+    /**
+     * Reads the serialized public key from a file
+     * */
     private static RSAPublicKey loadPublicKeyFromFile(String path) throws IOException, ClassNotFoundException {
         FileInputStream publicFileInput = new FileInputStream(path);
         ObjectInputStream publicObjectInput = new ObjectInputStream(publicFileInput);
@@ -381,6 +395,9 @@ public class User extends Thread implements Serializable{
     }
 
 
+    /**
+     * Read the serialized private key from a file
+     * */
     public static RSAPrivateKey loadPrivateKeyFromFile(String path) throws IOException, ClassNotFoundException {
         FileInputStream privateFileInput = new FileInputStream(path);
         ObjectInputStream privateObjectInput = new ObjectInputStream(privateFileInput);
