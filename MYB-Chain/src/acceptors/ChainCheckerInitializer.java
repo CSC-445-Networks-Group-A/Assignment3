@@ -40,7 +40,7 @@ public class ChainCheckerInitializer {
 
             if(userFile.exists() && privateFile.exists() && publicFile.exists()){
                 System.out.println("Files exist");
-                users[i] = User.loadUser(userFileName);
+                users[i] = User.loadUser(userFileName, privateFileName, publicFileName, blockChainFileName);
                 System.out.println(users[i].getFullName());
             /*User myUser = User.loadUser(userFileName);
             myUser.updateBlockChain();

@@ -31,8 +31,9 @@ public class ClientUI extends javax.swing.JFrame {
         this.lblAccountValue.setText(String.valueOf(user.getNetWorth()) + " MYB");
 
         if (!user.getKnownBlockChainUsers().isEmpty()) {
-            for (User u : user.getKnownBlockChainUsers().values()) {
-                this.cmbxSentToAccount.addItem(u.getID());
+            this.cmbxSentToAccount.removeAllItems();
+            for (String u : user.getKnownBlockChainUsers().keySet()) {
+                this.cmbxSentToAccount.addItem(u);
             }
         }
 

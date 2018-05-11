@@ -28,20 +28,20 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class User extends Thread implements Serializable{
     private transient final static int DESIRED_CHARS_FROM_NAMES = 3;
-    private transient final static int TTL = 12;
-    private transient final RSAPublicKey publicKey;
-    private transient final RSAPrivateKey privateKey;
-    private transient final InetAddress requestAddress;
-    private transient final InetAddress receiveUpdateAddress;
+    private final static int TTL = 12;
     private transient final String userInfoFileName;
     private transient final String privateKeyFileName;
     private transient final String publicKeyFileName;
     private transient final String blockChainFileName;
+    private final InetAddress requestAddress;
+    private final InetAddress receiveUpdateAddress;
     private final String firstName;
     private final String lastName;
     private final String ID;
-    private transient final int requestPort;
-    private transient final int receiveUpdatePort;
+    private final int requestPort;
+    private final int receiveUpdatePort;
+    private transient RSAPublicKey publicKey;
+    private transient RSAPrivateKey privateKey;
     private transient HashMap<String, User> knownBlockChainUsers;
     private transient BlockChain blockChain;
     private Double netWorth;
@@ -355,14 +355,17 @@ public class User extends Thread implements Serializable{
     }
 
 
-    public static User loadUser(String fileName) throws IOException, ClassNotFoundException {
+    public static User loadUser(String userInfoFileName, String privateKeyFileName, String publicKeyFileName, String blockChainFileName) throws IOException, ClassNotFoundException {
 
-        FileInputStream userFileInput = new FileInputStream(fileName);
+        FileInputStream userFileInput = new FileInputStream(userInfoFileName);
         ObjectInputStream userFileObjectInput = new ObjectInputStream(userFileInput);
         User loadedUser = (User) userFileObjectInput.readObject();
         userFileObjectInput.close();
         userFileInput.close();
 
+        loadedUser.privateKey = loadPrivateKeyFromFile(privateKeyFileName);
+        loadedUser.publicKey = loadPublicKeyFromFile(publicKeyFileName);
+        loadedUser.blockChain = new BlockChain(blockChainFileName);
         return loadedUser;
     }
 
