@@ -282,6 +282,7 @@ public class ChainChecker extends Thread{
         HashMap<RSAPublicKey, VerifyPacket> validatedPackets = new HashMap<>(N);
         for (RSAPublicKey publicKey : packetsToValidate.keySet()) {
             VerifyPacket packet = packetsToValidate.get(publicKey);
+            
             if (validate(packet.getBlock(), packet.getChainLength()) && packet.isHonest()) {
                 validatedPackets.putIfAbsent(publicKey, packet);
             }

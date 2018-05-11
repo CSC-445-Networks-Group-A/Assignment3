@@ -249,6 +249,7 @@ public class User extends Thread implements Serializable{
         //InetAddress address = serverSocket.getInetAddress();
         sendUpdateRequest(address, receivePort);
         receiveUpdate(serverSocket);
+        //receiveUpdate(address, receivePort);
 
         populateKnownUsersList();
     }
@@ -293,6 +294,7 @@ public class User extends Thread implements Serializable{
 
         try {
             Socket socket = serverSocket.accept();
+            //Socket socket = new Socket(address, port);
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
             Object object = inputStream.readObject();
             inputStream.close();
@@ -482,10 +484,6 @@ public class User extends Thread implements Serializable{
 
     public RSAPublicKey getPublicKey() {
         return publicKey;
-    }
-
-    public RSAPrivateKey getPrivateKey() {
-        return privateKey;
     }
 
     public String getFirstName() {

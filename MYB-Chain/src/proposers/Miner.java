@@ -149,12 +149,10 @@ public class Miner extends Thread{
             block.addVerifiedTransaction(payment);
         }
         while (true) {
-            //FIXME ----- TESTING
-            for (int i = 1; i < 10; i++) {
+            /*for (int i = 1; i < 10; i++) {
                 Transaction payment = new Transaction(miner, miner.getBlockChain().computeMinerAward(miner.getBlockChain().getChainLength()));
                 block.addVerifiedTransaction(payment);
-            }
-            //FIXME ----- TESTING
+            }*/
             if (block.isFull()) {
                 System.out.println("BLOCK IS FULL ---- COMPUTING NEW HASH");
                 boolean hashFound = false;
@@ -162,26 +160,7 @@ public class Miner extends Thread{
                     hashFound = block.computeNewHash();
                 }
                 System.out.println("HASH COMPUTED ---- PROPOSING");
-                //FIXME ----- TESTING
-                byte[] encryptedData = new byte[0];
-                try {
-                    encryptedData = AcceptedPacket.encryptPacketData(miner.getPrivateKey(), miner.getBlockChain().getChainLength(), block);
-                } catch (BadPaddingException e) {
-                    e.printStackTrace();
-                } catch (IllegalBlockSizeException e) {
-                    e.printStackTrace();
-                } catch (InvalidKeyException e) {
-                    e.printStackTrace();
-                } catch (NoSuchPaddingException e) {
-                    e.printStackTrace();
-                }
-                AcceptedPacket packetToLearn = new AcceptedPacket(miner.getPublicKey(), miner.getBlockChain().getChainLength(), block, encryptedData);
-                for (int i = 0; i < 20; i++) {
-                    testProp(packetToLearn);
-                }
-                //FIXME ----- TESTING
-                // uncomment \/\/\/\/\/
-                //propose(block);
+                propose(block);
                 Block acceptedBlock = learn();
                 if (acceptedBlock == null) {
                     miner.updateBlockChain();
@@ -207,37 +186,6 @@ public class Miner extends Thread{
      * */
     private void verifyLedger(Block block) {
 
-    }
-
-
-    private void testProp(AcceptedPacket acceptedPacket) {
-        try {
-            InetAddress address = InetAddress.getByName(Addresses.HOLDER_LEARNING_ADDRESS);
-            int port = Ports.HOLDER_LEARNING_PORT;
-
-            System.out.println("PROPOSING:\t" + Thread.currentThread().getName() + "\n" +
-                    "Proposal Port:\t" + port);
-
-            MulticastSocket multicastSocket = new MulticastSocket(port);
-            multicastSocket.joinGroup(address);
-            multicastSocket.setTimeToLive(TTL);
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream outputStream = new ObjectOutputStream(baos);
-
-            outputStream.writeObject(acceptedPacket);
-            byte[] output = baos.toByteArray();
-            DatagramPacket datagramPacket = new DatagramPacket(output, output.length, address, port);
-            multicastSocket.send(datagramPacket);
-
-            outputStream.close();
-            baos.close();
-            multicastSocket.leaveGroup(address);
-            System.out.println("FINISHING PROPOSAL:\t" + Thread.currentThread().getName());
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 
