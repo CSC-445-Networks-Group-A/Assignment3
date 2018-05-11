@@ -20,7 +20,7 @@ public class ChainHolderInitializer {
             File.separator +"UserResources" + File.separator + "PRIVATE" + File.separator + NodeType.LEARNER;
     private static final String PUBLIC_KEY_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" +
             File.separator +"UserResources" + File.separator + "PUBLIC" + File.separator + NodeType.LEARNER;
-    private static final int NUMBER_OF_CHAIN_HOLDERS= 4;
+    private static final int NUMBER_OF_CHAIN_HOLDERS = 1;
 
     public static void main(String args[]) throws IOException, ClassNotFoundException, InterruptedException, NoSuchAlgorithmException {
         makeDirectories();
