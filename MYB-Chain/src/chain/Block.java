@@ -14,7 +14,7 @@ import java.util.Arrays;
 /**
  * Created by Michael on 4/11/2018.
  */
-public class Block implements Serializable{
+public class Block implements Serializable, Comparable<Block> {
     private static final int TRANSACTIONS_PER_BLOCK = 10;
     private final byte[] previousHash;
     private Transaction[] transactions;
@@ -156,6 +156,27 @@ public class Block implements Serializable{
 
     public boolean isFull() {
         return full;
+    }
+
+
+    @Override
+    public int compareTo(Block otherBlock) {
+        byte[] otherProofOfWork = otherBlock.getProofOfWork();
+
+        for (int i = 0; i < proofOfWork.length; i++) {
+            if (proofOfWork[i] == 0 && otherProofOfWork[i] != 0) {
+                return 1;
+            }else if (otherProofOfWork[i] == 0 && proofOfWork[i] != 0) {
+                return -1;
+            }else if (proofOfWork[i] != 0 && otherProofOfWork[i] != 0) {
+                if (proofOfWork[i] < otherProofOfWork[i]) {
+                    return 1;
+                }else if (proofOfWork[i] > otherProofOfWork[i]) {
+                    return -1;
+                }
+            }
+        }
+        return 0;
     }
 
     @Override

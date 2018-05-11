@@ -20,7 +20,7 @@ public class ChainCheckerInitializer {
             File.separator +"UserResources" + File.separator + "PRIVATE" + File.separator + NodeType.ACCEPTOR;
     private static final String PUBLIC_KEY_PATH = "localhome" + File.separator + "csc445" + File.separator + "group-A" +
             File.separator +"UserResources" + File.separator + "PUBLIC" + File.separator + NodeType.ACCEPTOR;
-    private static final int NUMBER_OF_CHAIN_CHECKERS = 3;
+    private static final int NUMBER_OF_CHAIN_CHECKERS = 4;
 
     public static void main(String args[]) throws IOException, ClassNotFoundException, InterruptedException, NoSuchAlgorithmException {
         makeDirectories();

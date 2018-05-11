@@ -410,12 +410,21 @@ public class ChainChecker extends Thread{
                     * FIXME make an iterated loop here too checking for equivalence
                     * */
 
-                    if (frequencies.containsKey(verifyPacket)) {
+                    for (VerifyPacket packet : frequencies.keySet()) {
+                        if (packet.equals(verifyPacket)) {
+                            Integer frequency = frequencies.get(packet);
+                            frequencies.put(packet, (frequency + 1));
+                        }else {
+                            frequencies.put(packet, 1);
+                        }
+                    }
+
+                    /*if (frequencies.containsKey(verifyPacket)) {
                         Integer frequency = frequencies.get(verifyPacket);
                         frequencies.put(verifyPacket, (frequency + 1));
                     }else {
                         frequencies.put(verifyPacket, 1);
-                    }
+                    }*/
 
                     packetFrequencies.put(publicKey, frequencies);
 
@@ -453,39 +462,47 @@ public class ChainChecker extends Thread{
             }
         }
 
-        if (mostFrequentPacketPerAcceptor.size() >= (2*f + 1)) {
-            Pair<VerifyPacket, Integer> mostFrequentPacket = null;
-            int frequencyVerification = 0;
+        //if (mostFrequentPacketPerAcceptor.size() >= (2*f + 1)) {
+        Pair<VerifyPacket, Integer> mostFrequentPacket = null;
+        int frequencyVerification = 0;
 
-            for (Pair<VerifyPacket, Integer> pair : mostFrequentPacketPerAcceptor.values()) {
+        for (Pair<VerifyPacket, Integer> pair : mostFrequentPacketPerAcceptor.values()) {
 
-                if (mostFrequentPacket == null) {
-                    mostFrequentPacket = pair;
-                    frequencyVerification = 1;
+            if (mostFrequentPacket == null) {
+                mostFrequentPacket = pair;
+                frequencyVerification = 1;
 
-                }else if (pair.getValue() > mostFrequentPacket.getValue()) {
+            }else if (pair.getValue() > mostFrequentPacket.getValue()) {
 
-                    mostFrequentPacket = pair;
-                    if (mostFrequentPacket.getKey().equals(pair.getKey())) {
-                        frequencyVerification++;
-                    }else {
-                        frequencyVerification = 1;
-                    }
-
-                }else if (mostFrequentPacket.getKey().equals(pair.getKey())) {
+                mostFrequentPacket = pair;
+                if (mostFrequentPacket.getKey().equals(pair.getKey())) {
                     frequencyVerification++;
+                }else {
+                    frequencyVerification = 1;
                 }
-            }
 
-            if (frequencyVerification != mostFrequentPacket.getValue()) {
-                System.out.println("WARNING:\n" +
-                        "Mismatch of most frequent Packet's frequency as determined by all acceptors and as determined by final verification.");
+            }else if (mostFrequentPacket.getKey().equals(pair.getKey())) {
+                frequencyVerification++;
             }
-
-            return mostFrequentPacket;
         }
 
-        return null;
+        if (frequencyVerification != mostFrequentPacket.getValue()) {
+            System.out.println("WARNING:\n" +
+                    "Mismatch of most frequent Packet's frequency as determined by all acceptors and as determined by final verification.");
+        }
+
+        if (mostFrequentPacket.getValue() >= (2 * f + 1)) {
+            System.out.println("SUCCESS!!");
+            return mostFrequentPacket;
+        }else {
+            System.out.println("FAIL...");
+            return null;
+        }
+
+            //return mostFrequentPacket;
+        //}
+
+        //return null;
 
     }
 

@@ -384,7 +384,7 @@ public class ChainHolder extends Thread{
             LearnedPacket packetLearned = new LearnedPacket(holder.getPublicKey(), chainLength, verifiedBlock, encryptedData);
             HashMap<RSAPublicKey, LearnedPacket> packetsToValidate = sendAndReceivePackets(packetLearned);
             HashMap<Pair<Block, BigInteger>, Integer> validatedPackets = validatePackets(packetsToValidate);
-            //LearnedPacket bestPacket = determineBestPacket(validatedPackets);
+            //Pair<LearnedPacket, Integer> bestPacket = determineBestBlock(validatedPackets);
             Pair<LearnedPacket, Integer> agreedUponPacketInfo = checkForConsensus(validatedPackets);
 
             if (agreedUponPacketInfo != null) {
@@ -483,34 +483,46 @@ public class ChainHolder extends Thread{
 
         HashMap<Pair<Block, BigInteger>, Integer> validatedPackets = new HashMap<>(N);
         for (RSAPublicKey publicKey : packetsToValidate.keySet()) {
+
             LearnedPacket packet = packetsToValidate.get(publicKey);
             if (validate(packet.getBlock(), packet.getChainLength()) && packet.isHonest()) {
+
                 Pair<Block, BigInteger> currentPair = new Pair<>(packet.getBlock(), packet.getChainLength());
-                if (validatedPackets.containsKey(currentPair)) {
+
+                for (Pair<Block, BigInteger> pair : validatedPackets.keySet()) {
+                    if (pair.getKey().equals(currentPair.getKey()) && pair.getValue().equals(currentPair.getValue())) {
+                        Integer currentValue = validatedPackets.get(currentPair);
+                        validatedPackets.put(currentPair, (currentValue + 1));
+                    }else {
+                        validatedPackets.put(currentPair, 1);
+                    }
+                }
+                /*if (validatedPackets.containsKey(currentPair)) {
                     Integer currentValue = validatedPackets.get(currentPair);
                     validatedPackets.put(currentPair, (currentValue + 1));
                 }else {
                     validatedPackets.put(currentPair, 1);
-                }
+                }*/
             }
         }
         return validatedPackets;
     }
 
 
-    private LearnedPacket determineBestPacket(HashMap<RSAPublicKey, LearnedPacket> validatedPackets) {
+    private Block determineBestBlock(HashMap<Pair<Block, BigInteger>, Integer> validatedPackets) {
 
-        LearnedPacket bestPacket = null;
+        Block bestBlock = null;
 
-        for (LearnedPacket packet : validatedPackets.values()) {
-            if (bestPacket == null) {
-                bestPacket = packet;
-            }else if (bestPacket.compareTo(packet) == -1){
-                bestPacket = packet;
+        for (Pair<Block, BigInteger> blockPair : validatedPackets.keySet()) {
+            Block block = blockPair.getKey();
+            if (bestBlock == null) {
+                bestBlock = block;
+            } else if (bestBlock.compareTo(block) == -1){
+                bestBlock = block;
             }
         }
 
-        return bestPacket;
+        return bestBlock;
     }
 
 
