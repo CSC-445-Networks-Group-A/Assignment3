@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="9cab0336-60ab-49cc-9c8c-4bce677818b9" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/chain/User.java" afterPath="$PROJECT_DIR$/src/chain/User.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -113,8 +112,8 @@
       <file leaf-file-name="ChainHolder.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/learners/ChainHolder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="182">
-              <caret line="448" column="77" lean-forward="false" selection-start-line="448" selection-start-column="48" selection-end-line="448" selection-end-column="77" />
+            <state relative-caret-position="578">
+              <caret line="466" column="17" lean-forward="true" selection-start-line="466" selection-start-column="17" selection-end-line="466" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -933,13 +932,6 @@
       <option name="presentableId" value="Default" />
       <updated>1523837048904</updated>
     </task>
-    <task id="LOCAL-00015" summary="Completed the (initial) implementation of the ChainChecker">
-      <created>1525396530961</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1525396530961</updated>
-    </task>
     <task id="LOCAL-00016" summary="Completed the (initial) implementation of the ChainChecker">
       <created>1525396723185</created>
       <option name="number" value="00016" />
@@ -1276,7 +1268,14 @@
       <option name="project" value="LOCAL" />
       <updated>1526022399778</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="Final Submission... Might work?">
+      <created>1526053095388</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1526053095388</updated>
+    </task>
+    <option name="localTasksCounter" value="65" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -1337,7 +1336,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="LOCAL_CHANGES_DETAILS_PREVIEW_SHOWN" value="true" />
-    <MESSAGE value="Several changes in the User class&#10;Addition of Initializer classes for Nodes. Currently implementation is essentially:&#10;    Load/create User&#10;    Start new thread (of respective type)&#10;    Join thread&#10;Addition of Common classes for Ports and Addresses to avoid cumbersome and repetitive constructors." />
     <MESSAGE value="Completed the (initial) implementation of the ChainChecker" />
     <MESSAGE value="Initial implementation of ChainHolder&#10;Bug fix in the verify method of ChainChecker where a computed packet was not updating properly" />
     <MESSAGE value="Initial implementation of ChainHolder&#10;Bug fix in the verify method of ChainChecker where a computed packet was not updating properly&#10;&#10;Merged bug fix in Block class" />
@@ -1362,7 +1360,8 @@
     <MESSAGE value="Frequency checking edits (preliminary)" />
     <MESSAGE value="Edits for testing" />
     <MESSAGE value="Final Submission..." />
-    <option name="LAST_COMMIT_MESSAGE" value="Final Submission..." />
+    <MESSAGE value="Final Submission... Might work?" />
+    <option name="LAST_COMMIT_MESSAGE" value="Final Submission... Might work?" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1845,8 +1844,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/learners/ChainHolder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="182">
-          <caret line="448" column="77" lean-forward="false" selection-start-line="448" selection-start-column="48" selection-end-line="448" selection-end-column="77" />
+        <state relative-caret-position="578">
+          <caret line="466" column="17" lean-forward="true" selection-start-line="466" selection-start-column="17" selection-end-line="466" selection-end-column="17" />
           <folding />
         </state>
       </provider>
